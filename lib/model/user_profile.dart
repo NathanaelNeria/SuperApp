@@ -1,13 +1,13 @@
 class UserProfile {
 
   // uid, Name, Email, Password, Selfie
-  int _id;
-  String _uid;
-  String _userDisplayName;
-  String _userEmail;
-  String _userPassword;
-  String _date;
-  String _selfieString;
+  int? _id;
+  String? _uid;
+  String? _userDisplayName;
+  String? _userEmail;
+  String? _userPassword;
+  String? _date;
+  String? _selfieString;
 
 //  int _id;
 //  String _title;
@@ -34,15 +34,15 @@ class UserProfile {
 //
 //  String get date => _date;
 
-  int get id => _id;
-  String get uid => _uid;
-  String get userDisplayName => _userDisplayName;
-  String get userEmail => _userEmail;
-  String get userPassword => _userPassword;
-  String get selfieString => _selfieString;
-  String get date => _date;
+  int? get id => _id;
+  String? get uid => _uid;
+  String get userDisplayName => _userDisplayName!;
+  String get userEmail => _userEmail!;
+  String get userPassword => _userPassword!;
+  String get selfieString => _selfieString!;
+  String get date => _date!;
 
-  set uid (String newUid) {
+  set uid (String? newUid) {
     //if (uid.length>0){
       this._uid=newUid;
     //}
@@ -139,13 +139,9 @@ class UserProfile {
       map['userDisplayName']='';
     }
 
-    if (date != null) {
-      map['date'] = _date;
-    }
+    map['date'] = _date;
 
-    if (selfieString != null) {
-      map['selfieString'] = _selfieString;
-    }
+    map['selfieString'] = _selfieString;
 
     return map;
   }

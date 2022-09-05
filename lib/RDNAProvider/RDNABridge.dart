@@ -22,16 +22,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_app/pages_relid/HomeScreen.dart';
 
 class RDNABridge {
-  static RDNABridge instance;
-  String userName;
-  BuildContext context;
+  static RDNABridge? instance;
+  String? userName;
+  late BuildContext context;
   RdnaClient rdna = new RdnaClient();
   final EventEmitter eventEmitter = new EventEmitter();
   final log = getLogger("RDNABridge");
-  RDNASession RdnaSession = RDNASession();
+  RDNASession? RdnaSession = RDNASession();
 
 //Singleton object creation
-  static RDNABridge getInstance(context) {
+  static RDNABridge? getInstance(context) {
     if (instance == null) {
       instance = new RDNABridge();
     }
@@ -138,7 +138,7 @@ class RDNABridge {
   setPasswordAPI(String password, RDNAChallengeOpMode mode) async {
     log.log(
         Level.debug, "setPasswordAPI mode - " + mode.toString(), null, null);
-    RDNASyncResponse resp;
+    late RDNASyncResponse resp;
     switch (mode.index) {
       case 0:
         resp = await rdna.setPassword(
@@ -269,17 +269,17 @@ class RDNABridge {
 
   //RDNA get user callback
   getUser(RDNAGetUser res) {
-    RdnaSession = res.challengeResponse.session;
+    RdnaSession = res.challengeResponse!.session;
     log.log(Level.debug, "getUser - " + getEncodedValue(res), null, null);
     setLocalData('userId', res.recentLoggedInUser);
-    var errorcode = res.error.shortErrorCode;
-    var errorText = res.error.errorString +
+    var errorcode = res.error!.shortErrorCode;
+    var errorText = res.error!.errorString! +
         "(Long error code: " +
-        res.error.longErrorCode.toString() +
+        res.error!.longErrorCode.toString() +
         ")";
-    var c_res_errorcode = res.challengeResponse.status.statusCode;
+    var cResErrorcode = res.challengeResponse!.status!.statusCode;
     if (errorcode == 0) {
-      if (c_res_errorcode == 100) {
+      if (cResErrorcode == 100) {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -287,7 +287,7 @@ class RDNABridge {
       } else {
         showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -318,7 +318,7 @@ class RDNABridge {
 
   //RDNA onInitializedError callback
   onInitializedError(RDNAInitializeError res) {
-    RdnaSession.sessionType = 0;
+    RdnaSession!.sessionType = 0;
     log.log(Level.debug, "onInitializedError - " + getEncodedValue(res), null,
         null);
     showAlertMessageDialog(this.context, res.errorString, null);
@@ -373,15 +373,15 @@ class RDNABridge {
   getActivationCode(RDNAActivationCode res) {
     log.log(
         Level.debug, "getActivationCode - " + getEncodedValue(res), null, null);
-    var errorcode = res.error.shortErrorCode;
-    var errorText = res.error.errorString +
+    var errorcode = res.error!.shortErrorCode;
+    var errorText = res.error!.errorString! +
         "(Long error code: " +
-        res.error.longErrorCode.toString() +
+        res.error!.longErrorCode.toString() +
         ")";
 
     var attemptsCount = res.attemptsLeft;
     var verificationKey = res.verificationKey;
-    var challengeResErrorcode = res.challengeResponse.status.statusCode;
+    var challengeResErrorcode = res.challengeResponse!.status!.statusCode;
     if (errorcode == 0) {
       if (challengeResErrorcode == 100) {
         Navigator.pushReplacement(
@@ -393,7 +393,7 @@ class RDNABridge {
       } else {
         showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -403,13 +403,13 @@ class RDNABridge {
       }
     } else {
       showAlertMessageDialog(
-          this.context, res.challengeResponse.status.statusMessage, null);
+          this.context, res.challengeResponse!.status!.statusMessage, null);
     }
   }
 
   //RDNA onUserLoggedIn callback
   onUserLoggedIn(RDNAUserLoggedIn res) {
-    RdnaSession = res.challengeResponse.session;
+    RdnaSession = res.challengeResponse!.session;
     log.log(
         Level.debug, "onUserLoggedIn - " + getEncodedValue(res), null, null);
     userName = res.userId;
@@ -419,13 +419,13 @@ class RDNABridge {
 
   //RDNA getPassword callback
   getPassword(RDNAGetPassword res) {
-    RdnaSession = res.challengeResponse.session;
+    RdnaSession = res.challengeResponse!.session;
     log.log(Level.debug, "getPassword - " + getEncodedValue(res), null, null);
-    var errorcode = res.error.shortErrorCode;
-    RDNAChallengeOpMode challengeMode = RDNAChallengeOpMode.values[res.challengeMode];
+    var errorcode = res.error!.shortErrorCode;
+    RDNAChallengeOpMode challengeMode = RDNAChallengeOpMode.values[res.challengeMode!];
     var attemptsCount = res.attemptsLeft;
     userName = res.userId;
-    var challengeResErrorcode = res.challengeResponse.status.statusCode;
+    var challengeResErrorcode = res.challengeResponse!.status!.statusCode;
     if (errorcode == 0) {
       if (challengeResErrorcode == 100) {
         switch (challengeMode.index) {
@@ -459,7 +459,7 @@ class RDNABridge {
       } else {
         showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) =>
                 // Get.to(VerifyLoginPassword(challengeMode: challengeMode)));
                 Navigator.pushReplacement(
@@ -470,16 +470,16 @@ class RDNABridge {
       }
     } else
       showAlertMessageDialog(
-          this.context, res.challengeResponse.status.statusMessage, null);
+          this.context, res.challengeResponse!.status!.statusMessage, null);
   }
 
   //RDNA getAccessCode callback
   getAccessCode(RDNAGetAccessCode res) {
     log.log(Level.debug, "getAccessCode - " + getEncodedValue(res), null, null);
-    var errorcode = res.error.shortErrorCode;
+    var errorcode = res.error!.shortErrorCode;
     var attemptsCount = res.attemptsLeft;
     var verificationKey = res.verificationKey;
-    var challengeResErrorcode = res.challengeResponse.status.statusCode;
+    var challengeResErrorcode = res.challengeResponse!.status!.statusCode;
     userName = res.userId;
     if (errorcode == 0) {
       if (challengeResErrorcode == 100) {
@@ -492,7 +492,7 @@ class RDNABridge {
       } else {
         showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -502,7 +502,7 @@ class RDNABridge {
       }
     } else
       showAlertMessageDialog(
-          this.context, res.challengeResponse.status.statusMessage, null);
+          this.context, res.challengeResponse!.status!.statusMessage, null);
   }
 
   //RDNA onGetNotification callback
@@ -544,8 +544,8 @@ class RDNABridge {
   onHttpResponse(RDNAHTTPStatus res) {
     log.log(
         Level.debug, "onHttpResponse - " + getEncodedValue(res), null, null);
-    if(res.error.shortErrorCode == 0)    {
-    if (res.httpResponse.statusCode == 200) {
+    if(res.error!.shortErrorCode == 0)    {
+    if (res.httpResponse!.statusCode == 200) {
       eventEmitter.emit('onHttpSuccess', null, res);
     }}else{
       checkSyncError(res.error);
@@ -554,7 +554,7 @@ class RDNABridge {
 
   //RDNA onUserLoggedOff callback
   onUserLoggedOff(RDNAUserLogOff res) {
-    RdnaSession = res.challengeResponse.session;
+    RdnaSession = res.challengeResponse!.session;
     log.log(
         Level.debug, "onUserLoggedOff - " + getEncodedValue(res), null, null);
     checkSyncError(res.error);
@@ -568,7 +568,7 @@ class RDNABridge {
         null);
     var success = checkSyncError(res.error);
     if (success)
-      eventEmitter.emit('creadientialsAvailable', null, res.options[0]);
+      eventEmitter.emit('creadientialsAvailable', null, res.options![0]);
   }
 
   onUpdateCredentialResponse(RDNAUpdateCredentialResponse res) {
@@ -581,18 +581,17 @@ class RDNABridge {
     void getSecretAnswer(RDNAGetSecretAnswer res) async {
       log.log(Level.debug,"getSecretAnswer--->" + json.encode(res.toJson()),null,null);
    
-    if (res.error.shortErrorCode == 0 &&
-        res.challengeResponse.status.statusCode == 100) {
-      List<RDNASecretQuestionAndAnswer> questionList =
-          new List<RDNASecretQuestionAndAnswer>();
-      res.secretQuestionAnswer.secretAnswer = 'answer';
-      questionList.add(res.secretQuestionAnswer);
+    if (res.error!.shortErrorCode == 0 &&
+        res.challengeResponse!.status!.statusCode == 100) {
+      List<RDNASecretQuestionAndAnswer> questionList = <RDNASecretQuestionAndAnswer>[];
+      res.secretQuestionAnswer!.secretAnswer = 'answer';
+      questionList.add(res.secretQuestionAnswer!);
       RDNASyncResponse syncResponse = await rdna.setSecretQuestionAnswer(
           questionList, RDNAChallengeOpMode.RDNA_CHALLENGE_OP_VERIFY);
-    } else if (res.challengeResponse.status.statusCode != 100) {
+    } else if (res.challengeResponse!.status!.statusCode != 100) {
           showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -608,20 +607,19 @@ class RDNABridge {
       log.log(Level.debug,"onSelectSecretQuestionAnswer--->" + json.encode(res.toJson()),null,null);
    
    
-    if (res.error.shortErrorCode == 0 &&
-        res.challengeResponse.status.statusCode == 100) {
-      List<RDNASecretQuestionAndAnswer> questionList =
-          new List<RDNASecretQuestionAndAnswer>();
-      List<String> questionGroup = res.questionsToSet[0];
+    if (res.error!.shortErrorCode == 0 &&
+        res.challengeResponse!.status!.statusCode == 100) {
+      List<RDNASecretQuestionAndAnswer> questionList =<RDNASecretQuestionAndAnswer>[];
+      List<String> questionGroup = res.questionsToSet![0];
       questionList.add(RDNASecretQuestionAndAnswer(questionGroup[0], 'answer'));
 
       RDNASyncResponse syncResponse = await rdna.setSecretQuestionAnswer(
           questionList, RDNAChallengeOpMode.RDNA_CHALLENGE_OP_SET);
     
-    } else if (res.challengeResponse.status.statusCode != 100) {
+    } else if (res.challengeResponse!.status!.statusCode != 100) {
        showAlertMessageDialog(
             this.context,
-            res.challengeResponse.status.statusMessage,
+            res.challengeResponse!.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -633,19 +631,19 @@ class RDNABridge {
 
   onHandleCustomChallenge(RDNAHandleCustomChallenge res) async {
    log.log(Level.debug,"onHandleCustomChallenge--->" + json.encode(res.toJson()),null,null);
-    if (res.error.shortErrorCode == 0 &&
-        res.status.statusCode == 100) {
-      Map<String, dynamic> chlngJsonObj = json.decode(res.challenge);
+    if (res.error!.shortErrorCode == 0 &&
+        res.status!.statusCode == 100) {
+      Map<String, dynamic> chlngJsonObj = json.decode(res.challenge!);
       chlngJsonObj['chlng_resp'][0]['response'] = '12345';
       String jsonChallengeString = json.encode(chlngJsonObj);
 
       RDNASyncResponse syncResponse =
           await rdna.setCustomChallengeResponse(jsonChallengeString);
      
-    } else if (res.status.statusCode != 100) {
+    } else if (res.status!.statusCode != 100) {
       showAlertMessageDialog(
             this.context,
-            res.status.statusMessage,
+            res.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -658,9 +656,9 @@ class RDNABridge {
   void getDeviceName(RDNAGetDeviceName response) async {
     log.log(Level.debug,"getDeviceName--->" + json.encode(response.toJson()),null,null);
      log.log(Level.debug,
-        "Auto generated DeviceName--->" + response.autoGeneratedDeviceName,null,null);
+        "Auto generated DeviceName--->" + response.autoGeneratedDeviceName!,null,null);
     RDNASyncResponse res =
-        await rdna.setDeviceName(response.autoGeneratedDeviceName);
+        await rdna.setDeviceName(response.autoGeneratedDeviceName!);
      log.log(Level.debug,"setDeviceName--->" + json.encode(res.toJson()),null,null);
   }
 
@@ -671,16 +669,16 @@ class RDNABridge {
 
   void onLoginIdUpdateStatus(RDNALoginIdUpdateStatus res) {
     log.log(Level.debug,"onLoginIdUpdateStatus--->" + json.encode(res.toJson()),null,null);
-    if (res.error.shortErrorCode == 0 &&
-        res.status.statusCode == 100) {
-    } else if (res.status.statusCode != 100) {
+    if (res.error!.shortErrorCode == 0 &&
+        res.status!.statusCode == 100) {
+    } else if (res.status!.statusCode != 100) {
       showAlertMessageDialog(
             this.context,
-            res.status.statusMessage,
+            res.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) =>null )));
+                    builder: ((BuildContext context) =>null) as Widget Function(BuildContext) )));
     } else {
        checkSyncError(res.error);
     }
@@ -688,16 +686,16 @@ class RDNABridge {
 
   void onForgotLoginIDStatus(RDNAForgotLoginIdStatus res) {
   log.log(Level.debug,"onForgotLoginIDStatus--->" + json.encode(res.toJson()),null,null);
-    if (res.error.shortErrorCode == 0 &&
-        res.status.statusCode == 100) {
-    } else if (res.status.statusCode != 100) {
+    if (res.error!.shortErrorCode == 0 &&
+        res.status!.statusCode == 100) {
+    } else if (res.status!.statusCode != 100) {
       showAlertMessageDialog(
             this.context,
-            res.status.statusMessage,
+            res.status!.statusMessage,
             (value) => Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (BuildContext context) => null )));
+                    builder: ((BuildContext context) => null) as Widget Function(BuildContext) )));
     } else {
        checkSyncError(res.error);
     }
@@ -731,9 +729,9 @@ class RDNABridge {
         context: context,
         builder: (context) => AlertDialog(
               title: Text("Error!", style: TextStyle(fontSize: 20)),
-              content: Text(message, style: Theme.of(context).textTheme.body2),
+              content: Text(message, style: Theme.of(context).textTheme.bodyText2),
               actions: <Widget>[
-                FlatButton(
+                TextButton(
                   child: Text('Ok'),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -767,7 +765,7 @@ class RDNABridge {
   //Method to check internet Connection
   dynamic checkInternet(context) {
     check().then((intenet) {
-      if (intenet != null && intenet) {
+      if (intenet) {
         fetchPrefrence(true, context);
       } else {
         fetchPrefrence(false, context);
@@ -793,7 +791,7 @@ class RDNABridge {
   //Method to get data from localstorage
   getLocalData(key) async {
     final prefs = await SharedPreferences.getInstance();
-    String userid = prefs.getString(key);
+    String? userid = prefs.getString(key);
     return userid;
   }
 
@@ -812,6 +810,7 @@ class RDNABridge {
       log.log(Level.debug, "Back button pressed. Performing resetAuth()", null,
           null);
       this.resetAuthenticationAPI();
+      return false;
     }
   }
 

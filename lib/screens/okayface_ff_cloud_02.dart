@@ -7,10 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:simple_app/model/faceVerifModel.dart';
-import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/model/ktpModel.dart';
 import 'package:simple_app/model/ocrModel.dart';
-import 'package:simple_app/views/fetchIdCard.dart';
 import "package:image_cropper/image_cropper.dart";
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart';
@@ -26,11 +24,11 @@ class OkayfaceFfCloud2 extends StatefulWidget {
 }
 
 class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
-  StorageReference _reference = FirebaseStorage.instance.ref().child('myimage.jpg');
-  File imageFileProfile2;
+  var _reference = FirebaseStorage.instance.ref().child('myimage.jpg');
+  late File imageFileProfile2;
 
   createAlertDialogIdCard(BuildContext context) {
     return showDialog(
@@ -71,14 +69,14 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
 
   Future _getThingsOnStartup() async {
     String downloadAddress=await _reference.getDownloadURL();
-    Response downloadData = await get(downloadAddress);
+    Response downloadData = await get(downloadAddress as Uri);
     Directory systemTempDir = Directory.systemTemp;
     imageFileProfile2 = File('${systemTempDir.path}/tmp.jpg');
     if (imageFileProfile2.existsSync()) {
       await imageFileProfile2.delete();
     }
     await imageFileProfile2.create();
-    StorageFileDownloadTask task = _reference.writeToFile(imageFileProfile2);
+    var task = _reference.writeToFile(imageFileProfile2);
   }
 
   _getImage(BuildContext context, ImageSource source) async {
@@ -86,23 +84,26 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
+    var picked = await (ImagePicker()).pickImage(source: source);
+    var picture = File(picked!.path);
 
     if(picture != null){
-      File cropped = await ImageCropper.cropImage(
+      File cropped = await (ImageCropper()).cropImage(
           sourcePath: picture.path,
           aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
           compressQuality: 100,
           maxWidth: 300,
           maxHeight: 400,
           compressFormat: ImageCompressFormat.jpg,
-          androidUiSettings: AndroidUiSettings(
-            toolbarColor: Colors.blueAccent,
-            toolbarTitle: "RPS Cropper",
-            statusBarColor: Colors.blue,
-            backgroundColor: Colors.white,
-          )
-      );
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarColor: Colors.blueAccent,
+              toolbarTitle: "RPS Cropper",
+              statusBarColor: Colors.blue,
+              backgroundColor: Colors.white,
+            ),
+          ]
+      ).then((value) => File(value!.path));
       this.setState(() {
         _imageFileIdCard = cropped;
         _inProcess = false;
@@ -125,7 +126,7 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
         fit: BoxFit.cover,);
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 400.0,
         fit: BoxFit.cover,
@@ -171,13 +172,13 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
     // MAYA CODE ENDS
 
     String dialog = "";
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
     String base64Image = base64Encode(imageBytes);
 
     try {
       var streamIdCard = http.ByteStream(
-          DelegatingStream.typed(_imageFileIdCard.openRead()));
-      var lengthIdCard = await _imageFileIdCard.length();
+          DelegatingStream.typed(_imageFileIdCard!.openRead()));
+      var lengthIdCard = await _imageFileIdCard!.length();
       var streamProfile = http.ByteStream(
           DelegatingStream.typed(imageFileProfile2.openRead()));
       var lengthProfile = await imageFileProfile2.length();
@@ -188,7 +189,7 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
       request.fields['apiKey'] = "9TCM5oQ72DlXJK0ukbP6Aa0TM2KKKxlT";
       request.files.add(http.MultipartFile(
           "imageIdCard", streamIdCard, lengthIdCard,
-          filename: path.basename(_imageFileIdCard.path)));
+          filename: path.basename(_imageFileIdCard!.path)));
       request.files.add(http.MultipartFile(
           "imageBest", streamProfile, lengthProfile,
           filename: path.basename(imageFileProfile2.path)));
@@ -203,9 +204,9 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
       if (faceVerifResult != null || faceVerifResult.resultIdcard != null) {
 
         dialog = "confidence: " +
-            faceVerifResult.resultIdcard.confidence.toString();
+            faceVerifResult.resultIdcard!.confidence.toString();
 
-        if(faceVerifResult.resultIdcard.confidence > 75){
+        if(faceVerifResult.resultIdcard!.confidence! > 75){
           dialog = "Confidence level more than 75. Those 2 photos are from the same person";
         }
         else{
@@ -298,7 +299,7 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     _decideImageIdCardView(),
-                    RaisedButton(
+                    ElevatedButton(
                       onPressed: () {
                         createAlertDialogIdCard(context);
                       },
@@ -307,7 +308,7 @@ class _OkayfaceFfCloud2State extends State<OkayfaceFfCloud2> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
+                        ElevatedButton(
                           onPressed: () {
                             comparingImages(context);
                           },

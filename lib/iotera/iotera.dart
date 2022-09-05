@@ -8,7 +8,6 @@ import 'package:simple_app/iotera/screen/newestDeviceData.dart';
 import 'model/refreshTokenModel.dart';
 // import 'model/atmSensorModel.dart';
 import 'model/getDeviceProfileModel.dart';
-import 'constans.dart';
 import 'model/commandDeviceModel.dart';
 import 'screen/getDeviceProfile.dart';
 import 'package:simple_app/screens/unavailable.dart';
@@ -28,7 +27,7 @@ class Iotera extends StatefulWidget {
 class IoteraState extends State<Iotera> {
   IoteraState(this.appBarTitle);
   String appBarTitle;
-  TabController tabController;
+  TabController? tabController;
   String token =
       'b46e69391acecd970e15d8af33e43ca044a3ff677bacb5ddaf15f3d8a5b42d5f';
   String contentType = 'application/json';
@@ -38,12 +37,12 @@ class IoteraState extends State<Iotera> {
   String ioteraAccId = '1000000155-1000000001';
   String ioteraAccRefToken = 'Iotera-Account-Refresh-Token';
   String ioteraAccAccessToken = 'Iotera-Account-Access-Token';
-  String accessToken = '';
+  String? accessToken = '';
   String testing = 'testing';
-  String commandDeviceSuccess = '';
-  String commandDeviceStatusMessage = '';
+  String? commandDeviceSuccess = '';
+  String? commandDeviceStatusMessage = '';
   String device = '14e1a2d8-d4b4-4e05-9399-ab9592b83d00';
-  String accessCode;
+  String? accessCode;
 
   var deviceIdEnum = ['14e1a2d8-d4b4-4e05-9399-ab9592b83d00'];
   var sensorEnum = [
@@ -74,9 +73,9 @@ class IoteraState extends State<Iotera> {
     'cpu temp',
     'camera',
   ];
-  var currentSensorSelected = '';
+  String? currentSensorSelected = '';
   int sensorSelected = 99;
-  var currentDeviceIdSelected = '';
+  String? currentDeviceIdSelected = '';
   String deviceIdSelected = '';
 
   var refreshTokenAPI = 'https://api.iotera.io/v3/token/refresh';
@@ -152,7 +151,7 @@ class IoteraState extends State<Iotera> {
   }
 
   void navigateToProductPage(String title) async {
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'Get Device Profile':
           return getDeviceProfileScreen(title);
@@ -228,7 +227,7 @@ class IoteraState extends State<Iotera> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
@@ -286,7 +285,7 @@ class IoteraState extends State<Iotera> {
   }
 
   Widget deviceIdDropDown(){
-    Container(
+    return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(10)
@@ -444,14 +443,14 @@ class IoteraState extends State<Iotera> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
       request.body = json.encode(param);
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
       print(res);
 
-      Map<String, dynamic> listResult = jsonDecode(res.toString());
+      Map<String, dynamic>? listResult = jsonDecode(res.toString());
     } catch (e) {}
   }
 
@@ -469,7 +468,7 @@ class IoteraState extends State<Iotera> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
       request.body = json.encode(param);
 
       var response = await request.send();
@@ -508,7 +507,7 @@ class IoteraState extends State<Iotera> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
@@ -533,7 +532,7 @@ class IoteraState extends State<Iotera> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
@@ -558,20 +557,20 @@ class IoteraState extends State<Iotera> {
     );
   }
 
-  void _onSensorDropDownItemSelected(String newValueSelected) {
+  void _onSensorDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentSensorSelected = newValueSelected;
     });
   }
 
-  void _onSensorDeviceIdDropDownItemSelected(String newValueSelected) {
+  void _onSensorDeviceIdDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentDeviceIdSelected = newValueSelected;
     });
   }
 
   createAlertDialog(BuildContext context, String title, String message) {
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: Text("Close"),
       onPressed: () {Navigator.of(context).pop(); },
     );

@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/views/profile.dart';
-import 'package:simple_app/screens/okayface_facevsface_01.dart';
-import 'package:simple_app/screens/okayface_ocr_01.dart';
 import 'package:simple_app/screens/okayface_ff_cloud_01.dart';
 import 'package:simple_app/screens/okayface_ff_cloud_02.dart';
 //import 'package:firebase_storage/firebase_storage.dart';
@@ -29,7 +26,7 @@ class OkayfaceFfCloudState extends State<OkayfaceFfCloud> {
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(
             appBar: AppBar(
               title: Text(appBarTitle),
@@ -84,7 +81,7 @@ class OkayfaceFfCloudState extends State<OkayfaceFfCloud> {
 
   void navigateToFeaturePage(String title) async {
 
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'First Photo':
           return OkayfaceFfCloud1(title);

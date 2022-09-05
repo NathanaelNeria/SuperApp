@@ -8,13 +8,13 @@ part 'visa_recognizer.g.dart';
 class VisaRecognizerResult extends RecognizerResult {
     
     ///face image from the document if enabled with returnFaceImage property. 
-    String faceImage;
+    String? faceImage;
     
     ///full document image if enabled with returnFullDocumentImage property. 
-    String fullDocumentImage;
+    String? fullDocumentImage;
     
     ///The data extracted from the machine readable zone. 
-    MrzResult mrzResult;
+    MrzResult? mrzResult;
     
     VisaRecognizerResult(Map<String, dynamic> nativeResult): super(RecognizerResultState.values[nativeResult['resultState']]) {
         
@@ -35,35 +35,35 @@ class VisaRecognizer extends Recognizer {
     ///Defines if glare detection should be turned on/off.
     /// 
     /// 
-    bool detectGlare = true;
+    bool? detectGlare = true;
     
     ///Property for setting DPI for face images
     /// Valid ranges are [100,400]. Setting DPI out of valid ranges throws an exception
     /// 
     /// 
-    int faceImageDpi = 250;
+    int? faceImageDpi = 250;
     
     ///Property for setting DPI for full document images
     /// Valid ranges are [100,400]. Setting DPI out of valid ranges throws an exception
     /// 
     /// 
-    int fullDocumentImageDpi = 250;
+    int? fullDocumentImageDpi = 250;
     
     ///Image extension factors for full document image.
     /// 
     /// @see ImageExtensionFactors
     /// 
-    ImageExtensionFactors fullDocumentImageExtensionFactors = ImageExtensionFactors();
+    ImageExtensionFactors? fullDocumentImageExtensionFactors = ImageExtensionFactors();
     
     ///Sets whether face image from ID card should be extracted
     /// 
     /// 
-    bool returnFaceImage = false;
+    bool? returnFaceImage = false;
     
     ///Sets whether full document image of ID card should be extracted.
     /// 
     /// 
-    bool returnFullDocumentImage = false;
+    bool? returnFullDocumentImage = false;
     
     VisaRecognizer(): super('VisaRecognizer');
 

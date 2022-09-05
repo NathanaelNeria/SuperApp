@@ -18,12 +18,12 @@ class CommandDeviceModel {
     this.statusMessage,
   });
 
-  String deviceId;
-  List<dynamic> input;
-  List<dynamic> output;
-  String status;
-  int statusCode;
-  String statusMessage;
+  String? deviceId;
+  List<dynamic>? input;
+  List<dynamic>? output;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
   factory CommandDeviceModel.fromJson(Map<String, dynamic> json) => CommandDeviceModel(
     deviceId: json["device_id"],
@@ -36,8 +36,8 @@ class CommandDeviceModel {
 
   Map<String, dynamic> toJson() => {
     "device_id": deviceId,
-    "input": List<dynamic>.from(input.map((x) => x)),
-    "output": List<dynamic>.from(output.map((x) => x)),
+    "input": List<dynamic>.from(input!.map((x) => x)),
+    "output": List<dynamic>.from(output!.map((x) => x)),
     "status": status,
     "status_code": statusCode,
     "status_message": statusMessage,
@@ -57,11 +57,11 @@ class CmdFailModel {
     this.statusMessage,
   });
 
-  String commandId;
-  String deviceId;
-  String status;
-  int statusCode;
-  String statusMessage;
+  String? commandId;
+  String? deviceId;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
   factory CmdFailModel.fromJson(Map<String, dynamic> json) => CmdFailModel(
     commandId: json["command_id"],

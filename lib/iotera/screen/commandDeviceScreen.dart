@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +28,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
   String ioteraAccId = '1000000155-1000000001';
   String ioteraAccRefToken = 'Iotera-Account-Refresh-Token';
   String ioteraAccAccessToken = 'Iotera-Account-Access-Token';
-  String accessToken = '';
+  String? accessToken = '';
   String device = '14e1a2d8-d4b4-4e05-9399-ab9592b83d00';
   String token =
       'b46e69391acecd970e15d8af33e43ca044a3ff677bacb5ddaf15f3d8a5b42d5f';
@@ -58,14 +57,14 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
     'False'
   ];
 
-  var currentSensorSelected = '';
+  String? currentSensorSelected = '';
   int sensorSelected = 99;
-  var currentBoolSelected = '';
-  bool userBoolValue;
+  String? currentBoolSelected = '';
+  bool? userBoolValue;
   bool emailValidate = false;
 
-  String param;
-  String sensorName;
+  String? param;
+  String? sensorName;
   var userValue;
   var userChoice;
   bool boolVal = false;
@@ -73,7 +72,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
   bool strVal = false;
   bool isNotNull = false;
   bool correctBoolVal = false;
-  String statusMsg = '';
+  String? statusMsg = '';
 
   // TextEditingController textEditingController;
   var txt = TextEditingController();
@@ -116,7 +115,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
       request.body = json.encode(parameter);
 
       var response = await request.send();
@@ -139,7 +138,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
             createAlertDialog(context, '$statusMsg', 'Execute command device status: $statusMsg');
           }
           else if(cmdFailModel.statusMessage == 'Network Failure'){
-            createAlertDialog(context, cmdFailModel.statusMessage, cmdFailModel.statusMessage + ' please try again later');
+            createAlertDialog(context, cmdFailModel.statusMessage, cmdFailModel.statusMessage! + ' please try again later');
           }
         }
       });
@@ -432,7 +431,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
         ));
   }
 
-  createAlertDialog(BuildContext context, String title, String message) {
+  createAlertDialog(BuildContext context, String? title, String message) {
     Widget okButton = TextButton(
       child: Text("Close"),
       onPressed: () {Navigator.of(context).pop(); },
@@ -441,7 +440,7 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(title: Text(title), content: Text(message),  actions: [
+          return AlertDialog(title: Text(title!), content: Text(message),  actions: [
             okButton,
           ],);
         });
@@ -491,30 +490,32 @@ class _CommandDeviceScreenState extends State<CommandDeviceScreen> {
         },
       );
     }
+    return SizedBox();
   }
 
   // ignore: missing_return
-  String validateEmail(String value) {
+  String? validateEmail(String? value) {
     Pattern pattern =
         r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
         r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
         r"{0,253}[a-zA-Z0-9])?)*$";
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value) || value == null){
+    RegExp regex = new RegExp(pattern as String);
+    if (!regex.hasMatch(value!)){
       return 'Enter a valid email address';
     }
     else{
       emailValidate = true;
+      return null;
     }
   }
 
-  void _onSensorDropDownItemSelected(String newValueSelected) {
+  void _onSensorDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentSensorSelected = newValueSelected;
     });
   }
 
-  void _onBoolDropDownItemSelected(String newValueSelected) {
+  void _onBoolDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentBoolSelected = newValueSelected;
     });

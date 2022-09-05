@@ -27,21 +27,21 @@ class AtmSensorModel {
     this.statusMessage,
   });
 
-  String id;
-  String serialNumber;
-  String label;
-  String category;
-  int categoryValue;
-  String firmwareVersion;
-  bool online;
-  List<dynamic> sensors;
-  Tags tags;
-  String mqttUrl;
-  String mqttUsername;
-  String mqttPassword;
-  String status;
-  int statusCode;
-  String statusMessage;
+  String? id;
+  String? serialNumber;
+  String? label;
+  String? category;
+  int? categoryValue;
+  String? firmwareVersion;
+  bool? online;
+  List<dynamic>? sensors;
+  Tags? tags;
+  String? mqttUrl;
+  String? mqttUsername;
+  String? mqttPassword;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
 
   factory AtmSensorModel.fromJson(Map<String, dynamic> json) => AtmSensorModel(
@@ -70,8 +70,8 @@ class AtmSensorModel {
     "category_value": categoryValue,
     "firmware_version": firmwareVersion,
     "online": online,
-    "sensors": List<dynamic>.from(sensors.map((x) => x.toJson())),
-    "tags": tags.toJson(),
+    "sensors": List<dynamic>.from(sensors!.map((x) => x.toJson())),
+    "tags": tags!.toJson(),
     "mqtt_url": mqttUrl,
     "mqtt_username": mqttUsername,
     "mqtt_password": mqttPassword,
@@ -89,10 +89,10 @@ class Sensor {
     this.param,
   });
 
-  Dt dt;
-  String sensor;
-  Configtype configtype;
-  String param;
+  Dt? dt;
+  String? sensor;
+  Configtype? configtype;
+  String? param;
 
   @override toString() =>
 '''
@@ -111,9 +111,9 @@ Param: $param
   );
 
   Map<String, dynamic> toJson() => {
-    "dt": dtValues.reverse[dt],
+    "dt": dtValues.reverse![dt!],
     "sensor": sensor,
-    "configtype": configtypeValues.reverse[configtype],
+    "configtype": configtypeValues.reverse![configtype!],
     "param": param,
   };
 }
@@ -137,7 +137,7 @@ final dtValues = EnumValues({
 class Tags {
   Tags();
 
-  factory Tags.fromJson(Map<String, dynamic> json) => Tags(
+  factory Tags.fromJson(Map<String, dynamic>? json) => Tags(
   );
 
   Map<String, dynamic> toJson() => {
@@ -146,11 +146,11 @@ class Tags {
 
 class EnumValues<T> {
   Map<String, T> map;
-  Map<T, String> reverseMap;
+  Map<T, String>? reverseMap;
 
   EnumValues(this.map);
 
-  Map<T, String> get reverse {
+  Map<T, String>? get reverse {
     if (reverseMap == null) {
       reverseMap = map.map((k, v) => new MapEntry(v, k));
     }

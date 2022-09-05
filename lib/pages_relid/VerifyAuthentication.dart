@@ -6,7 +6,7 @@ import 'package:simple_app/util/Constants.dart';
 class VerifyAuthentication extends StatefulWidget {
   var res;
   VerifyAuthentication(this.res);
-  VerifyAuthenticationWidget verifyAuthenticationObj;
+  late VerifyAuthenticationWidget verifyAuthenticationObj;
   @override
   VerifyAuthenticationWidget createState() {
     verifyAuthenticationObj = new VerifyAuthenticationWidget();
@@ -20,20 +20,20 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool isChecked = false;
-  RDNABridge bridge;
+  RDNABridge? bridge;
   var res;
-  String userId;
+  String? userId;
   bool showLoader = false;
 
   performVerifyAuth() async {
     bridge = RDNABridge.getInstance(null);
-    var res = await bridge.performVerifyAuthCall(true);
-    bridge.checkSyncError(res.error);
+    var res = await bridge!.performVerifyAuthCall(true);
+    bridge!.checkSyncError(res.error);
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -41,14 +41,14 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge.resetAuthenticationAPI(),
+            onPressed: () => bridge!.resetAuthenticationAPI(),
           ),
         ),
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: <Widget>[
             WillPopScope(
-              onWillPop: () => bridge.onBackPressed(false),
+              onWillPop: () => bridge!.onBackPressed(false),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -68,14 +68,14 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
                         padding: EdgeInsets.only(top: 20),
                         child: Text(
                           'Welcome',
-                          style: Theme.of(context).textTheme.headline,
+                          style: Theme.of(context).textTheme.headline1,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                          userId,
+                          userId!,
                           style: TextStyle(
                               color: Colors.blue,
                               fontSize:
@@ -87,7 +87,7 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
                         padding: EdgeInsets.only(top: 30),
                         child: Text(
                           Constants.verifyPasswordPageTitle,
-                          style: Theme.of(context).textTheme.title,
+                          style: Theme.of(context).textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -116,7 +116,7 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
                             ),
                             onTap: () {
                              
-                              bridge.fallBackNewDeviceCall();
+                              bridge!.fallBackNewDeviceCall();
                             },
                           )),
 

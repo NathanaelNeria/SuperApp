@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import "package:image_cropper/image_cropper.dart";
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:simple_app/model/faceVerifModel.dart';
@@ -11,11 +12,10 @@ import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/model/ktpModel.dart';
 import 'package:simple_app/model/ocrModel.dart';
 import 'package:simple_app/views/fetchIdCard.dart';
-import "package:image_cropper/image_cropper.dart";
-
 
 class UploadIdCard extends StatefulWidget {
-  File imageFileProfile;
+  File? imageFileProfile;
+
   UploadIdCard({this.imageFileProfile});
 
   @override
@@ -23,7 +23,7 @@ class UploadIdCard extends StatefulWidget {
 }
 
 class _UploadIdCardState extends State<UploadIdCard> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
 
@@ -56,52 +56,53 @@ class _UploadIdCardState extends State<UploadIdCard> {
         });
   }
 
-
   _getImage(BuildContext context, ImageSource source) async {
-
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
+    var picture = await (ImagePicker()).pickImage(source: source);
 
-    if(picture != null){
-      File cropped = await ImageCropper.cropImage(
-          sourcePath: picture.path,
-          aspectRatio: CropAspectRatio(ratioX: 8, ratioY: 5),
-          compressQuality: 100,
-          maxWidth: 640,
-          maxHeight: 480,
-          compressFormat: ImageCompressFormat.jpg,
-          androidUiSettings: AndroidUiSettings(
+    if (picture != null) {
+      File cropped = await (ImageCropper()).cropImage(
+        sourcePath: picture.path,
+        aspectRatio: CropAspectRatio(ratioX: 8, ratioY: 5),
+        compressQuality: 100,
+        maxWidth: 640,
+        maxHeight: 480,
+        compressFormat: ImageCompressFormat.jpg,
+        uiSettings: [
+          AndroidUiSettings(
             toolbarColor: Colors.deepOrange,
             toolbarTitle: "RPS Cropper",
             statusBarColor: Colors.deepOrange.shade900,
             backgroundColor: Colors.white,
-          )
-      );
+          ),
+        ],
+      ).then((value) => File(value!.path));
       this.setState(() {
         _imageFileIdCard = cropped;
         _inProcess = false;
       });
-    }else{
+    } else {
       this.setState(() {
         _inProcess = false;
       });
     }
-
 
     Navigator.of(context).pop();
   }
 
   Widget _decideImageIdCardView() {
     if (_imageFileIdCard == null) {
-      return Image.asset("images/no_photo_selected.png",
+      return Image.asset(
+        "images/no_photo_selected.png",
         width: 300.0,
         height: 180.0,
-        fit: BoxFit.cover,);
+        fit: BoxFit.cover,
+      );
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 180.0,
         fit: BoxFit.cover,
@@ -118,7 +119,7 @@ class _UploadIdCardState extends State<UploadIdCard> {
     FetchIdCardModel ficModel = new FetchIdCardModel();
 
     String dialog = "";
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
     String base64Image = base64Encode(imageBytes);
 
     String url =
@@ -135,8 +136,8 @@ class _UploadIdCardState extends State<UploadIdCard> {
     if (ktp.status == "success") {
       //for (int i = 0; i < 5; i++) { // NOTE: ERROR API: SEMENTARA DARI 5 DIGANTI 4 20200915
       for (int i = 0; i < 4; i++) {
-        print(double.parse(ktp.methodList[0].componentList[i].value));
-        if (double.parse(ktp.methodList[0].componentList[i].value) > 30) {
+        print(double.parse(ktp.methodList![0].componentList![i].value!));
+        if (double.parse(ktp.methodList![0].componentList![i].value!) > 30) {
           pass = pass + 1;
         }
       }
@@ -145,25 +146,23 @@ class _UploadIdCardState extends State<UploadIdCard> {
       if (pass < 2) {
         dialog = "Check authentication of your Id Card!";
       } else {
-
         try {
           var streamIdCard = http.ByteStream(
-              DelegatingStream.typed(_imageFileIdCard.openRead()));
-          var lengthIdCard = await _imageFileIdCard.length();
+              DelegatingStream.typed(_imageFileIdCard!.openRead()));
+          var lengthIdCard = await _imageFileIdCard!.length();
           var streamProfile = http.ByteStream(
-              DelegatingStream.typed(widget.imageFileProfile.openRead()));
-          var lengthProfile = await widget.imageFileProfile.length();
+              DelegatingStream.typed(widget.imageFileProfile!.openRead()));
+          var lengthProfile = await widget.imageFileProfile!.length();
           var uri = Uri.parse("http://demo.faceid.asia/api/faceid/v2/verify");
           var request = http.MultipartRequest("POST", uri);
-
 
           request.fields['apiKey'] = "9TCM5oQ72DlXJK0ukbP6Aa0TM2KKKxlT";
           request.files.add(http.MultipartFile(
               "imageIdCard", streamIdCard, lengthIdCard,
-              filename: path.basename(_imageFileIdCard.path)));
+              filename: path.basename(_imageFileIdCard!.path)));
           request.files.add(http.MultipartFile(
               "imageBest", streamProfile, lengthProfile,
-              filename: path.basename(widget.imageFileProfile.path)));
+              filename: path.basename(widget.imageFileProfile!.path)));
 
 //      print(imageBytes);
 //      var fileContent = _imageFileIdCard.readAsBytesSync();
@@ -173,16 +172,14 @@ class _UploadIdCardState extends State<UploadIdCard> {
           var response = await request.send();
           var respStr = await response.stream.bytesToString();
 
-
           Map<String, dynamic> listResult = jsonDecode(respStr.toString());
           FaceVerifModel faceVerifResult = FaceVerifModel.fromJson(listResult);
 
           if (faceVerifResult != null || faceVerifResult.resultIdcard != null) {
-
             dialog = "confidence: " +
-                faceVerifResult.resultIdcard.confidence.toString();
+                faceVerifResult.resultIdcard!.confidence.toString();
 
-            if(faceVerifResult.resultIdcard.confidence > 75){
+            if (faceVerifResult.resultIdcard!.confidence! > 75) {
               //start ocr
               String url = 'https://okayiddemo.innov8tif.com/okayid/api/v1/ocr';
               Map map = {
@@ -193,80 +190,80 @@ class _UploadIdCardState extends State<UploadIdCard> {
               OcrModel ocr = await apiRequestOcr(url, map);
 
               for (int i = 0;
-              i < ocr.result[0].listVerifiedFields.pFieldMaps.length;
-              i++) {
-                switch (
-                ocr.result[0].listVerifiedFields.pFieldMaps[i].fieldType) {
+                  i < ocr.result![0].listVerifiedFields!.pFieldMaps!.length;
+                  i++) {
+                switch (ocr
+                    .result![0].listVerifiedFields!.pFieldMaps![i].fieldType) {
                   case 2:
                     {
-                      ficModel.nik = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.nik = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 25:
                     {
-                      ficModel.nama = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.nama = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 6:
                     {
-                      ficModel.tempatLahir = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.tempatLahir = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 5:
                     {
-                      ficModel.tglLahir = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.tglLahir = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 69271564:
                     {
-                      ficModel.jenisKelamin = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.jenisKelamin = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 17:
                     {
-                      ficModel.alamat = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.alamat = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 189:
                     {
-                      ficModel.rtrw = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.rtrw = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 77:
                     {
-                      ficModel.kelurahan = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.kelurahan = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 64:
                     {
-                      ficModel.kecamatan = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.kecamatan = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 363:
                     {
-                      ficModel.agama = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.agama = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 160:
                     {
-                      ficModel.status = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.status = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                   case 312:
                     {
-                      ficModel.pekerjaan = ocr
-                          .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      ficModel.pekerjaan = ocr.result![0].listVerifiedFields!
+                          .pFieldMaps![i].fieldVisual;
                     }
                     break;
                 }
@@ -275,10 +272,9 @@ class _UploadIdCardState extends State<UploadIdCard> {
 
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => FetchIdCard(ficModel)));
-            }else{
+            } else {
               dialog = "Confidence level less than 75";
             }
-
           } else {
             dialog = "Unexpected Error";
           }
@@ -287,8 +283,6 @@ class _UploadIdCardState extends State<UploadIdCard> {
 ////        body: {"apiKey": "aXtpWPxvnqPulVYCAY9RALWJfcv4rn-M", "idImageBase64Image": base64Image});
 ////      final data = jsonDecode(responseIdCard.body);
 ////      print(data);
-
-
 
         } catch (e) {
           dialog = "ERROR NO FACE DETECTED";
@@ -303,7 +297,6 @@ class _UploadIdCardState extends State<UploadIdCard> {
     });
     createAlertDialog(context, dialog);
   }
-
 
   apiRequest(String url, Map jsonMap) async {
     HttpClient httpClient = new HttpClient();
@@ -344,6 +337,7 @@ class _UploadIdCardState extends State<UploadIdCard> {
     httpClient.close();
     return sample;
   }
+
   //OKAY FACE API END HERE
 
   createAlertDialog(BuildContext context, String message) {
@@ -359,57 +353,65 @@ class _UploadIdCardState extends State<UploadIdCard> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Face vs Ktp - eKTP Nodeflux'),
-        leading: IconButton(icon: Icon(
-            Icons.arrow_back),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               // Write some code to control things, when user press back button in AppBar
               moveToLastScreen();
-            }
-        ),
+            }),
       ),
       body: Container(
         child: Center(
             child: loading
                 ? Center(child: CircularProgressIndicator())
                 : Stack(
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    _decideImageIdCardView(),
-                    RaisedButton(
-                      onPressed: () {
-                        createAlertDialogIdCard(context);
-                      },
-                      child: Text("Select Image Id Card!",
-                          style: TextStyle(color: Colors.white)),
-                      color: Colors.lightBlue,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        RaisedButton(
-                          onPressed: () {
-                            (_imageFileIdCard==null) ? null: comparingImages(context);
-                          },
-                          child: Text("Compare",
-                              style: TextStyle(color: Colors.white)),
-                          color: (_imageFileIdCard==null) ? Colors.grey: Colors.lightBlue,
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                (_inProcess) ? Container(
-                  color: Colors.white,
-                  height: MediaQuery.of(context).size.height * 0.95,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ):Center()
-              ],
-            )
-        ),
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          _decideImageIdCardView(),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.lightBlue,
+                            ),
+                            onPressed: () {
+                              createAlertDialogIdCard(context);
+                            },
+                            child: Text("Select Image Id Card!",
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: () {
+                                  (_imageFileIdCard == null)
+                                      ? null
+                                      : comparingImages(context);
+                                },
+                                child: Text("Compare",
+                                    style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: (_imageFileIdCard == null)
+                                      ? Colors.grey
+                                      : Colors.lightBlue
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                      (_inProcess)
+                          ? Container(
+                              color: Colors.white,
+                              height: MediaQuery.of(context).size.height * 0.95,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : Center()
+                    ],
+                  )),
       ),
     );
   }

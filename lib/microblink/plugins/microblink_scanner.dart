@@ -22,8 +22,8 @@ class MicroblinkScanner {
   static const String ARG_LICENSEE = 'licensee';
   static const String ARG_SHOW_LICENSE_WARNING = 'showTimeLimitedLicenseKeyWarning';
 
-  static Future<List<RecognizerResult>> scanWithCamera(RecognizerCollection collection, OverlaySettings overlaySettings, String license) async {
-    var jsonResults = jsonDecode(await _channel.invokeMethod(
+  static Future<List<RecognizerResult?>> scanWithCamera(RecognizerCollection collection, OverlaySettings overlaySettings, String? license) async {
+    var jsonResults = jsonDecode(await (_channel.invokeMethod(
       METHOD_SCAN_WITH_CAMERA,
       {
         ARG_RECOGNIZER_COLLECTION: jsonDecode(jsonEncode(collection)),
@@ -31,15 +31,15 @@ class MicroblinkScanner {
         ARG_LICENSE: {
           ARG_LICENSE_KEY: license
         }
-      })
+      }) as FutureOr<String>)
     );
 
-    if (jsonResults == null) return List<RecognizerResult>(0);
+    if (jsonResults == null) return <RecognizerResult?>[];
 
     var results = [];
     for (int i = 0; i < jsonResults.length; ++i) {
       var map = Map<String, dynamic>.from(jsonResults[i]);
-      var result = collection.recognizerArray[i].createResultFromNative(map);
+      var result = collection.recognizerArray![i].createResultFromNative(map);
       if (result.resultState != RecognizerResultState.empty) {
         results.add(result);
       }

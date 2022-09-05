@@ -1,9 +1,9 @@
 import 'package:simple_app/model/resultOcr.dart';
 
 class OcrModel {
-  String status;
-  String message;
-  List<ResultOcr> result;
+  String? status;
+  String? message;
+  List<ResultOcr>? result;
 
   OcrModel({
     this.status,
@@ -20,6 +20,6 @@ class OcrModel {
   Map<String, dynamic> toJson() => {
     "status": status,
     "message": message,
-    "result": List<dynamic>.from(result.map((x) => x.toJson())),
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())),
   };
 }

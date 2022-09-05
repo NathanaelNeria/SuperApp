@@ -4,11 +4,11 @@ import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class ActivationCode extends StatefulWidget {
-  ActivationCodeWidget activationcodeObj;
+  late ActivationCodeWidget activationcodeObj;
   var attemptsCount;
   var verificationKey;
 
-  ActivationCode({Key key, this.attemptsCount, this.verificationKey})
+  ActivationCode({Key? key, this.attemptsCount, this.verificationKey})
       : super(key: key);
   @override
   ActivationCodeWidget createState() {
@@ -24,13 +24,13 @@ class ActivationCodeWidget extends State<ActivationCode> {
   final activationCodeController = TextEditingController();
   bool isChecked = false;
   bool validate_code = false;
-  var attemptsCount = 0;
+  int? attemptsCount = 0;
   var verificationKey;
   bool showLoader = false;
 
   @override
   Widget build(BuildContext context) {
-    RDNABridge bridge = RDNABridge.getInstance(null);
+    RDNABridge bridge = RDNABridge.getInstance(null)!;
     bridge.setContext(context);
     return Scaffold(
         resizeToAvoidBottomInset: true,
@@ -74,7 +74,7 @@ class ActivationCodeWidget extends State<ActivationCode> {
                         padding: EdgeInsets.only(top: 50),
                         child: Text(
                           'Verification Key : ' + verificationKey,
-                          style: Theme.of(context).textTheme.body2,
+                          style: Theme.of(context).textTheme.bodyText2,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -100,7 +100,7 @@ class ActivationCodeWidget extends State<ActivationCode> {
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           'Attempt(s) left ' + attemptsCount.toString(),
-                          style: Theme.of(context).textTheme.body2,
+                          style: Theme.of(context).textTheme.bodyText2,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -111,9 +111,14 @@ class ActivationCodeWidget extends State<ActivationCode> {
                             minWidth: 100.0,
                             height: 60.0,
                             padding: EdgeInsets.only(top: 5),
-                            child: new RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(15.0),
+                            child: new ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: new BorderRadius.circular(15.0),
+                                ),
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -132,8 +137,6 @@ class ActivationCodeWidget extends State<ActivationCode> {
                               },
                               child: const Text(Constants.submitButtonLabel,
                                   style: TextStyle(fontSize: 20)),
-                              color: Colors.blue,
-                              textColor: Colors.white,
                             ),
                           )),
                       

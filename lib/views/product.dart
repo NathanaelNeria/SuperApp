@@ -17,7 +17,7 @@ class _ProductState extends State<Product> {
   final money = NumberFormat("#,##0","en_US");
   
   var loading = false;
-  final list = new List<ProductModel>();
+  final list = <ProductModel>[];
 
   final GlobalKey<RefreshIndicatorState> _refresh = GlobalKey<RefreshIndicatorState>();
 
@@ -26,7 +26,7 @@ class _ProductState extends State<Product> {
     setState(() {
       loading = true;
     });
-    final response = await http.get(BaseUrl.getProduct);
+    final response = await http.get(BaseUrl.getProduct as Uri);
     if (response.contentLength == 2) {
     } else {
       final data = jsonDecode(response.body);
@@ -49,7 +49,7 @@ class _ProductState extends State<Product> {
     }
   }
 
-  dialogDelete(String id){
+  dialogDelete(String? id){
     showDialog(
         context: context,
         builder: (context){
@@ -87,13 +87,13 @@ class _ProductState extends State<Product> {
     );
   }
 
-  _delete(String id)async{
-    final response = await http.post(BaseUrl.deleteProduct, body: {
+  _delete(String? id)async{
+    final response = await http.post(BaseUrl.deleteProduct as Uri, body: {
        "productId" : id
     });
     final data = jsonDecode(response.body);
-    int value = data['value'];
-    String message = data['message'];
+    int? value = data['value'];
+    String? message = data['message'];
     if(value == 1){
       setState(() {
         Navigator.pop(context);
@@ -134,22 +134,22 @@ class _ProductState extends State<Product> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Image.network('http://172.19.247.249/api/upload/'+x.image, width: 100.0, height: 180.0, fit: BoxFit.cover,),
+                    Image.network('http://172.19.247.249/api/upload/'+x.image!, width: 100.0, height: 180.0, fit: BoxFit.cover,),
                     SizedBox(width: 10.0,),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            x.productName,
+                            x.productName!,
                             style: TextStyle(
                                 fontSize: 18.0,
                                 fontWeight: FontWeight.bold),
                           ),
-                          Text(x.qty),
-                          Text(money.format(int.parse(x.harga))),
-                          Text(x.name),
-                          Text(x.createdDate),
+                          Text(x.qty!),
+                          Text(money.format(int.parse(x.harga!))),
+                          Text(x.name!),
+                          Text(x.createdDate!),
                         ],
                       ),
                     ),

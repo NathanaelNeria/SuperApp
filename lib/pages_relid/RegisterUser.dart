@@ -13,7 +13,7 @@ class RegisterUser extends State<Register_User> {
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();
   final mobileController = TextEditingController();
-  bool isChecked = false;
+  bool? isChecked = false;
   bool validate_firstname = false;
   bool validate_lastname = false;
   bool validate_email = false;
@@ -24,7 +24,7 @@ class RegisterUser extends State<Register_User> {
   var mobileValid = RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)');
 
   var sessionId;
-  RDNABridge bridge;
+  RDNABridge? bridge;
   var userId;
   var userMap = {
     "firstName": "",
@@ -78,7 +78,7 @@ class RegisterUser extends State<Register_User> {
   }
 
   onHttpSuccessCallback(res) async {
-    userId = bridge.userName;
+    userId = bridge!.userName;
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -92,26 +92,30 @@ class RegisterUser extends State<Register_User> {
                     child: Text(
                       'Activation code sent to your email- ' +
                           emailController.text,
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.headline2,
                     ),
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
                       'Please check the email for more instructions',
-                      style: Theme.of(context).textTheme.body1,
+                      style: Theme.of(context).textTheme.bodyText1,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(15.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(15.0),
+                        ),
+                        backgroundColor: Colors.blue,
                       ),
                       child: Text("Ok"),
                       onPressed: () {
                         Navigator.pop(context);
-                        bridge.setUserAPI(emailController.text);
+                        bridge!.setUserAPI(emailController.text);
                       },
                     ),
                   )
@@ -129,7 +133,7 @@ class RegisterUser extends State<Register_User> {
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -145,7 +149,7 @@ class RegisterUser extends State<Register_User> {
         body: Stack(
           children: <Widget>[
             WillPopScope(
-                onWillPop: () => bridge.onBackPressed(false),
+                onWillPop: () => bridge!.onBackPressed(false),
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(50.0),
@@ -275,9 +279,14 @@ class RegisterUser extends State<Register_User> {
                               minWidth: 100.0,
                               height: 50.0,
                               padding: EdgeInsets.only(top: 5),
-                              child: new RaisedButton(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(15.0),
+                              child: new ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(15.0),
+                                  ),
+                                  backgroundColor: Colors.blue,
                                 ),
                                 onPressed: () => {
                                   setState(() {
@@ -301,14 +310,14 @@ class RegisterUser extends State<Register_User> {
                                     {
                                       if (!validate_slider)
                                         {
-                                          bridge.showAlertMessageDialog(
+                                          bridge!.showAlertMessageDialog(
                                               context,
                                               "Please move the slider to right",
                                               null)
                                         }
-                                      else if (!isChecked)
+                                      else if (!isChecked!)
                                         {
-                                          bridge.showAlertMessageDialog(
+                                          bridge!.showAlertMessageDialog(
                                               context,
                                               "Please accept the terms and conditions",
                                               null)
@@ -316,13 +325,15 @@ class RegisterUser extends State<Register_User> {
                                       else if (!emailValid
                                           .hasMatch(emailController.text))
                                         {
-                                          bridge.showAlertMessageDialog(context,
-                                              "Please input valid email", null)
+                                          bridge!.showAlertMessageDialog(
+                                              context,
+                                              "Please input valid email",
+                                              null)
                                         }
                                       else if (!mobileValid
                                           .hasMatch(mobileController.text))
                                         {
-                                          bridge.showAlertMessageDialog(
+                                          bridge!.showAlertMessageDialog(
                                               context,
                                               "Please input valid mobile number",
                                               null)
@@ -336,10 +347,10 @@ class RegisterUser extends State<Register_User> {
                                         }
                                     }
                                 },
-                                child: const Text(Constants.submitButtonLabel,
-                                    style: TextStyle(fontSize: 20)),
-                                color: Colors.blue,
-                                textColor: Colors.white,
+                                child: const Text(
+                                  Constants.submitButtonLabel,
+                                  style: TextStyle(fontSize: 20),
+                                ),
                               ),
                             )),
                       ],
@@ -353,7 +364,7 @@ class RegisterUser extends State<Register_User> {
 }
 
 class Register_User extends StatefulWidget {
-  RegisterUser registerUserObj;
+  late RegisterUser registerUserObj;
 
   @override
   RegisterUser createState() {

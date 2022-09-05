@@ -2,10 +2,10 @@ import 'package:simple_app/model/resultIdcard.dart';
 import 'package:simple_app/model/imageBestLiveness.dart';
 
 class FaceVerifModel {
-  String requestId;
-  String error;
-  ResultIdcard resultIdcard;
-  ImageBestLiveness imageBestLiveness;
+  String? requestId;
+  String? error;
+  ResultIdcard? resultIdcard;
+  ImageBestLiveness? imageBestLiveness;
 
   FaceVerifModel({
     this.requestId,
@@ -24,7 +24,7 @@ class FaceVerifModel {
   Map<String, dynamic> toJson() => {
     "request_id": requestId,
     "error": error,
-    "result_idcard": resultIdcard.toJson(),
-    "imageBestLiveness":imageBestLiveness.toJson(),
+    "result_idcard": resultIdcard!.toJson(),
+    "imageBestLiveness":imageBestLiveness!.toJson(),
   };
 }

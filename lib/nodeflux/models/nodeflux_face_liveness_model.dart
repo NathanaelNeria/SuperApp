@@ -5,9 +5,9 @@ NodefluxFaceLivenessModel nodefluxFaceLivenessModelFromJson(String str) => Nodef
 String nodefluxFaceLivenessModelToJson(NodefluxFaceLivenessModel data) => json.encode(data.toJson());
 
 class NodefluxFaceLivenessModel {
-  Job job;
-  String message;
-  bool ok;
+  Job? job;
+  String? message;
+  bool? ok;
 
   NodefluxFaceLivenessModel({
     this.job,
@@ -28,7 +28,7 @@ class NodefluxFaceLivenessModel {
   );
 
   Map<String, dynamic> toJson() => {
-    "job": job.toJson(),
+    "job": job!.toJson(),
     "message": message,
     "ok": ok,
   };
@@ -46,8 +46,8 @@ class Job {
     this.result,
   });
 
-  String id;
-  JobResult result;
+  String? id;
+  JobResult? result;
 
   factory Job.fromJson(Map<String, dynamic> json) => Job(
     id: json["id"],
@@ -56,7 +56,7 @@ class Job {
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "result": result.toJson(),
+    "result": result!.toJson(),
   };
 
   factory Job.fromJson0(Map<String, dynamic> json) => Job(
@@ -73,10 +73,10 @@ class JobResult {
     this.result2
   });
 
-  String status;
-  String analyticType;
-  List<ResultElement1> result;
-  List<ResultElement2> result2;
+  String? status;
+  String? analyticType;
+  List<ResultElement1>? result;
+  List<ResultElement2>? result2;
 
   factory JobResult.fromJson(Map<String, dynamic> json) => JobResult(
     status: json["status"],
@@ -88,7 +88,7 @@ class JobResult {
   Map<String, dynamic> toJson() => {
     "status": status,
     "analytic_type": analyticType,
-    "result": List<dynamic>.from(result.map((x) => x.toJson())),
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())),
   };
 
   factory JobResult.fromJson0(Map<String, dynamic> json) => JobResult(
@@ -102,14 +102,14 @@ class ResultElement1 {
     this.faceLiveness,
   });
 
-  FaceLiveness faceLiveness;
+  FaceLiveness? faceLiveness;
 
   factory ResultElement1.fromJson(Map<String, dynamic> json) => ResultElement1(
     faceLiveness: json["face_liveness"] == null ? null : FaceLiveness.fromJson(json["face_liveness"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "face_liveness": faceLiveness == null ? null : faceLiveness.toJson(),
+    "face_liveness": faceLiveness == null ? null : faceLiveness!.toJson(),
   };
 }
 
@@ -118,14 +118,14 @@ class ResultElement2 {
     this.faceMatch,
   });
 
-  FaceMatch faceMatch;
+  FaceMatch? faceMatch;
 
   factory ResultElement2.fromJson(Map<String, dynamic> json) => ResultElement2(
     faceMatch: json["face_match"] == null ? null : FaceMatch.fromJson(json["face_match"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "face_match": faceMatch == null ? null : faceMatch.toJson(),
+    "face_match": faceMatch == null ? null : faceMatch!.toJson(),
   };
 }
 
@@ -135,8 +135,8 @@ class FaceLiveness {
     this.liveness,
   });
 
-  bool live;
-  double liveness;
+  bool? live;
+  double? liveness;
 
   factory FaceLiveness.fromJson(Map<String, dynamic> json) => FaceLiveness(
     live: json["live"],
@@ -155,8 +155,8 @@ class FaceMatch {
     this.similarity,
   });
 
-  bool match;
-  double similarity;
+  bool? match;
+  double? similarity;
 
   factory FaceMatch.fromJson(Map<String, dynamic> json) => FaceMatch(
     match: json["match"],

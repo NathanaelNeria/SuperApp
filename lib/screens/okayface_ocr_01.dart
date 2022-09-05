@@ -5,8 +5,6 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:simple_app/model/faceVerifModel.dart';
 import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/model/ktpModel.dart';
 import 'package:simple_app/model/ocrModel.dart';
@@ -23,7 +21,7 @@ class OkayfaceOcr extends StatefulWidget {
 }
 
 class _OkayfaceOcrState extends State<OkayfaceOcr> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
 
@@ -62,23 +60,25 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
+    var picture = await (ImagePicker()).pickImage(source: source);
 
     if(picture != null){
-      File cropped = await ImageCropper.cropImage(
+      File cropped = await (ImageCropper()).cropImage(
           sourcePath: picture.path,
           aspectRatio: CropAspectRatio(ratioX: 8, ratioY: 5),
           compressQuality: 100,
           maxWidth: 640,
           maxHeight: 480,
           compressFormat: ImageCompressFormat.jpg,
-          androidUiSettings: AndroidUiSettings(
-            toolbarColor: Colors.deepOrange,
-            toolbarTitle: "RPS Cropper",
-            statusBarColor: Colors.deepOrange.shade900,
-            backgroundColor: Colors.white,
-          )
-      );
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarColor: Colors.deepOrange,
+              toolbarTitle: "RPS Cropper",
+              statusBarColor: Colors.deepOrange.shade900,
+              backgroundColor: Colors.white,
+            )
+          ]
+      ).then((value) => File(value!.path));
       this.setState(() {
         _imageFileIdCard = cropped;
         _inProcess = false;
@@ -101,7 +101,7 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
         fit: BoxFit.cover,);
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 180.0,
         fit: BoxFit.cover,
@@ -118,7 +118,7 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
     FetchIdCardModel ficModel = new FetchIdCardModel();
 
     String dialog = "";
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
     String base64Image = base64Encode(imageBytes);
 
     String url =
@@ -135,8 +135,8 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
     if (ktp.status == "success") {
       //for (int i = 0; i < 5; i++) { // NOTE: ERROR API: SEMENTARA DARI 5 DIGANTI 4 20200915
       for (int i = 0; i < 4; i++) {
-        print(double.parse(ktp.methodList[0].componentList[i].value));
-        if (double.parse(ktp.methodList[0].componentList[i].value) > 30) {
+        print(double.parse(ktp.methodList![0].componentList![i].value!));
+        if (double.parse(ktp.methodList![0].componentList![i].value!) > 30) {
           pass = pass + 1;
         }
       }
@@ -148,8 +148,8 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
 
         try {
           var streamIdCard = http.ByteStream(
-              DelegatingStream.typed(_imageFileIdCard.openRead()));
-          var lengthIdCard = await _imageFileIdCard.length();
+              DelegatingStream.typed(_imageFileIdCard!.openRead()));
+          var lengthIdCard = await _imageFileIdCard!.length();
 
           //start ocr
           String url = 'https://okayiddemo.innov8tif.com/okayid/api/v1/ocr';
@@ -161,26 +161,26 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
           OcrModel ocr = await apiRequestOcr(url, map);
 
           for (int i = 0;
-          i < ocr.result[0].listVerifiedFields.pFieldMaps.length;
+          i < ocr.result![0].listVerifiedFields!.pFieldMaps!.length;
           i++) {
             switch (
-            ocr.result[0].listVerifiedFields.pFieldMaps[i].fieldType) {
+            ocr.result![0].listVerifiedFields!.pFieldMaps![i].fieldType) {
               case 2:
                 {
                   ficModel.nik = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 25:
                 {
                   ficModel.nama = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 6:
                 {
                   ficModel.tempatLahir = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 5:
@@ -193,49 +193,49 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
               case 69271564:
                 {
                   ficModel.jenisKelamin = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 17:
                 {
                   ficModel.alamat = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 189:
                 {
                   ficModel.rtrw = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 77:
                 {
                   ficModel.kelurahan = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 64:
                 {
                   ficModel.kecamatan = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 363:
                 {
                   ficModel.agama = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 160:
                 {
                   ficModel.status = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
               case 312:
                 {
                   ficModel.pekerjaan = ocr
-                      .result[0].listVerifiedFields.pFieldMaps[i].fieldVisual;
+                      .result![0].listVerifiedFields!.pFieldMaps![i].fieldVisual;
                 }
                 break;
             }
@@ -332,25 +332,29 @@ class _OkayfaceOcrState extends State<OkayfaceOcr> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     _decideImageIdCardView(),
-                    RaisedButton(
+                    ElevatedButton(
                       onPressed: () {
                         createAlertDialogIdCard(context);
                       },
                       child: Text("Select Image Id Card!",
                           style: TextStyle(color: Colors.white)),
-                      color:Colors.lightBlue,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue,
+                      ),
                     ),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: (_imageFileIdCard==null) ? Colors.black12: Colors.lightBlue,
+                          ),
                           onPressed: () {
                             (_imageFileIdCard==null) ? null: comparingImages(context);
                           },
                           child: Text("Process",
                               style: TextStyle(color: Colors.white)),
-                          color: (_imageFileIdCard==null) ? Colors.black12: Colors.lightBlue,
                         )
                       ],
                     )

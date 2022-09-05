@@ -1,25 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:simple_app/model/faceVerifModel.dart';
-import 'package:simple_app/model/fetchIdCardModel.dart';
-import 'package:simple_app/model/ktpModel.dart';
-import 'package:simple_app/model/ocrModel.dart';
-//import 'package:simple_app/views/fetchIdCard.dart';
-import 'package:simple_app/nodeflux/screens/nodeflux_ocr_ktp_result.dart';
 import "package:image_cropper/image_cropper.dart";
-
+import 'package:image_picker/image_picker.dart';
+import 'package:simple_app/model/ktpModel.dart';
 import 'package:simple_app/nodeflux/models/nodeflux_data_model.dart';
 import 'package:simple_app/nodeflux/models/nodeflux_job_model.dart';
-import 'package:simple_app/nodeflux/models/nodeflux_result_model.dart';
 import 'package:simple_app/nodeflux/models/nodeflux_result2_model.dart';
+import 'package:simple_app/nodeflux/models/nodeflux_result_model.dart';
 
-import 'package:simple_app/nodeflux/models/carjson.dart';
+//import 'package:simple_app/views/fetchIdCard.dart';
+import 'package:simple_app/nodeflux/screens/nodeflux_ocr_ktp_result.dart';
 
 class NodefluxOcrKtp extends StatefulWidget {
 //  File imageFileProfile;
@@ -30,7 +23,7 @@ class NodefluxOcrKtp extends StatefulWidget {
 }
 
 class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
 
@@ -63,53 +56,56 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
         });
   }
 
-
   _getImage(BuildContext context, ImageSource source) async {
-
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
 
-    if(picture != null){
+    final picker = ImagePicker();
+    var picture = await picker.pickImage(source: source);
+
+    if (picture != null) {
       //File cropped=picture;
-      File cropped = await ImageCropper.cropImage(
+      final cropper = ImageCropper();
+      final cropped = await cropper.cropImage(
           sourcePath: picture.path,
           aspectRatio: CropAspectRatio(ratioX: 8, ratioY: 5),
           compressQuality: 100,
           maxWidth: 640,
           maxHeight: 480,
           compressFormat: ImageCompressFormat.jpg,
-          androidUiSettings: AndroidUiSettings(
-            toolbarColor: Colors.deepOrange,
-            toolbarTitle: "RPS Cropper",
-            statusBarColor: Colors.deepOrange.shade900,
-            backgroundColor: Colors.white,
-          )
-      );
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarColor: Colors.deepOrange,
+              toolbarTitle: "RPS Cropper",
+              statusBarColor: Colors.deepOrange.shade900,
+              backgroundColor: Colors.white,
+            ),
+          ]);
       this.setState(() {
-        _imageFileIdCard = cropped;
+        _imageFileIdCard = File(cropped!.path);
         _inProcess = false;
       });
-    }else{
+    } else {
       this.setState(() {
         _inProcess = false;
       });
     }
-
 
     Navigator.of(context).pop();
   }
 
   Widget _decideImageIdCardView() {
     if (_imageFileIdCard == null) {
-      return Image.asset("images/no_photo_selected.png",
+      return Image.asset(
+        "images/no_photo_selected.png",
         width: 300.0,
         height: 180.0,
-        fit: BoxFit.cover,);
+        fit: BoxFit.cover,
+      );
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 180.0,
         fit: BoxFit.cover,
@@ -117,70 +113,75 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     }
   }
 
-  nodefluxOcrKtpProcess(BuildContext context) async{
+  nodefluxOcrKtpProcess(BuildContext context) async {
     setState(() {
       loading = true;
     });
     //String trx_id = 'Liveness_' + DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-    String authorization = 'NODEFLUX-HMAC-SHA256 Credential=ZZC8MB2EHH01G3FX60ZNZS7KA/20201110/nodeflux.api.v1beta1.ImageAnalytic/StreamImageAnalytic, SignedHeaders=x-nodeflux-timestamp, Signature=5a6b903b95b8f3c9677169d69b13b4f790799ffba897405b7826770f51fd4a21';
+    String authorization =
+        'NODEFLUX-HMAC-SHA256 Credential=ZZC8MB2EHH01G3FX60ZNZS7KA/20201110/nodeflux.api.v1beta1.ImageAnalytic/StreamImageAnalytic, SignedHeaders=x-nodeflux-timestamp, Signature=5a6b903b95b8f3c9677169d69b13b4f790799ffba897405b7826770f51fd4a21';
     String contentType = 'application/json';
-    String xnodefluxtimestamp='20201110T135945Z';
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
-    String base64Image = 'data:image/jpeg;base64,'+base64Encode(imageBytes);
-    String dialog = "";
-    bool isPassed=false;
-    String currentStatus='';
-    NodefluxDataModel nodefluxDataModel=NodefluxDataModel();
-    NodefluxJobModel nodefluxJobModel=NodefluxJobModel();
-    NodefluxResultModel nodefluxResultModel = NodefluxResultModel();
-    NodefluxResult2Model nodefluxResult2Model =NodefluxResult2Model();
-    bool okValue=true;
-    try{
+    String xnodefluxtimestamp = '20201110T135945Z';
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
+    String base64Image = 'data:image/jpeg;base64,' + base64Encode(imageBytes);
+    String? dialog = "";
+    bool isPassed = false;
+    String? currentStatus = '';
+    NodefluxDataModel nodefluxDataModel = NodefluxDataModel();
+    NodefluxJobModel? nodefluxJobModel = NodefluxJobModel();
+    NodefluxResultModel? nodefluxResultModel = NodefluxResultModel();
+    NodefluxResult2Model nodefluxResult2Model = NodefluxResult2Model();
+    bool? okValue = true;
+    try {
       // var data = "images: ["+ base64Image +"]";
 
       //var uri = Uri.parse('https://api.cloud.nodeflux.io/v1/analytics/ocr-ktp');
-      var url='https://api.cloud.nodeflux.io/v1/analytics/ocr-ktp';
+      var url = 'https://api.cloud.nodeflux.io/v1/analytics/ocr-ktp';
       // var response = http.post(uri, headers: {
       //   "Content-Type": "application/json",
       //   "x-nodeflux-timestamp": "20201110T135945Z",
       //       "Authorization": authorization,
       // }, body:data).then((http.Response response) {});
-      List<String> photoBase64List=List<String>();
+      List<String> photoBase64List = [];
       photoBase64List.add(base64Image);
 
       var response;
-      while (currentStatus!='success' && okValue) {
-        response = await http
-            .post(Uri.encodeFull(url), body: json.encode({
-          "images":photoBase64List
-        }), headers: {"Accept": "application/json",  "Content-Type": "application/json",
-          "x-nodeflux-timestamp": "20201110T135945Z",
-          "Authorization": authorization,});
+      while (currentStatus != 'success' && okValue!) {
+        response = await http.post(Uri.encodeFull(url) as Uri,
+            body: json.encode({"images": photoBase64List}),
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "x-nodeflux-timestamp": "20201110T135945Z",
+              "Authorization": authorization,
+            });
 
         print(response.body);
 
-        var respbody=response.body;
-        nodefluxDataModel=NodefluxDataModel.fromJson00(jsonDecode(response.body));
-        okValue=nodefluxDataModel.ok;
-        if (okValue) {
-          nodefluxDataModel=NodefluxDataModel.fromJson0(jsonDecode(response.body));
-          nodefluxJobModel=nodefluxDataModel.job;
-          nodefluxResultModel = nodefluxJobModel.result;
+        var respbody = response.body;
+        nodefluxDataModel =
+            NodefluxDataModel.fromJson00(jsonDecode(response.body));
+        okValue = nodefluxDataModel.ok;
+        if (okValue!) {
+          nodefluxDataModel =
+              NodefluxDataModel.fromJson0(jsonDecode(response.body));
+          nodefluxJobModel = nodefluxDataModel.job;
+          nodefluxResultModel = nodefluxJobModel!.result;
 
-          currentStatus=nodefluxResultModel.status;
+          currentStatus = nodefluxResultModel!.status;
         } else {
-          dialog=nodefluxDataModel.message;
-          isPassed=false;
+          dialog = nodefluxDataModel.message;
+          isPassed = false;
         }
       }
 
-      if (response!=null && currentStatus=="success") {
-        nodefluxDataModel=NodefluxDataModel.fromJson(jsonDecode(response.body));
-        nodefluxJobModel=nodefluxDataModel.job;
-        nodefluxResultModel = nodefluxJobModel.result;
-        nodefluxResult2Model = nodefluxResultModel.result[0];
+      if (response != null && currentStatus == "success") {
+        nodefluxDataModel =
+            NodefluxDataModel.fromJson(jsonDecode(response.body));
+        nodefluxJobModel = nodefluxDataModel.job;
+        nodefluxResultModel = nodefluxJobModel!.result;
+        nodefluxResult2Model = nodefluxResultModel!.result![0];
       }
-
 
       // List<Map> carOptionJson = new List();
       // CarJson carJson = new CarJson(base64Image);
@@ -194,7 +195,6 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
 
       // http.Response response = await http.post("https://api.cloud.nodeflux.io/v1/analytics/ocr-ktp", body: data,
       //     headers: {'Content-type': 'application/json', 'Authorization':authorization, 'x-nodeflux-timestamp':xnodefluxtimestamp});
-
 
       // http.Response response = await http.post(
       //     Uri.encodeFull('https://api.cloud.nodeflux.io/v1/analytics/ocr-ktp'),
@@ -222,7 +222,6 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
       // var resStr = await response.stream.bytesToString();
       // print(resStr);
 
-
       // Map<String, dynamic> listResult = jsonDecode(resStr.toString());
       // NodefluxDataModel nodefluxDataModel=NodefluxDataModel.fromJson(listResult);
       // NodefluxResultModel nodefluxResultModel = nodefluxDataModel.result;
@@ -230,22 +229,26 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
       // //AsliGesturesSetNamesModel gestureModel = AsliGesturesSetNamesModel.fromJson(listResult);
       //
       // decipherin result
-      if (nodefluxResultModel.status=="success" && nodefluxDataModel.message=="OCR Success") { // if photo ktp
-          // process
-          dialog="OCR Process success";
-          isPassed=true;
-          Navigator.of(context).push(MaterialPageRoute(
-              // builder: (context) => NodefluxOcrKtpResult(nodefluxResultModel.result[0])));
-          builder: (context) => NodefluxOcrKtpResult(nodefluxResultModel.result[0])));
-      } else if (nodefluxDataModel.message=="The image might be in wrong orientation") { // if photo not ktp/ wrong orientation
-        dialog=nodefluxDataModel.message+" or photo is not KTP";
-      // } else {// if status not success or on going
-      //   dialog="The image might be in wrong orientation or photo is not KTP";
+      if (nodefluxResultModel!.status == "success" &&
+          nodefluxDataModel.message == "OCR Success") {
+        // if photo ktp
+        // process
+        dialog = "OCR Process success";
+        isPassed = true;
+        Navigator.of(context).push(MaterialPageRoute(
+            // builder: (context) => NodefluxOcrKtpResult(nodefluxResultModel.result[0])));
+            builder: (context) =>
+                NodefluxOcrKtpResult(nodefluxResultModel!.result![0])));
+      } else if (nodefluxDataModel.message ==
+          "The image might be in wrong orientation") {
+        // if photo not ktp/ wrong orientation
+        dialog = nodefluxDataModel.message! + " or photo is not KTP";
+        // } else {// if status not success or on going
+        //   dialog="The image might be in wrong orientation or photo is not KTP";
       }
-    }
-    catch(e){
+    } catch (e) {
       debugPrint('Error $e');
-      dialog=e;
+      dialog = e.toString();
     }
 //    await photo1Compressed.delete();
 //    await photo2Compressed.delete();
@@ -259,8 +262,9 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     setState(() {
       loading = false;
     });
-    createAlertDialog(context,isPassed?'Success!':'Failed',dialog);
+    createAlertDialog(context, isPassed ? 'Success!' : 'Failed', dialog);
   }
+
   //OKAY FACE API START HERE
 //   comparingImages(BuildContext context) async {
 //     setState(() {
@@ -386,7 +390,6 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
 //     createAlertDialog(context, dialog);
 //   }
 
-
   apiRequest(String url, Map jsonMap) async {
     HttpClient httpClient = new HttpClient();
     HttpClientRequest request = await httpClient.postUrl(Uri.parse(url));
@@ -406,6 +409,7 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     httpClient.close();
     return sample;
   }
+
   //
   // apiRequestOcr(String url, Map jsonMap) async {
   //   HttpClient httpClient = new HttpClient();
@@ -428,18 +432,24 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
   // }
   //OKAY FACE API END HERE
 
-  createAlertDialog(BuildContext context, String title, String message) {
-    Widget okButton = FlatButton(
+  createAlertDialog(BuildContext context, String title, String? message) {
+    Widget okButton = TextButton(
       child: Text("Close"),
-      onPressed: () {Navigator.of(context).pop(); },
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(title: Text(title), content: Text(message),  actions: [
-            okButton,
-          ],);
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message!),
+            actions: [
+              okButton,
+            ],
+          );
         });
   }
 
@@ -448,66 +458,70 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     return Scaffold(
       appBar: AppBar(
         title: Text('OCR KTP'),
-        leading: IconButton(icon: Icon(
-            Icons.arrow_back),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               // Write some code to control things, when user press back button in AppBar
               moveToLastScreen();
-            }
-        ),
+            }),
       ),
       body: Container(
         child: Center(
             child: loading
                 ? Center(child: CircularProgressIndicator())
                 : Stack(
-              children: <Widget>[
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    _decideImageIdCardView(),
-                    RaisedButton(
-                      onPressed: () {
-                        createAlertDialogIdCard(context);
-                      },
-                      child: Text("Select Image Id Card!",
-                          style: TextStyle(color: Colors.white)),
-                      color:Colors.lightBlue,
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        RaisedButton(
-                          onPressed: () {
-                            (_imageFileIdCard==null) ? null: nodefluxOcrKtpProcess(context);
-                          },
-                          child: Text("Process",
-                              style: TextStyle(color: Colors.white)),
-                          color: (_imageFileIdCard==null) ? Colors.black12: Colors.lightBlue,
-                        )
-                      ],
-                    )
-                  ],
-                ),
-                (_inProcess) ? Container(
-                  color: Colors.white,
-                  height: MediaQuery.of(context).size.height * 0.95,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ):Center()
-              ],
-            )
-        ),
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          _decideImageIdCardView(),
+                          ElevatedButton(
+                            onPressed: () {
+                              createAlertDialogIdCard(context);
+                            },
+                            child: Text("Select Image Id Card!",
+                                style: TextStyle(color: Colors.white)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.lightBlue,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: () {
+                                  (_imageFileIdCard == null)
+                                      ? null
+                                      : nodefluxOcrKtpProcess(context);
+                                },
+                                child: Text("Process",
+                                    style: TextStyle(color: Colors.white)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: (_imageFileIdCard == null)
+                                      ? Colors.black12
+                                      : Colors.lightBlue,
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                      (_inProcess)
+                          ? Container(
+                              color: Colors.white,
+                              height: MediaQuery.of(context).size.height * 0.95,
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : Center()
+                    ],
+                  )),
       ),
     );
   }
 
-  showProcessButton()
-  {
-
-  }
+  showProcessButton() {}
 
   void moveToLastScreen() {
     Navigator.pop(context, true);

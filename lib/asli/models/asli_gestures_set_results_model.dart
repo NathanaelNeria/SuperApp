@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 class AsliGesturesSetResultsModel {
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  List<bool> stage_0;
+  List<bool>? stage_0;
 
   AsliGesturesSetResultsModel({
     this.stage_0,

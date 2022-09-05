@@ -2,9 +2,9 @@ import 'package:simple_app/model/componentList.dart';
 
 
 class MethodList {
-  String method;
-  String label;
-  List<ComponentList> componentList;
+  String? method;
+  String? label;
+  List<ComponentList>? componentList;
 
   MethodList({
     this.method,
@@ -21,6 +21,6 @@ class MethodList {
   Map<String, dynamic> toJson() => {
     "method": method,
     "label": label,
-    "componentList": List<dynamic>.from(componentList.map((x) => x.toJson())),
+    "componentList": List<dynamic>.from(componentList!.map((x) => x.toJson())),
   };
 }

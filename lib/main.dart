@@ -1,20 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:simple_app/RDNAProvider/RDNABridge.dart';
-import 'package:simple_app/helper/api.dart';
-import 'package:simple_app/views/home.dart';
-import 'package:simple_app/views/product.dart';
-import 'package:simple_app/views/profile.dart';
-import 'package:simple_app/views/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simple_app/screens/okayface.dart';
-import 'package:simple_app/screens/livebank.dart';
-import 'package:simple_app/screens/rel_id.dart';
-import 'package:simple_app/screens/kata_ai.dart';
 import 'package:simple_app/screens/unavailable.dart';
 import 'package:simple_app/services/authentication.dart';
 import 'package:simple_app/pages/root_page.dart';
@@ -23,7 +13,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final FirebaseMessaging _fcm = FirebaseMessaging();
+  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   runApp(MaterialApp(
     //home: Login(),
     debugShowCheckedModeBanner: false,
@@ -44,7 +34,7 @@ void main() {
 void hideKeyboard(BuildContext context) {
   FocusScopeNode currentFocus = FocusScope.of(context);
   if (!currentFocus.hasPrimaryFocus && currentFocus.focusedChild != null) {
-    FocusManager.instance.primaryFocus.unfocus();
+    FocusManager.instance.primaryFocus!.unfocus();
   }
 }
 
@@ -58,16 +48,16 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  RDNABridge rdnaBridge;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  RDNABridge? rdnaBridge;
   signOut() {
     setState(() {
       widget.signOut();
     });
   }
 
-  String username = "", name = "";
-  TabController tabController;
+  String? username = "", name = "";
+  TabController? tabController;
   final _minimumPadding = 5.0;
 
   getPref() async {
@@ -181,7 +171,7 @@ class _MainMenuState extends State<MainMenu> {
 
   void navigateToProductPage(String title) async {
 
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'OkayFace':
           return OkayFace(title);

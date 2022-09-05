@@ -2,12 +2,12 @@ import 'package:simple_app/model/methodList.dart';
 import 'package:simple_app/model/outputImageList.dart';
 
 class KtpModel {
-  String status;
-  String messageCode;
-  String message;
-  String id;
-  List<MethodList> methodList;
-  List<OutputImageList> outputImageList;
+  String? status;
+  String? messageCode;
+  String? message;
+  String? id;
+  List<MethodList>? methodList;
+  List<OutputImageList>? outputImageList;
 
   KtpModel({
     this.status,
@@ -32,7 +32,7 @@ class KtpModel {
     "messageCode": messageCode,
     "message": message,
     "id": id,
-    "methodList": List<dynamic>.from(methodList.map((x) => x.toJson())),
-    "outputImageList": List<dynamic>.from(outputImageList.map((x) => x.toJson())),
+    "methodList": List<dynamic>.from(methodList!.map((x) => x.toJson())),
+    "outputImageList": List<dynamic>.from(outputImageList!.map((x) => x.toJson())),
   };
 }

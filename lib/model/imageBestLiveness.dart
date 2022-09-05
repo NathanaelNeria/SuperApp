@@ -1,7 +1,7 @@
 class ImageBestLiveness {
-  double probability;
-  double score;
-  double quality;
+  double? probability;
+  double? score;
+  double? quality;
   //ResultIdcard resultIdcard;
 
   ImageBestLiveness({

@@ -1,5 +1,5 @@
 class ResultIdcard {
-  double confidence;
+  double? confidence;
 
   ResultIdcard({
     this.confidence,

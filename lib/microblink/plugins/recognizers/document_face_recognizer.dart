@@ -1,3 +1,4 @@
+
 import '../recognizer.dart';
 import '../types.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -8,16 +9,16 @@ part 'document_face_recognizer.g.dart';
 class DocumentFaceRecognizerResult extends RecognizerResult {
     
     ///Quadrangle represeting corner points of the document within the input image. 
-    Quadrilateral documentLocation;
+    Quadrilateral? documentLocation;
     
     ///face image from the document if enabled with returnFaceImage property. 
-    String faceImage;
+    String? faceImage;
     
     ///Quadrangle represeting corner points of the face image within the input image. 
-    Quadrilateral faceLocation;
+    Quadrilateral? faceLocation;
     
     ///full document image if enabled with returnFullDocumentImage property. 
-    String fullDocumentImage;
+    String? fullDocumentImage;
     
     DocumentFaceRecognizerResult(Map<String, dynamic> nativeResult): super(RecognizerResultState.values[nativeResult['resultState']]) {
         
@@ -42,25 +43,25 @@ class DocumentFaceRecognizer extends Recognizer {
     ///Type of docment this recognizer will scan.
     /// 
     /// 
-    DocumentFaceDetectorType detectorType = DocumentFaceDetectorType.TD1;
+    DocumentFaceDetectorType? detectorType = DocumentFaceDetectorType.TD1;
     
     ///Property for setting DPI for face images
     /// Valid ranges are [100,400]. Setting DPI out of valid ranges throws an exception
     /// 
     /// 
-    int faceImageDpi = 250;
+    int? faceImageDpi = 250;
     
     ///Property for setting DPI for full document images
     /// Valid ranges are [100,400]. Setting DPI out of valid ranges throws an exception
     /// 
     /// 
-    int fullDocumentImageDpi = 250;
+    int? fullDocumentImageDpi = 250;
     
     ///Image extension factors for full document image.
     /// 
     /// @see ImageExtensionFactors
     /// 
-    ImageExtensionFactors fullDocumentImageExtensionFactors = ImageExtensionFactors();
+    ImageExtensionFactors? fullDocumentImageExtensionFactors = ImageExtensionFactors();
     
     ///Defines how many times the same document should be detected before the detector
     /// returns this document as a result of the deteciton
@@ -68,17 +69,17 @@ class DocumentFaceRecognizer extends Recognizer {
     /// Higher number means more reliable detection, but slower processing
     /// 
     /// 
-    int numStableDetectionsThreshold = 6;
+    int? numStableDetectionsThreshold = 6;
     
     ///Sets whether face image from ID card should be extracted
     /// 
     /// 
-    bool returnFaceImage = false;
+    bool? returnFaceImage = false;
     
     ///Sets whether full document image of ID card should be extracted.
     /// 
     /// 
-    bool returnFullDocumentImage = false;
+    bool? returnFullDocumentImage = false;
     
     DocumentFaceRecognizer(): super('DocumentFaceRecognizer');
 

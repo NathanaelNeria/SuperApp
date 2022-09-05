@@ -1,7 +1,7 @@
 import 'package:simple_app/model/pFieldMapOcr.dart';
 
 class ListVerifiedFieldsOcr {
-  List<PFieldMapOcr> pFieldMaps;
+  List<PFieldMapOcr>? pFieldMaps;
 
   ListVerifiedFieldsOcr({
     this.pFieldMaps,
@@ -12,6 +12,6 @@ class ListVerifiedFieldsOcr {
   );
 
   Map<String, dynamic> toJson() => {
-    "pFieldMaps": List<dynamic>.from(pFieldMaps.map((x) => x.toJson())),
+    "pFieldMaps": List<dynamic>.from(pFieldMaps!.map((x) => x.toJson())),
   };
 }

@@ -6,7 +6,7 @@ import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/util/Util.dart';
 
 class NotificationHistory extends StatefulWidget {
-  NotificationHistorywidget objNotification;
+  late NotificationHistorywidget objNotification;
   final log = getLogger("NotificationHistory");
 
   @override
@@ -32,54 +32,50 @@ class NotificationHistory extends StatefulWidget {
 }
 
 class NotificationHistorywidget extends State<NotificationHistory> {
-  RDNABridge bridge;
+  RDNABridge? bridge;
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _hasInputError = false;
-  String notification_subject;
-  String notification_body;
+  String? notification_subject;
+  String? notification_body;
   var notification_list = [];
   var notificationUUID;
-
 
 //Method to get notification history
   void callGetNotificationHistory() {
     bridge = RDNABridge.getInstance(null);
-    bridge.getNotificationHistoryAPI();
-    bridge.on('notificationHistory', notificationHistoryJSON);
+    bridge!.getNotificationHistoryAPI();
+    bridge!.on('notificationHistory', notificationHistoryJSON);
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
 
     //Method to iterate the notifications and return a notification card.
     getCard(item) {
-        for (var item in notification_list) {
-          return (Card(
-            color: Colors.grey[200],
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                ListTile(
-                  title: Text(
-                    item.body[0].subject,
-                    style: TextStyle(fontSize: 18),
-                    textAlign: TextAlign.center,
-                  ),
-                  subtitle: Padding(
-                    padding: EdgeInsets.only(top: 15, bottom: 15),
-                    child: Text(
-                      item.body[0].message,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  ),
+      return Card(
+        color: Colors.grey[200],
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            ListTile(
+              title: Text(
+                item.body[0].subject,
+                style: TextStyle(fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+              subtitle: Padding(
+                padding: EdgeInsets.only(top: 15, bottom: 15),
+                child: Text(
+                  item.body[0].message,
+                  style: TextStyle(fontSize: 15),
                 ),
-              ],
+              ),
             ),
-          ));
-        }
-       
+          ],
+        ),
+      );
     }
 
     return Scaffold(
@@ -89,13 +85,13 @@ class NotificationHistorywidget extends State<NotificationHistory> {
       ),
       body: SingleChildScrollView(
           child: Padding(
-              padding: EdgeInsets.all(20),
-              child: new Column(children: <Widget>[
-                for (var item in notification_list)
-                 getCard(item),
-              ])
-
-              )),
+        padding: EdgeInsets.all(20),
+        child: new Column(
+          children: <Widget>[
+            ...notification_list.map((e) => getCard(e)).toList(),
+          ],
+        ),
+      )),
     );
   }
 
@@ -103,7 +99,7 @@ class NotificationHistorywidget extends State<NotificationHistory> {
   notificationHistoryJSON(res) {
     var notification = res.pArgs.response.responseData.response.history;
     if (notification.length != 0) {
-      var notification_body = notification;
+      var notificationBody = notification;
       notification.forEach((entitlement) {
         if (!mounted) return;
         setState(() {

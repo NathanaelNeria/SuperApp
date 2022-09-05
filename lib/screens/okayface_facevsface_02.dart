@@ -7,15 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:simple_app/model/faceVerifModel.dart';
-import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/model/ktpModel.dart';
 import 'package:simple_app/model/ocrModel.dart';
-import 'package:simple_app/views/fetchIdCard.dart';
-import "package:image_cropper/image_cropper.dart";
 
 
 class OkayfaceFacevsface2 extends StatefulWidget {
-  File imageFileProfile;
+  File? imageFileProfile;
   OkayfaceFacevsface2({this.imageFileProfile});
 
   @override
@@ -23,7 +20,7 @@ class OkayfaceFacevsface2 extends StatefulWidget {
 }
 
 class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
 
@@ -62,7 +59,7 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
+    var picture = await (ImagePicker()).pickImage(source: source);
 
     if(picture != null){
 //      File cropped = await ImageCropper.cropImage(
@@ -81,7 +78,7 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
 //      );
       this.setState(() {
         //_imageFileProfile = cropped; // commented because cropped is commented
-        _imageFileIdCard = picture;
+        _imageFileIdCard = picture as File?;
         _inProcess = false;
       });
     }else{
@@ -102,7 +99,7 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
         fit: BoxFit.cover,);
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 400.0,
         fit: BoxFit.cover,
@@ -119,7 +116,7 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
     //FetchIdCardModel ficModel = new FetchIdCardModel();
 
     String dialog = "";
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
     String base64Image = base64Encode(imageBytes);
 
 //    String url =
@@ -147,11 +144,11 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
 
     try {
       var streamIdCard = http.ByteStream(
-          DelegatingStream.typed(_imageFileIdCard.openRead()));
-      var lengthIdCard = await _imageFileIdCard.length();
+          DelegatingStream.typed(_imageFileIdCard!.openRead()));
+      var lengthIdCard = await _imageFileIdCard!.length();
       var streamProfile = http.ByteStream(
-          DelegatingStream.typed(widget.imageFileProfile.openRead()));
-      var lengthProfile = await widget.imageFileProfile.length();
+          DelegatingStream.typed(widget.imageFileProfile!.openRead()));
+      var lengthProfile = await widget.imageFileProfile!.length();
       //var uri = Uri.parse("http://demo.faceid.asia/api/faceid/v2/verify");
       var uri = Uri.parse("http://demo.faceid.asia/api/faceid/v2-1/verify");
       var request = http.MultipartRequest("POST", uri);
@@ -159,10 +156,10 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
       request.fields['apiKey'] = "9TCM5oQ72DlXJK0ukbP6Aa0TM2KKKxlT";
       request.files.add(http.MultipartFile(
           "imageIdCard", streamIdCard, lengthIdCard,
-          filename: path.basename(_imageFileIdCard.path)));
+          filename: path.basename(_imageFileIdCard!.path)));
       request.files.add(http.MultipartFile(
           "imageBest", streamProfile, lengthProfile,
-          filename: path.basename(widget.imageFileProfile.path)));
+          filename: path.basename(widget.imageFileProfile!.path)));
 
 //      print(imageBytes);
 //      var fileContent = _imageFileIdCard.readAsBytesSync();
@@ -177,11 +174,11 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
       FaceVerifModel faceVerifResult = FaceVerifModel.fromJson(listResult);
 
       if (faceVerifResult != null || faceVerifResult.resultIdcard != null) {
-        String livenessInfo= faceVerifResult.imageBestLiveness.probability>0.5? "Photo taken from live person. \n":"Photo is not taken live. \n";
+        String livenessInfo= faceVerifResult.imageBestLiveness!.probability!>0.5? "Photo taken from live person. \n":"Photo is not taken live. \n";
         dialog = "confidence: " +
-            faceVerifResult.resultIdcard.confidence.toString();
+            faceVerifResult.resultIdcard!.confidence.toString();
 
-        if(faceVerifResult.resultIdcard.confidence > 75){
+        if(faceVerifResult.resultIdcard!.confidence! > 75){
           dialog = livenessInfo+"Confidence level more than 75 means those 2 photos are from the same person";
         }
         else{
@@ -287,25 +284,29 @@ class _OkayfaceFacevsface2State extends State<OkayfaceFacevsface2> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     _decideImageIdCardView(),
-                    RaisedButton(
+                    ElevatedButton(
                       onPressed: () {
                         //createAlertDialogIdCard(context); // COMMENTED FOR PT SOS 20200915
                         _getImage(context, ImageSource.camera); // Use this for PT SOS 20200915 Commented on 20200916
                       },
                       child: Text("Take 2nd Selfie!",
                           style: TextStyle(color: Colors.white)),
-                      color: Colors.lightBlue,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue,
+                      ),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: (_imageFileIdCard==null) ? Colors.grey: Colors.lightBlue,
+                          ),
                           onPressed: () {
                             (_imageFileIdCard==null) ? null:comparingImages(context);
                           },
                           child: Text("Compare",
                               style: TextStyle(color: Colors.white)),
-                          color: (_imageFileIdCard==null) ? Colors.grey: Colors.lightBlue,
                         )
                       ],
                     )

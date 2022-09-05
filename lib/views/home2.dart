@@ -3,20 +3,14 @@ import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 // import 'package:location/location.dart';
 import 'package:simple_app/nodeflux/screens/nodeflux.dart';
 import 'package:simple_app/pages_relid/HomeScreen.dart';
-import 'package:simple_app/screens/g_maps.dart';
 import 'package:simple_app/screens/okayface.dart';
-import 'package:simple_app/screens/livebank.dart';
-import 'package:simple_app/screens/rel_id.dart';
-import 'package:simple_app/screens/kata_ai.dart';
 import 'package:simple_app/screens/unavailable.dart';
 import 'package:rdna_client/rdna_client.dart';
-import 'package:rdna_client/rdna_struct.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_apns/apns.dart';
 
 import 'package:simple_app/services/authentication.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import 'dart:io';
 //import 'package:path/path.dart';
@@ -29,12 +23,12 @@ import 'package:simple_app/microblink/screens/microblink.dart';
 import 'package:simple_app/iotera/iotera.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key, this.auth, this.userId, this.logoutCallback})
+  Home({Key? key, this.auth, this.userId, this.logoutCallback})
       : super(key: key);
 
-  final BaseAuth auth;
-  final VoidCallback logoutCallback;
-  final String userId;
+  final BaseAuth? auth;
+  final VoidCallback? logoutCallback;
+  final String? userId;
 
   @override
   State<StatefulWidget> createState() {
@@ -46,9 +40,9 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   var _formKey = GlobalKey<FormState>();
   final _minimumPadding = 5.0;
-  FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-  RdnaClient rdnaClient;
-  String fcmtoken;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  RdnaClient? rdnaClient;
+  String? fcmtoken;
   final connector = createPushConnector();
 
   @override
@@ -57,15 +51,15 @@ class HomeState extends State<Home> {
     runFirst();
     firebaseCloudMessaging_Listeners();
     connector.configure(
-      onLaunch: (data) => onPush('onLaunch', data),
-      onResume: (data) => onPush('onResume', data),
-      onMessage: (data) => onPush('onMessage', data),
-      onBackgroundMessage: _onBackgroundMessage,
+      onLaunch: (data) => onPush('onLaunch', data as Map<String, dynamic>),
+      onResume: (data) => onPush('onResume', data as Map<String, dynamic>),
+      onMessage: (data) => onPush('onMessage', data as Map<String, dynamic>),
+      onBackgroundMessage: _onBackgroundMessage as Future<void> Function(RemoteMessage)?,
     );
     connector.token.addListener(() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('Token_id', connector.token.value);
-      RDNABridge.getInstance(null).setDeviceToken(connector.token.value);
+      prefs.setString('Token_id', connector.token.value!);
+      RDNABridge.getInstance(null)!.setDeviceToken(connector.token.value!);
       print('Token ${connector.token.value}');
     });
     connector.requestNotificationPermissions();
@@ -92,17 +86,9 @@ class HomeState extends State<Home> {
       setPref(token);
     });
 
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
-      },
-    );
+    FirebaseMessaging.onMessage.listen((event) {
+      print('on message ${event.data}');
+    });
   }
 
   // void iOS_Permission() {
@@ -145,7 +131,7 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.title;
+    TextStyle? textStyle = Theme.of(context).textTheme.titleMedium;
 
     return Scaffold(
         appBar: AppBar(
@@ -243,8 +229,8 @@ class HomeState extends State<Home> {
 
   signOut() async {
     try {
-      await widget.auth.signOut();
-      widget.logoutCallback();
+      await widget.auth!.signOut();
+      widget.logoutCallback!();
     } catch (e) {
       print(e);
     }
@@ -259,7 +245,7 @@ class HomeState extends State<Home> {
     }
     Directory livenessExtDir = await getApplicationDocumentsDirectory();
 
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'OkayFace':
           return OkayFace(title);
@@ -298,8 +284,8 @@ class HomeState extends State<Home> {
 
 Future<dynamic> onPush(String name, Map<String, dynamic> data) {
   //storage.append('$name: $data');
-  RDNABridge rdnaBridge = RDNABridge.getInstance(null);
-  if(rdnaBridge.RdnaSession.sessionType == 1){
+  RDNABridge rdnaBridge = RDNABridge.getInstance(null)!;
+  if(rdnaBridge.RdnaSession!.sessionType == 1){
     rdnaBridge.getNotificationAPI();
   }
   return Future.value();

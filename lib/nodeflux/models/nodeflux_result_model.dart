@@ -4,15 +4,15 @@ import 'package:json_annotation/json_annotation.dart';
 class NodefluxResultModel {
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String status;
+  String? status;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String analytic_type;
+  String? analytic_type;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  List<NodefluxResult2Model> result;
+  List<NodefluxResult2Model>? result;
   //NodefluxResult2Model result;
 
   NodefluxResultModel({
@@ -31,7 +31,7 @@ class NodefluxResultModel {
   Map<String, dynamic> toJson() => {
     "status": status,
     "analytic_type": analytic_type,
-    "result": List<dynamic>.from(result.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
     //"result":result.toJson(), // gak jalan
   };
 
@@ -55,7 +55,7 @@ class NodefluxResultModel {
   Map<String, dynamic> toJsonForMatchLiveness() => {
     "status": status,
     "analytic_type": analytic_type,
-    "result": List<dynamic>.from(result.map((x) => x.toJson())), // gak jalan
+    "result": List<dynamic>.from(result!.map((x) => x.toJson())), // gak jalan
     //"result":result.toJson(), // jalan
   };
 }

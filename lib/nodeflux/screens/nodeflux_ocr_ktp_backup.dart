@@ -1,24 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:simple_app/model/faceVerifModel.dart';
-import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/model/ktpModel.dart';
-import 'package:simple_app/model/ocrModel.dart';
 //import 'package:simple_app/views/fetchIdCard.dart';
-import 'package:simple_app/nodeflux/screens/nodeflux_ocr_ktp_result.dart';
 import "package:image_cropper/image_cropper.dart";
 
-import 'package:simple_app/nodeflux/models/nodeflux_data_model.dart';
-import 'package:simple_app/nodeflux/models/nodeflux_result_model.dart';
-import 'package:simple_app/nodeflux/models/nodeflux_result2_model.dart';
 
-import 'package:simple_app/nodeflux/models/carjson.dart';
 
 class NodefluxOcrKtp extends StatefulWidget {
 //  File imageFileProfile;
@@ -29,7 +19,7 @@ class NodefluxOcrKtp extends StatefulWidget {
 }
 
 class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
-  File _imageFileIdCard;
+  File? _imageFileIdCard;
   var loading = false;
   bool _inProcess = false;
 
@@ -68,25 +58,30 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     this.setState(() {
       _inProcess = true;
     });
-    var picture = await ImagePicker.pickImage(source: source);
+
+    final picker = ImagePicker();
+    var picture = await picker.pickImage(source: source);
 
     if(picture != null){
-      File cropped = await ImageCropper.cropImage(
+      final cropper = ImageCropper();
+      final cropped = await cropper.cropImage(
           sourcePath: picture.path,
           aspectRatio: CropAspectRatio(ratioX: 8, ratioY: 5),
           compressQuality: 100,
           maxWidth: 640,
           maxHeight: 480,
           compressFormat: ImageCompressFormat.jpg,
-          androidUiSettings: AndroidUiSettings(
-            toolbarColor: Colors.deepOrange,
-            toolbarTitle: "RPS Cropper",
-            statusBarColor: Colors.deepOrange.shade900,
-            backgroundColor: Colors.white,
-          )
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarColor: Colors.deepOrange,
+              toolbarTitle: "RPS Cropper",
+              statusBarColor: Colors.deepOrange.shade900,
+              backgroundColor: Colors.white,
+            ),
+          ]
       );
       this.setState(() {
-        _imageFileIdCard = cropped;
+        _imageFileIdCard = File(cropped!.path);
         _inProcess = false;
       });
     }else{
@@ -107,7 +102,7 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
         fit: BoxFit.cover,);
     } else {
       return Image.file(
-        _imageFileIdCard,
+        _imageFileIdCard!,
         width: 300.0,
         height: 180.0,
         fit: BoxFit.cover,
@@ -123,7 +118,7 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
     String authorization = 'NODEFLUX-HMAC-SHA256 Credential=ZZC8MB2EHH01G3FX60ZNZS7KA/20201110/nodeflux.api.v1beta1.ImageAnalytic/StreamImageAnalytic, SignedHeaders=x-nodeflux-timestamp, Signature=5a6b903b95b8f3c9677169d69b13b4f790799ffba897405b7826770f51fd4a21';
     String contentType = 'application/json';
     String xnodefluxtimestamp='20201110T135945Z';
-    final imageBytes = _imageFileIdCard.readAsBytesSync();
+    final imageBytes = _imageFileIdCard!.readAsBytesSync();
     String base64Image = 'data:image/jpeg;base64,'+base64Encode(imageBytes);
     String dialog = "";
     bool isPassed=false;
@@ -137,11 +132,11 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
       //   "x-nodeflux-timestamp": "20201110T135945Z",
       //       "Authorization": authorization,
       // }, body:data).then((http.Response response) {});
-      List<String> photoBase64List=List<String>();
+      List<String> photoBase64List=[];
       photoBase64List.add(base64Image);
 
       var response = await http
-          .post(Uri.encodeFull(url), body: json.encode({
+          .post(Uri.encodeFull(url) as Uri, body: json.encode({
         "images":photoBase64List
       }), headers: {"Accept": "application/json",  "Content-Type": "application/json",
         "x-nodeflux-timestamp": "20201110T135945Z",
@@ -398,7 +393,7 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
   //OKAY FACE API END HERE
 
   createAlertDialog(BuildContext context, String title, String message) {
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: Text("Close"),
       onPressed: () {Navigator.of(context).pop(); },
     );
@@ -435,25 +430,29 @@ class _NodefluxOcrKtpState extends State<NodefluxOcrKtp> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     _decideImageIdCardView(),
-                    RaisedButton(
+                    ElevatedButton(
                       onPressed: () {
                         createAlertDialogIdCard(context);
                       },
                       child: Text("Select Image Id Card!",
                           style: TextStyle(color: Colors.white)),
-                      color:Colors.lightBlue,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.lightBlue,
+                      ),
                     ),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        RaisedButton(
+                        ElevatedButton(
                           onPressed: () {
                             (_imageFileIdCard==null) ? null: nodefluxOcrKtpProcess(context);
                           },
                           child: Text("Process",
                               style: TextStyle(color: Colors.white)),
-                          color: (_imageFileIdCard==null) ? Colors.black12: Colors.lightBlue,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: (_imageFileIdCard==null) ? Colors.black12: Colors.lightBlue,
+                          ),
                         )
                       ],
                     )

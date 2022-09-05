@@ -4,11 +4,11 @@ import 'package:json_annotation/json_annotation.dart';
 class NodefluxJobModel {
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String id;
+  String? id;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  NodefluxResultModel result;
+  NodefluxResultModel? result;
 
   NodefluxJobModel({
     this.id,
@@ -23,7 +23,7 @@ class NodefluxJobModel {
   Map<String, dynamic> toJson() => {
     "id": id,
     //"result": List<dynamic>.from(result.map((x) => x.toJson())),
-    "result": result.toJson(),
+    "result": result!.toJson(),
   };
 
   factory NodefluxJobModel.fromJson0(Map<String, dynamic> json) => NodefluxJobModel(
@@ -34,7 +34,7 @@ class NodefluxJobModel {
   Map<String, dynamic> toJson0() => {
     "id": id,
     //"result": List<dynamic>.from(result.map((x) => x.toJson())),
-    "result": result.toJson(),
+    "result": result!.toJson(),
   };
 
   factory NodefluxJobModel.fromJsonForMatchLiveness(Map<String, dynamic> json) => NodefluxJobModel(
@@ -45,6 +45,6 @@ class NodefluxJobModel {
   Map<String, dynamic> toJsonForMatchLiveness() => {
     "id": id,
     //"result": List<dynamic>.from(result.map((x) => x.toJson())),
-    "result": result.toJson(),
+    "result": result!.toJson(),
   };
 }

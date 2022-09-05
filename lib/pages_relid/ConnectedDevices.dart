@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/util/Constants.dart';
@@ -17,9 +16,9 @@ class ConnectedDevices extends StatefulWidget {
 
 class ConnectedDevicesWidget extends State<ConnectedDevices> {
   final device_name_controller = TextEditingController();
-  var deviceslist = [];
-  RDNABridge bridge;
-  var userid;
+  List<dynamic>? deviceslist = [];
+  RDNABridge? bridge;
+  late var userid;
   var prefs = SharedPreferences.getInstance();
   bool validate_devicename = false;
 
@@ -27,9 +26,9 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
 //Method to get connected devices
   void callConnectedDevice() async {
     bridge = RDNABridge.getInstance(null);
-    userid = await bridge.getLocalData('userId');
-    bridge.getConnectedDevicesAPI(userid);
-    bridge.on('connectedDevices', devicesJSON); //Event subscriber method
+    userid = await bridge!.getLocalData('userId');
+    bridge!.getConnectedDevicesAPI(userid);
+    bridge!.on('connectedDevices', devicesJSON); //Event subscriber method
   }
 
 //Method to update the device details
@@ -41,7 +40,7 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
     var arr = {
       'device': [json]
     };
-    bridge.updateDeviceDetailsAPI(userid, jsonEncode(arr));
+    bridge!.updateDeviceDetailsAPI(userid, jsonEncode(arr));
   }
 
 //Method to show popup for changing device name
@@ -74,12 +73,18 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: RaisedButton(
+                    child: ElevatedButton(
                       child: Text(
                         Constants.submitButtonLabel,
                         style: TextStyle(color: Colors.white),
                       ),
-                      color: Colors.blue,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(30.0),
+                        ),
+                        backgroundColor: Colors.blue,
+                      ),
                       onPressed: () {
                         setState(() {
                           device_name_controller.text.isEmpty
@@ -93,7 +98,7 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
                           updateDetails(
                               item, "Update", device_name_controller.text);
                           Navigator.pop(context);
-                          bridge.updateDeviceDetailsAPI(userid, item);
+                          bridge!.updateDeviceDetailsAPI(userid, item);
                         }
                       },
                     ),
@@ -120,12 +125,10 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
             child: Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: new Column(children: <Widget>[
-                  for (var item in deviceslist)
+                  for (var item in deviceslist!)
                     new Padding(
                         padding: EdgeInsets.only(top: 15),
                         child: Slidable(
-                          actionPane: SlidableDrawerActionPane(),
-                          actionExtentRatio: 0.25,
                           child: Container(
                             color: Colors.white,
                             child: ListTile(
@@ -141,51 +144,52 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
                                     item.createdTs +
                                     '\nLast Access:\t' +
                                     item.lastAccessedTs,
-                                style: Theme.of(context).textTheme.body2,
+                                style: Theme.of(context).textTheme.bodyText2,
                               ),
                             ),
                           ),
-                          secondaryActions: <Widget>[
-                            IconSlideAction(
-                                caption: 'Edit',
-                                color: Colors.blue,
-                                icon: Icons.edit,
-                                onTap: () => {getAlertDialog(item, context)}),
-                            IconSlideAction(
-                                caption: 'Delete',
-                                color: Colors.red,
-                                icon: Icons.delete,
-                                onTap: () => showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Alert",
-                                          style: TextStyle(fontSize: 20)),
-                                      content: Text(
-                                          "Do you want to delete this device?",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .body2),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                          child: Text('No'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: Text('Yes'),
-                                          onPressed: () {
-                                            updateDetails(
-                                                item,
-                                                "Delete",
-                                                device_name_controller
-                                                    .text);
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    ))),
-                          ],
+
+                          // secondaryActions: <Widget>[
+                          //   IconSlideAction(
+                          //       caption: 'Edit',
+                          //       color: Colors.blue,
+                          //       icon: Icons.edit,
+                          //       onTap: () => {getAlertDialog(item, context)}),
+                          //   IconSlideAction(
+                          //       caption: 'Delete',
+                          //       color: Colors.red,
+                          //       icon: Icons.delete,
+                          //       onTap: () => showDialog(
+                          //           context: context,
+                          //           builder: (context) => AlertDialog(
+                          //             title: Text("Alert",
+                          //                 style: TextStyle(fontSize: 20)),
+                          //             content: Text(
+                          //                 "Do you want to delete this device?",
+                          //                 style: Theme.of(context)
+                          //                     .textTheme
+                          //                     .body2),
+                          //             actions: <Widget>[
+                          //               TextButton(
+                          //                 child: Text('No'),
+                          //                 onPressed: () {
+                          //                   Navigator.of(context).pop();
+                          //                 },
+                          //               ),
+                          //               TextButton(
+                          //                 child: Text('Yes'),
+                          //                 onPressed: () {
+                          //                   updateDetails(
+                          //                       item,
+                          //                       "Delete",
+                          //                       device_name_controller
+                          //                           .text);
+                          //                   Navigator.of(context).pop();
+                          //                 },
+                          //               ),
+                          //             ],
+                          //           ))),
+                          // ],
                         )),
                 ]))));
   }

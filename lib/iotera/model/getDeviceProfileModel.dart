@@ -12,10 +12,10 @@ class GetDevicesProfileModel {
     this.statusMessage,
   });
 
-  List<dynamic> device;
-  String status;
-  int statusCode;
-  String statusMessage;
+  List<dynamic>? device;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
   factory GetDevicesProfileModel.fromJson(Map<String, dynamic> json) => GetDevicesProfileModel(
     device: List<dynamic>.from(json["device"].map((x) => Device.fromJson(x))),
@@ -25,7 +25,7 @@ class GetDevicesProfileModel {
   );
 
   Map<String, dynamic> toJson() => {
-    "device": List<dynamic>.from(device.map((x) => x.toJson())),
+    "device": List<dynamic>.from(device!.map((x) => x.toJson())),
     "status": status,
     "status_code": statusCode,
     "status_message": statusMessage,
@@ -47,17 +47,17 @@ class Device {
     this.tags,
   });
 
-  String id;
-  String serialNumber;
-  String label;
-  String category;
-  int categoryValue;
-  String firmwareVersion;
-  String applicationId;
-  String tenantId;
-  bool online;
-  List<dynamic> sensors;
-  Tags tags;
+  String? id;
+  String? serialNumber;
+  String? label;
+  String? category;
+  int? categoryValue;
+  String? firmwareVersion;
+  String? applicationId;
+  String? tenantId;
+  bool? online;
+  List<dynamic>? sensors;
+  Tags? tags;
 
   @override toString() =>
   '''
@@ -98,8 +98,8 @@ class Device {
     "application_id": applicationId,
     "tenant_id": tenantId,
     "online": online,
-    "sensors": List<dynamic>.from(sensors.map((x) => x.toJson())),
-    "tags": tags.toJson(),
+    "sensors": List<dynamic>.from(sensors!.map((x) => x.toJson())),
+    "tags": tags!.toJson(),
   };
 }
 
@@ -112,11 +112,11 @@ class Sensor {
     this.subparam,
   });
 
-  Datatype datatype;
-  String sensor;
-  Config config;
-  String param;
-  Subparam subparam;
+  Datatype? datatype;
+  String? sensor;
+  Config? config;
+  String? param;
+  Subparam? subparam;
 
   @override toString() =>
   '''
@@ -138,11 +138,11 @@ class Sensor {
   );
 
   Map<String, dynamic> toJson() => {
-    "datatype": datatypeValues.reverse[datatype],
+    "datatype": datatypeValues.reverse![datatype!],
     "sensor": sensor,
-    "config": configValues.reverse[config],
+    "config": configValues.reverse![config!],
     "param": param,
-    "subparam": subparam == null ? null : subparam.toJson(),
+    "subparam": subparam == null ? null : subparam!.toJson(),
   };
 }
 
@@ -176,15 +176,15 @@ class Subparam {
     this.data5,
   });
 
-  Datatype number;
-  Datatype decimal;
-  Datatype boolean;
-  Datatype text;
-  Datatype data1;
-  Datatype data2;
-  Datatype data3;
-  Datatype data4;
-  Datatype data5;
+  Datatype? number;
+  Datatype? decimal;
+  Datatype? boolean;
+  Datatype? text;
+  Datatype? data1;
+  Datatype? data2;
+  Datatype? data3;
+  Datatype? data4;
+  Datatype? data5;
 
   factory Subparam.fromJson(Map<String, dynamic> json) => Subparam(
     number: json["number"] == null ? null : datatypeValues.map[json["number"]],
@@ -199,15 +199,15 @@ class Subparam {
   );
 
   Map<String, dynamic> toJson() => {
-    "number": number == null ? null : datatypeValues.reverse[number],
-    "decimal": decimal == null ? null : datatypeValues.reverse[decimal],
-    "boolean": boolean == null ? null : datatypeValues.reverse[boolean],
-    "text": text == null ? null : datatypeValues.reverse[text],
-    "data1": data1 == null ? null : datatypeValues.reverse[data1],
-    "data2": data2 == null ? null : datatypeValues.reverse[data2],
-    "data3": data3 == null ? null : datatypeValues.reverse[data3],
-    "data4": data4 == null ? null : datatypeValues.reverse[data4],
-    "data5": data5 == null ? null : datatypeValues.reverse[data5],
+    "number": number == null ? null : datatypeValues.reverse![number!],
+    "decimal": decimal == null ? null : datatypeValues.reverse![decimal!],
+    "boolean": boolean == null ? null : datatypeValues.reverse![boolean!],
+    "text": text == null ? null : datatypeValues.reverse![text!],
+    "data1": data1 == null ? null : datatypeValues.reverse![data1!],
+    "data2": data2 == null ? null : datatypeValues.reverse![data2!],
+    "data3": data3 == null ? null : datatypeValues.reverse![data3!],
+    "data4": data4 == null ? null : datatypeValues.reverse![data4!],
+    "data5": data5 == null ? null : datatypeValues.reverse![data5!],
   };
 }
 
@@ -216,7 +216,7 @@ class Tags {
 
   @override toString() => '';
 
-  factory Tags.fromJson(Map<String, dynamic> json) => Tags(
+  factory Tags.fromJson(Map<String, dynamic>? json) => Tags(
   );
 
   Map<String, dynamic> toJson() => {
@@ -225,11 +225,11 @@ class Tags {
 
 class EnumValues<T> {
   Map<String, T> map;
-  Map<T, String> reverseMap;
+  Map<T, String>? reverseMap;
 
   EnumValues(this.map);
 
-  Map<T, String> get reverse {
+  Map<T, String>? get reverse {
     if (reverseMap == null) {
       reverseMap = map.map((k, v) => new MapEntry(v, k));
     }

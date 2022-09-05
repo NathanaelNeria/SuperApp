@@ -3,124 +3,124 @@ import 'package:json_annotation/json_annotation.dart';
 class AsliDataModel {
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool name;
+  bool? name;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool birthdate;
+  bool? birthdate;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool birthplace;
+  bool? birthplace;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String address;
+  String? address;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  double selfie_photo;
+  double? selfie_photo;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool result; // true, false, null
+  bool? result; // true, false, null
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  int total;
+  int? total;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool nik;
+  bool? nik;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String dob; // negative record: null
+  String? dob; // negative record: null
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String pob;// negative record: null
+  String? pob;// negative record: null
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String detail;// negative record: null
+  String? detail;// negative record: null
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool company;
+  bool? company;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String company_name;
+  String? company_name;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool company_phone;
+  bool? company_phone;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  int age;
+  int? age;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String mother_name;
+  String? mother_name;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool npwp;
+  bool? npwp;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool match_result;
+  bool? match_result;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String income;
+  String? income;
 
 // property
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String property_address;
+  String? property_address;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool property_name;
+  bool? property_name;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool property_building_area;
+  bool? property_building_area;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool property_surface_area;
+  bool? property_surface_area;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String property_estimation;
+  String? property_estimation;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String certificate_address;
+  String? certificate_address;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool certificate_id;
+  bool? certificate_id;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool certificate_name;
+  bool? certificate_name;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool certificate_type;
+  bool? certificate_type;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool certificate_date;
+  bool? certificate_date;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool negative_record;
+  bool? negative_record;
 
 
 

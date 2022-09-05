@@ -6,7 +6,7 @@ import 'package:simple_app/util/Constants.dart';
 
 class VerifyUsername extends StatefulWidget {
   var response;
-  VerifyUsernamewidget verifyUsernameObj;
+  late VerifyUsernamewidget verifyUsernameObj;
   VerifyUsername(this.response);
 
   @override
@@ -27,7 +27,7 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
   bool validate_firstname = false;
   bool showLoader = false;
   var recentlyLoginUser;
-  RDNABridge bridge;
+  RDNABridge? bridge;
 
 //Method to create instance of RDNABridge class
   initBridge() {
@@ -40,7 +40,7 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -55,10 +55,10 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
         body: Stack(
           children: <Widget>[
             WillPopScope(
-                onWillPop: () => Navigator.pushReplacement(
+                onWillPop: (() => Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (BuildContext context) => LoginUser())),
+                        builder: (BuildContext context) => LoginUser())).then((value) => value as bool)),
                 child: SingleChildScrollView(
                   child: Padding(
                       padding: const EdgeInsets.all(60.0),
@@ -112,11 +112,13 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
                                           minWidth: 100.0,
                                           height: 60.0,
                                           padding: EdgeInsets.only(top: 5),
-                                          child: new RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  new BorderRadius.circular(
-                                                      15.0),
+                                          child: new ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              elevation: 5,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: new BorderRadius.circular(15.0),
+                                              ),
+                                              backgroundColor: Colors.blue,
                                             ),
                                             onPressed: () {
                                               setState(() {
@@ -130,15 +132,13 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
                                                   showLoader = true;
                                                 });
 
-                                                bridge.setUserAPI(
+                                                bridge!.setUserAPI(
                                                     usernameController.text);
                                               }
                                             },
                                             child: const Text(
                                                 Constants.submitButtonLabel,
                                                 style: TextStyle(fontSize: 20)),
-                                            color: Colors.blue,
-                                            textColor: Colors.white,
                                           ),
                                         )),
                                   ],

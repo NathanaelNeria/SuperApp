@@ -1,4 +1,3 @@
-import 'package:simple_app/model/resultIdcard.dart';
 import 'package:simple_app/asli/models/asli_data_model.dart';
 import 'package:simple_app/asli/models/asli_errors_model.dart';
 import 'package:simple_app/asli/models/asli_gestures_set_results_model.dart';
@@ -9,45 +8,45 @@ import 'package:json_annotation/json_annotation.dart';
 class AsliResponseModel {
 
   @JsonKey(defaultValue: 0)
-  int timestamp;
+  int? timestamp;
 
   @JsonKey(defaultValue: 0)
-  int status;
+  int? status;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String trx_id;
+  String? trx_id;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String ref_id;
+  String? ref_id;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String error;
+  String? error;
 
   // Liveness Verification
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  bool passed;
+  bool? passed;
 
   //ResultIdcard resultIdcard;
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  AsliDataModel data;
+  AsliDataModel? data;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  AsliErrorsModel errors;
+  AsliErrorsModel? errors;
 
   // Liveness Verification
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  AsliGesturesSetResultsModel gestures_set_results;
+  AsliGesturesSetResultsModel? gestures_set_results;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  AsliGesturesSetNamesModel gestures_set_names;
+  AsliGesturesSetNamesModel? gestures_set_names;
 
   AsliResponseModel({
     this.timestamp,
@@ -81,14 +80,14 @@ class AsliResponseModel {
   Map<String, dynamic> toJson() => {
     "timestamp": timestamp,
     "status": status,
-    "data": data.toJson(),
-    "errors": errors.toJson(),
+    "data": data!.toJson(),
+    "errors": errors!.toJson(),
     "trx_id": trx_id,
     "ref_id": ref_id,
     "error": error,
     "_passed":passed,
-    "_gestures_set_results":gestures_set_results.toJson(),
-    "_gestures_set_names":gestures_set_names.toJson(),
+    "_gestures_set_results":gestures_set_results!.toJson(),
+    "_gestures_set_names":gestures_set_names!.toJson(),
   };
 
 //  factory AsliResponseModel.mouldMap(Map<String, dynamic> json)

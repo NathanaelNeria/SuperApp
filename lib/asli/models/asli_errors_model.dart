@@ -4,71 +4,71 @@ class AsliErrorsModel {
   //double confidence;
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String identity_photo; // invalid
+  String? identity_photo; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String selfie_photo; // invalid, no face detected
+  String? selfie_photo; // invalid, no face detected
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String message; // Data not found, Internal Server Error
+  String? message; // Data not found, Internal Server Error
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String phone; // invalid
+  String? phone; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String latitude; // invalid
+  String? latitude; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String longitude; // invalid
+  String? longitude; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String name; // invalid
+  String? name; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String birthdate; // invalid
+  String? birthdate; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String birthplace; // invalid
+  String? birthplace; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String nik; // invalid
+  String? nik; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String npwp; // invalid
+  String? npwp; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String income; // invalid
+  String? income; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String company_name; // invalid
+  String? company_name; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String company_phone; // invalid
+  String? company_phone; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String nop; // invalid
+  String? nop; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String dob; // invalid
+  String? dob; // invalid
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String pob; // invalid
+  String? pob; // invalid
 
   AsliErrorsModel({
     //this.confidence,

@@ -11,12 +11,12 @@ class Microblink extends StatefulWidget {
 
 class MicroblinkState extends State<Microblink> {
   String _resultString = "";
-  String _fullDocumentFrontImageBase64 = "";
-  String _fullDocumentBackImageBase64 = "";
-  String _faceImageBase64 = "";
+  String? _fullDocumentFrontImageBase64 = "";
+  String? _fullDocumentBackImageBase64 = "";
+  String? _faceImageBase64 = "";
 
   Future<void> scan() async {
-    String license;
+    String? license;
     if (Theme.of(context).platform == TargetPlatform.iOS) {
       license = "sRwAAAEcbmV0Lm15aW5mb3N5cy5kZW1vcHJvZHVjdGFwcCJSXWHzZqnRlNz++CM754lmYZabAXQ6qiX6mwRKtv+JTihAQJrULagJfFaXS6UQZkugGrqinVTK6/zh8l8KLNC8Fi0cwvqR2u0jWHDkO29G4ok/T+rz8WR2qNwj4IiTKw18dteqycurMcIeyl6tastJYWmwumr/UsN1muSCdDkSKyO0XMyel4nKNbOrhS5VRAgPG4Eu77LBxpUqXVaPxKc/4EaRrFbkyuoqTXtaJeLCRPz701HhkYL6K+LDCSGJSv7A+kIs";
     } else if (Theme.of(context).platform == TargetPlatform.android) {
@@ -37,7 +37,7 @@ class MicroblinkState extends State<Microblink> {
     if (results.length == 0) return;
     for (var result in results) {
       if (result is BlinkIdCombinedRecognizerResult) {
-        if (result.mrzResult.documentType == MrtdDocumentType.Passport) {
+        if (result.mrzResult!.documentType == MrtdDocumentType.Passport) {
           _resultString = getPassportResultString(result);
         } else {
           _resultString = getIdResultString(result);
@@ -71,7 +71,7 @@ class MicroblinkState extends State<Microblink> {
         buildResult(result.issuingAuthority, "Issuing authority") +
         buildResult(result.nationality, "Nationality") +
         buildDateResult(result.dateOfBirth, "Date of birth") +
-        buildIntResult(result.age, "Age") +
+        buildIntResult(result.age!, "Age") +
         buildDateResult(result.dateOfIssue, "Date of issue") +
         buildDateResult(result.dateOfExpiry, "Date of expiry") +
         buildResult(result.dateOfExpiryPermanent.toString(),
@@ -85,7 +85,7 @@ class MicroblinkState extends State<Microblink> {
         buildDriverLicenceResult(result.driverLicenseDetailedInfo);
   }
 
-  String buildResult(String result, String propertyName) {
+  String buildResult(String? result, String propertyName) {
     if (result == null || result.isEmpty) {
       return "";
     }
@@ -93,7 +93,7 @@ class MicroblinkState extends State<Microblink> {
     return propertyName + ": " + result + "\n";
   }
 
-  String buildDateResult(Date result, String propertyName) {
+  String buildDateResult(Date? result, String propertyName) {
     if (result == null || result.year == 0) {
       return "";
     }
@@ -110,7 +110,7 @@ class MicroblinkState extends State<Microblink> {
     return buildResult(result.toString(), propertyName);
   }
 
-  String buildDriverLicenceResult(DriverLicenseDetailedInfo result) {
+  String buildDriverLicenceResult(DriverLicenseDetailedInfo? result) {
     if (result == null) {
       return "";
     }
@@ -123,30 +123,30 @@ class MicroblinkState extends State<Microblink> {
 
   String getPassportResultString(BlinkIdCombinedRecognizerResult result) {
     var dateOfBirth = "";
-    if (result.mrzResult.dateOfBirth != null) {
-      dateOfBirth = "Date of birth: ${result.mrzResult.dateOfBirth.day}."
-          "${result.mrzResult.dateOfBirth.month}."
-          "${result.mrzResult.dateOfBirth.year}\n";
+    if (result.mrzResult!.dateOfBirth != null) {
+      dateOfBirth = "Date of birth: ${result.mrzResult!.dateOfBirth!.day}."
+          "${result.mrzResult!.dateOfBirth!.month}."
+          "${result.mrzResult!.dateOfBirth!.year}\n";
     }
 
     var dateOfExpiry = "";
-    if (result.mrzResult.dateOfExpiry != null) {
-      dateOfExpiry = "Date of expiry: ${result.mrzResult.dateOfExpiry.day}."
-          "${result.mrzResult.dateOfExpiry.month}."
-          "${result.mrzResult.dateOfExpiry.year}\n";
+    if (result.mrzResult!.dateOfExpiry != null) {
+      dateOfExpiry = "Date of expiry: ${result.mrzResult!.dateOfExpiry!.day}."
+          "${result.mrzResult!.dateOfExpiry!.month}."
+          "${result.mrzResult!.dateOfExpiry!.year}\n";
     }
 
-    return "First name: ${result.mrzResult.secondaryId}\n"
-        "Last name: ${result.mrzResult.primaryId}\n"
-        "Document number: ${result.mrzResult.documentNumber}\n"
-        "Sex: ${result.mrzResult.gender}\n"
+    return "First name: ${result.mrzResult!.secondaryId}\n"
+        "Last name: ${result.mrzResult!.primaryId}\n"
+        "Document number: ${result.mrzResult!.documentNumber}\n"
+        "Sex: ${result.mrzResult!.gender}\n"
         "$dateOfBirth"
         "$dateOfExpiry";
   }
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(this.context).textTheme.title;
+    TextStyle? textStyle = Theme.of(this.context).textTheme.titleMedium;
 
     Widget fullDocumentFrontImage = Container();
     if (_fullDocumentFrontImageBase64 != null &&
@@ -155,7 +155,7 @@ class MicroblinkState extends State<Microblink> {
         children: <Widget>[
           Text("Document Front Image:"),
           Image.memory(
-            Base64Decoder().convert(_fullDocumentFrontImageBase64),
+            Base64Decoder().convert(_fullDocumentFrontImageBase64!),
             height: 180,
             width: 350,
           )
@@ -170,7 +170,7 @@ class MicroblinkState extends State<Microblink> {
         children: <Widget>[
           Text("Document Back Image:"),
           Image.memory(
-            Base64Decoder().convert(_fullDocumentBackImageBase64),
+            Base64Decoder().convert(_fullDocumentBackImageBase64!),
             height: 180,
             width: 350,
           )
@@ -184,7 +184,7 @@ class MicroblinkState extends State<Microblink> {
         children: <Widget>[
           Text("Face Image:"),
           Image.memory(
-            Base64Decoder().convert(_faceImageBase64),
+            Base64Decoder().convert(_faceImageBase64!),
             height: 150,
             width: 100,
           )
@@ -196,7 +196,7 @@ class MicroblinkState extends State<Microblink> {
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(appBar: AppBar(
           title: const Text('Microblink'),
         ),
@@ -205,7 +205,7 @@ class MicroblinkState extends State<Microblink> {
               child: Column(
                 children: <Widget>[
                   Padding(
-                      child: RaisedButton(
+                      child: ElevatedButton(
                         child: Text("Scan"),
                         onPressed: () => scan(),
                       ),

@@ -5,79 +5,79 @@ import 'package:simple_app/nodeflux/models/nodeflux_face_match_model.dart';
 class NodefluxResult2Model {
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String nik;
+  String? nik;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String nama;
+  String? nama;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String agama;
+  String? agama;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String rt_rw;
+  String? rt_rw;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String alamat;
+  String? alamat;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String provinsi;
+  String? provinsi;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String kecamatan;
+  String? kecamatan;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String pekerjaan;
+  String? pekerjaan;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String tempat_lahir;
+  String? tempat_lahir;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String jenis_kelamin;
+  String? jenis_kelamin;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String tanggal_lahir;
+  String? tanggal_lahir;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String berlaku_hingga;
+  String? berlaku_hingga;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String golongan_darah;
+  String? golongan_darah;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String kabupaten_kota;
+  String? kabupaten_kota;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String kelurahan_desa;
+  String? kelurahan_desa;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String kewarganegaraan;
+  String? kewarganegaraan;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  String status_perkawinan;
+  String? status_perkawinan;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  List<NodefluxFaceLivenessModel> face_liveness;
+  List<NodefluxFaceLivenessModel>? face_liveness;
 
   @JsonKey(defaultValue: null)
   @JsonKey(required: false)
-  List<NodefluxFaceMatchModel> face_match;
+  List<NodefluxFaceMatchModel>? face_match;
 
   NodefluxResult2Model({
     this.nik,
@@ -149,7 +149,7 @@ class NodefluxResult2Model {
   );
 
   Map<dynamic, dynamic> toJsonForMatchLiveness() => {
-    "face_liveness": List<dynamic>.from(face_liveness.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
-    "face_match": List<dynamic>.from(face_match.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
+    "face_liveness": List<dynamic>.from(face_liveness!.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
+    "face_match": List<dynamic>.from(face_match!.map((x) => x.toJson())), // jalan (tp gak jalan kalo kosong)
   };
 }

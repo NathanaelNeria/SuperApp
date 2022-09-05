@@ -2,41 +2,33 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
-
-import 'package:async/async.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:simple_app/asli/models/asli_data_model.dart';
-import 'package:simple_app/asli/models/asli_gestures_set_names_model.dart';
-import 'package:simple_app/asli/models/asli_response_model.dart';
-import 'package:simple_app/asli/models/asli_errors_model.dart';
-
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-
-import 'package:geolocator/geolocator.dart' as geo;
-import 'package:location/location.dart' as loc;
-
-
 //import 'package:simple_app/model/fetchIdCardModel.dart';
 //import 'package:simple_app/model/ktpModel.dart';
 //import 'package:simple_app/model/ocrModel.dart';
 //import 'package:simple_app/views/fetchIdCard.dart';
 
 import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:geolocator/geolocator.dart' as geo;
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
+import 'package:location/location.dart' as loc;
 import 'package:path/path.dart';
-import 'package:simple_app/asli/screens/photo_compressor.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:simple_app/asli/models/asli_data_model.dart';
+import 'package:simple_app/asli/models/asli_errors_model.dart';
+import 'package:simple_app/asli/models/asli_gestures_set_names_model.dart';
+import 'package:simple_app/asli/models/asli_response_model.dart';
 
 List<CameraDescription> cameras = [];
-Directory livenessExtDir=null;
+Directory? livenessExtDir;
 
 class Asli extends StatefulWidget {
   final String appBarTitle;
+
   Asli(this.appBarTitle, cameras, livenessExtDir);
 
   @override
@@ -57,21 +49,25 @@ IconData getCameraLensIcon(CameraLensDirection direction) {
   throw ArgumentError('Unknown lens direction');
 }
 
-void logError(String code, String message) =>
+void logError(String code, String? message) =>
     print('Error: $code\nError Message: $message');
 
 void _showCameraException(CameraException e) {
   logError(e.code, e.description);
 }
 
-class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+class AsliState extends State<Asli>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   final _formKey = new GlobalKey<FormState>();
+
   AsliState(this.appBarTitle);
+
   String appBarTitle;
-  DateTime selectedbirthdate=null;
-  DateTime selectedcertificatedate=null;
-  var loading;
-  File _professionalImage;
+  DateTime? selectedbirthdate;
+  DateTime? selectedcertificatedate;
+  late var loading;
+  File? _professionalImage;
+
   // File photo1;
   // File photo2;
   // File photo3;
@@ -80,8 +76,9 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   // File photo6;
   // File photo7;
   // File photo8;
-  List<File> livenessPhotos=List(8);
-  List<File> livenessCompressedPhotos=List(8);
+  List<File?> livenessPhotos = [];
+  List<File?> livenessCompressedPhotos = [];
+
   // File photo1Compressed;
   // File photo2Compressed;
   // File photo3Compressed;
@@ -90,12 +87,11 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   // File photo6Compressed;
   // File photo7Compressed;
   // File photo8Compressed;
-  String gestureSetSelected;
+  String? gestureSetSelected;
   var res;
-  String gestureValue;
-  String gesture;
+  String? gestureValue;
+  String? gesture;
   bool isGestureSelected = false;
-
 
   TextEditingController nikController = TextEditingController();
   TextEditingController nameController = TextEditingController();
@@ -104,13 +100,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   TextEditingController addressController = TextEditingController();
   TextEditingController mobilePhoneController = TextEditingController();
   TextEditingController motherNameController = TextEditingController();
-  TextEditingController messageResultController=TextEditingController();
-  TextEditingController companyNameController=TextEditingController();
-  TextEditingController companyPhoneController=TextEditingController();
-  TextEditingController homeLatitudeController=TextEditingController();
-  TextEditingController homeLongitudeController=TextEditingController();
-  TextEditingController workLatitudeController=TextEditingController();
-  TextEditingController workLongitudeController=TextEditingController();
+  TextEditingController messageResultController = TextEditingController();
+  TextEditingController companyNameController = TextEditingController();
+  TextEditingController companyPhoneController = TextEditingController();
+  TextEditingController homeLatitudeController = TextEditingController();
+  TextEditingController homeLongitudeController = TextEditingController();
+  TextEditingController workLatitudeController = TextEditingController();
+  TextEditingController workLongitudeController = TextEditingController();
 
   TextEditingController npwpController = TextEditingController();
   TextEditingController incomeController = TextEditingController();
@@ -118,107 +114,121 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   TextEditingController nopController = TextEditingController();
   TextEditingController propertyNameController = TextEditingController();
   TextEditingController propertySurfaceAreaController = TextEditingController();
-  TextEditingController propertyBuildingAreaController = TextEditingController();
-  TextEditingController propertyEstimationController=TextEditingController();
-  TextEditingController certificateNameController=TextEditingController();
-  TextEditingController certificateIdController=TextEditingController();
-  TextEditingController certificateTypeController=TextEditingController();
-  TextEditingController certificateDateController=TextEditingController();
-  TabController tabController;
+  TextEditingController propertyBuildingAreaController =
+      TextEditingController();
+  TextEditingController propertyEstimationController = TextEditingController();
+  TextEditingController certificateNameController = TextEditingController();
+  TextEditingController certificateIdController = TextEditingController();
+  TextEditingController certificateTypeController = TextEditingController();
+  TextEditingController certificateDateController = TextEditingController();
+  TabController? tabController;
 
   var _propertyTypeEnum = ['<Certificate Type>', 'HM', 'HGB'];
-  var _currentPropertySelected = '';
-  var _taxTypeEnum = ['<Please Choose Tax Type>', 'Personal Tax', 'Company Tax'];
+  String? _currentPropertySelected = '';
+  var _taxTypeEnum = [
+    '<Please Choose Tax Type>',
+    'Personal Tax',
+    'Company Tax'
+  ];
   var _currentTaxSelected = '';
-  var _gestureSetEnum = ['left eye closed, mouth closed, right eye closed','left eye closed, mouth closed, right eye open', 'left eye closed, mouth open, right eye closed', 'left eye closed, mouth open, right eye open', 'left eye open, mouth closed, right eye closed', 'left eye open, mouth closed, right eye open', 'left eye open, mouth open, right eye closed', 'left eye open, mouth open, right eye open'];
-  var _currentGestureSelected = '';
+  var _gestureSetEnum = [
+    'left eye closed, mouth closed, right eye closed',
+    'left eye closed, mouth closed, right eye open',
+    'left eye closed, mouth open, right eye closed',
+    'left eye closed, mouth open, right eye open',
+    'left eye open, mouth closed, right eye closed',
+    'left eye open, mouth closed, right eye open',
+    'left eye open, mouth open, right eye closed',
+    'left eye open, mouth open, right eye open'
+  ];
+  String? _currentGestureSelected = '';
 
-  Map personalApiResultBool = Map<String, bool>();
-  Map personalApiResultMessage=Map<String, String>();
-  Map workplaceApiResultBool = Map<String, bool>();
-  Map workplaceApiResultMessage=Map<String, String>();
-  Map locationApiResultBool = Map<String, bool>();
-  Map locationApiResultMessage=Map<String, String>();
-  Map taxApiResultBool = Map<String, bool>();
-  Map taxApiResultMessage=Map<String, String>();
-  Map propertyApiResultBool=new Map<String, bool>();
-  Map propertyApiResultMessage=new Map<String, String>();
+  Map personalApiResultBool = Map<String, bool?>();
+  Map personalApiResultMessage = Map<String, String?>();
+  Map workplaceApiResultBool = Map<String, bool?>();
+  Map workplaceApiResultMessage = Map<String, String>();
+  Map locationApiResultBool = Map<String, bool?>();
+  Map locationApiResultMessage = Map<String, String>();
+  Map taxApiResultBool = Map<String, bool?>();
+  Map taxApiResultMessage = Map<String, String?>();
+  Map propertyApiResultBool = new Map<String, bool?>();
+  Map propertyApiResultMessage = new Map<String, String?>();
+
 //  Map officeApiResultBool = Map<String, bool>();
 //  Map officeApiResultMessage=Map<String, String>();
   Map livenessApiResultBool = new Map<String, bool>();
   Map livenessApiResultMessage = new Map<String, String>();
 
-  String _nikErrorMessage;
-  String _nameErrorMessage;
-  String _birthdateErrorMessage;
-  String _birthplaceErrorMessage;
-  String _addressErrorMessage;
-  String _mobilePhoneErrorMessage;
-  String _motherNameErrorMessage;
-  String _selfieErrorMessage;
+  String? _nikErrorMessage;
+  String? _nameErrorMessage;
+  String? _birthdateErrorMessage;
+  String? _birthplaceErrorMessage;
+  String? _addressErrorMessage;
+  String? _mobilePhoneErrorMessage;
+  String? _motherNameErrorMessage;
+  String? _selfieErrorMessage;
 
-  String _companyNameErrorMessage;
-  String _companyPhoneErrorMessage;
-  String _homeLatitudeErrorMessage;
-  String _homeLongitudeErrorMessage;
-  String _workLatitudeErrorMessage;
-  String _workLongitudeErrorMessage;
+  String? _companyNameErrorMessage;
+  String? _companyPhoneErrorMessage;
+  String? _homeLatitudeErrorMessage;
+  String? _homeLongitudeErrorMessage;
+  String? _workLatitudeErrorMessage;
+  String? _workLongitudeErrorMessage;
 
-  String _taxTypeErrorMessage;
-  String _npwpErrorMessage;
-  String _incomeErrorMessage;
+  String? _taxTypeErrorMessage;
+  String? _npwpErrorMessage;
+  String? _incomeErrorMessage;
 
-  String _nopErrorMessage;
-  String _propertyNameErrorMessage;
-  String _propertySurfaceAreaErrorMessage;
-  String _propertyBuildingAreaErrorMessage;
-  String _propertyEstimationErrorMessage;
-  String _certificateNameErrorMessage;
-  String _certificateIdErrorMessage;
-  String _certificateTypeErrorMessage;
-  String _certificateDateErrorMessage;
+  String? _nopErrorMessage;
+  String? _propertyNameErrorMessage;
+  String? _propertySurfaceAreaErrorMessage;
+  String? _propertyBuildingAreaErrorMessage;
+  String? _propertyEstimationErrorMessage;
+  String? _certificateNameErrorMessage;
+  String? _certificateIdErrorMessage;
+  String? _certificateTypeErrorMessage;
+  String? _certificateDateErrorMessage;
 
-  String _homeLatitude='';
-  String _homeLongitude='';
+  String _homeLatitude = '';
+  String _homeLongitude = '';
 
   // For Testing
-  bool useDummyProfessionalApiResult=false;
-  bool useDummyNegativeRecordApiResult=false;
-  bool useDummyPhoneAgeApiResult=false;
-  bool useDummyPhoneExtraApiResult=false;
-  bool useDummyHomeLocationApiResult=false;
-  bool useDummyWorkLocationApiResult=false;
-  bool useDummyTaxExtraApi=false;
-  bool useDummyTaxCompanyApiResult=false;
-  bool useDummyPropertyApiResult=false;
-  bool useDummyWorkplaceApiResult=false;
+  bool useDummyProfessionalApiResult = false;
+  bool useDummyNegativeRecordApiResult = false;
+  bool useDummyPhoneAgeApiResult = false;
+  bool useDummyPhoneExtraApiResult = false;
+  bool useDummyHomeLocationApiResult = false;
+  bool useDummyWorkLocationApiResult = false;
+  bool useDummyTaxExtraApi = false;
+  bool useDummyTaxCompanyApiResult = false;
+  bool useDummyPropertyApiResult = false;
+  bool useDummyWorkplaceApiResult = false;
+
   //bool isPersonalTax;
 
-  bool usePrefilledData=false;
+  bool usePrefilledData = false;
 
-  String imgPath;
-  CameraController controller;
+  String? imgPath;
+  CameraController? controller;
 
-  int professionalMinPhotoSize=256000;
-  int professionalMaxPhotoSize=512000;
-  int livenessMinPhotoSize=163840; // 200KB
-  int livenessMaxPhotoSize=262144; //256KB
+  int professionalMinPhotoSize = 256000;
+  int professionalMaxPhotoSize = 512000;
+  int livenessMinPhotoSize = 163840; // 200KB
+  int livenessMaxPhotoSize = 262144; //256KB
   bool enableAudio = true;
 
 //  bool isContinuePhoto;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _currentPropertySelected = _propertyTypeEnum[1];
-    _currentTaxSelected=_taxTypeEnum[1];
-    _currentGestureSelected=_gestureSetEnum[0];
-    loading=false;
+    _currentTaxSelected = _taxTypeEnum[1];
+    _currentGestureSelected = _gestureSetEnum[0];
+    loading = false;
 
     tabController = TabController(vsync: this, length: 5);
     //_loadLiveness();
@@ -242,32 +252,29 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    tabController.dispose();
+    tabController!.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // App state changed before we got the chance to initialize.
-    if (controller == null || !controller.value.isInitialized) {
+    if (controller == null || !controller!.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
       controller?.dispose();
     } else if (state == AppLifecycleState.resumed) {
       if (controller != null) {
-        onNewCameraSelected(controller.description);
+        onNewCameraSelected(controller!.description);
       }
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(this.context).textTheme.title;
-    if (usePrefilledData)
-      prefilledInput();
+    TextStyle? textStyle = Theme.of(this.context).textTheme.titleMedium;
+    if (usePrefilledData) prefilledInput();
 
     return DefaultTabController(
       length: 5,
@@ -279,16 +286,14 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               onTap: (int index) async {
                 //your currently selected index
                 // print('current index is'+index.toString());
-                if (index==1) {
+                if (index == 1) {
                   await showDialog(
-                      context: context,
-                      builder: (_) => showMessage(context)
-                  );
+                      context: context, builder: (_) => showMessage(context));
                   setState(() {
                     // controller == null;
                   });
                 } else {
-                  _currentGestureSelected=_gestureSetEnum[0];
+                  _currentGestureSelected = _gestureSetEnum[0];
                   //controller.dispose();
                 }
                 // else {constructHowToLiveness(context);}
@@ -305,11 +310,9 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               ],
             ),
           ),
-          body:
-          Padding(
+          body: Padding(
             padding: EdgeInsets.only(top: 15.0, left: 10.0, right: 10.0),
-            child:
-            SafeArea(
+            child: SafeArea(
               bottom: false,
               child: TabBarView(
                 controller: tabController,
@@ -322,12 +325,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   WorkplacePageUI0(textStyle),
                   TaxPageUI0(textStyle),
                   //PropertyPageUI(),
-
                 ],
               ),
             ),
-          )
-      ),
+          )),
     );
   }
 
@@ -343,41 +344,45 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   //   createAlertDialog(context, 'How to Check Liveness', message);
   // }
 
-
-  Widget showApiFieldVerification(Map<String, bool> currentResultBoolMap, Map<String, String> currentResultMessageMap, String key){
+  Widget showApiFieldVerification(Map<String, bool?> currentResultBoolMap,
+      Map<String, String?> currentResultMessageMap, String key) {
     if (currentResultBoolMap.isNotEmpty && currentResultMessageMap.isNotEmpty) {
       if (currentResultMessageMap.containsKey(key)) {
-        String message=currentResultMessageMap[key];
-        bool isValid=null;
-        bool isInfo=null;
-        if (currentResultBoolMap.containsKey(key)){
-          if (currentResultBoolMap[key]==null){
-            isInfo=true;
-            isValid=true;
+        String? message = currentResultMessageMap[key];
+        bool? isValid;
+        bool? isInfo;
+        if (currentResultBoolMap.containsKey(key)) {
+          if (currentResultBoolMap[key] == null) {
+            isInfo = true;
+            isValid = true;
           } else {
-            isInfo=false;
+            isInfo = false;
             isValid = currentResultBoolMap[key];
           }
-          if (message.length > 0 && message != null) {
+          if (message!.length > 0) {
             return Container(
               //padding: EdgeInsets.all(5),
-              padding: EdgeInsets.only(left: 5.0, right: 5.0, top:5.0),
+              padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   //Container(width: 5),
-                  isInfo? (Icon(Icons.error, color: Colors.blue)) :
-                  (isValid? (Icon(Icons.check_circle, color: Colors.green)):(Icon(Icons.cancel, color: Colors.red))),
+                  isInfo
+                      ? (Icon(Icons.error, color: Colors.blue))
+                      : (isValid!
+                          ? (Icon(Icons.check_circle, color: Colors.green))
+                          : (Icon(Icons.cancel, color: Colors.red))),
                   //Container(width: 5),
                   Text(
                     message,
                     style: TextStyle(
-                      color: isInfo? (Colors.blue):
-                      (isValid? Colors.green:Colors.red),
+                      color: isInfo
+                          ? (Colors.blue)
+                          : (isValid! ? Colors.green : Colors.red),
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                       fontSize: 13,
-                      height:1.0,
+                      height: 1.0,
                     ),
                   ),
                 ],
@@ -390,48 +395,53 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         //bool isValid=personalApiResultBool[key];
         //bool isInfo=personalApiResultBool.containsKey(key);
 
-
       } else
         return Container();
       //return null;
     }
+    return SizedBox();
   }
 
-  Widget showApiFieldVerification2(String key){
-    print('show '+ key +' result');
-    if (personalApiResultBool.isNotEmpty && personalApiResultMessage.isNotEmpty) {
+  Widget showApiFieldVerification2(String key) {
+    print('show ' + key + ' result');
+    if (personalApiResultBool.isNotEmpty &&
+        personalApiResultMessage.isNotEmpty) {
       if (personalApiResultMessage.containsKey(key)) {
-        String message=personalApiResultMessage[key];
-        bool isValid=null;
-        bool isInfo=null;
-        if (personalApiResultBool.containsKey(key)){
-          if (personalApiResultBool[key]==null){
-            isInfo=true;
-            isValid=true;
+        String? message = personalApiResultMessage[key];
+        bool? isValid;
+        bool? isInfo;
+        if (personalApiResultBool.containsKey(key)) {
+          if (personalApiResultBool[key] == null) {
+            isInfo = true;
+            isValid = true;
           } else {
-            isInfo=false;
+            isInfo = false;
             isValid = personalApiResultBool[key];
           }
-          if (message.length > 0 && message != null) {
+          if (message!.length > 0) {
             return Container(
               //padding: EdgeInsets.all(5),
-              padding: EdgeInsets.only(left: 5.0, right: 5.0, top:5.0),
+              padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   //Container(width: 5),
-                  isInfo? (Icon(Icons.error, color: Colors.blue)) :
-                  (isValid? (Icon(Icons.check_circle, color: Colors.green)):(Icon(Icons.cancel, color: Colors.red))),
+                  isInfo
+                      ? (Icon(Icons.error, color: Colors.blue))
+                      : (isValid!
+                          ? (Icon(Icons.check_circle, color: Colors.green))
+                          : (Icon(Icons.cancel, color: Colors.red))),
                   //Container(width: 5),
                   Text(
                     message,
                     style: TextStyle(
-                      color: isInfo? (Colors.blue):
-                      (isValid? Colors.green:Colors.red),
+                      color: isInfo
+                          ? (Colors.blue)
+                          : (isValid! ? Colors.green : Colors.red),
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                       fontSize: 13,
-                      height:1.0,
+                      height: 1.0,
                     ),
                   ),
                 ],
@@ -444,11 +454,11 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         //bool isValid=personalApiResultBool[key];
         //bool isInfo=personalApiResultBool.containsKey(key);
 
-
       } else
         return Container();
       //return null;
     }
+    return SizedBox();
   }
 
   prefilledInput() {
@@ -460,39 +470,37 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //    mobilePhoneController.text='6281288140692'; // Maya
 
     //Dedi
-    nikController.text='3274041712840005';
-    nameController.text='Dedi Sadikin';
-    birthdateController.text='17-12-1984';
-    birthplaceController.text='Kota Cirebon';
-    mobilePhoneController.text='628111198434';
-    npwpController.text='590084968426000';
+    nikController.text = '3274041712840005';
+    nameController.text = 'Dedi Sadikin';
+    birthdateController.text = '17-12-1984';
+    birthplaceController.text = 'Kota Cirebon';
+    mobilePhoneController.text = '628111198434';
+    npwpController.text = '590084968426000';
 
-    addressController.text='Apt. Taman Anggrek Residences Twr. C-27 H';
-    motherNameController.text='Test';
-    companyNameController.text='Infosys Solusi Terpadu';
-    companyPhoneController.text='29529400';
-    homeLatitudeController.text='-6.1809';
-    homeLongitudeController.text='106.7922';
-    workLatitudeController.text='-6.2111'; // true
-    workLongitudeController.text='106.8164';
+    addressController.text = 'Apt. Taman Anggrek Residences Twr. C-27 H';
+    motherNameController.text = 'Test';
+    companyNameController.text = 'Infosys Solusi Terpadu';
+    companyPhoneController.text = '29529400';
+    homeLatitudeController.text = '-6.1809';
+    homeLongitudeController.text = '106.7922';
+    workLatitudeController.text = '-6.2111'; // true
+    workLongitudeController.text = '106.8164';
 
-    _currentPropertySelected=_propertyTypeEnum[1];
-    nopController.text='123456789012345678';
-    propertyNameController.text=nameController.text;
-    propertySurfaceAreaController.text='200';
-    propertyBuildingAreaController.text='150';
-    propertyEstimationController.text='1000000000';
-    certificateIdController.text='13040105110291';
-    certificateNameController.text=nameController.text;
-    certificateDateController.text='17-12-2019';
-    incomeController.text='3000000';
+    _currentPropertySelected = _propertyTypeEnum[1];
+    nopController.text = '123456789012345678';
+    propertyNameController.text = nameController.text;
+    propertySurfaceAreaController.text = '200';
+    propertyBuildingAreaController.text = '150';
+    propertyEstimationController.text = '1000000000';
+    certificateIdController.text = '13040105110291';
+    certificateNameController.text = nameController.text;
+    certificateDateController.text = '17-12-2019';
+    incomeController.text = '3000000';
 
     //isPersonalTax=true;
   }
 
-  /**
-   *  LOGIC START
-   */
+  ///  LOGIC START
   resetProcess(BuildContext context) async {
     setState(() {
       loading = true;
@@ -518,95 +526,95 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     // _currentPropertySelected = _propertyTypeEnum[0];
     // _currentTaxSelected=_taxTypeEnum[0];
 
-    nikController.text='';
-    nameController.text='';
-    birthdateController.text='';
-    birthplaceController.text='';
-    addressController.text='';
-    mobilePhoneController.text='';
-    motherNameController.text='';
-    messageResultController.text='';
-    companyNameController.text='';
-    companyPhoneController.text='';
-    homeLatitudeController.text='';
-    homeLongitudeController.text='';
-    workLatitudeController.text='';
-    workLongitudeController.text='';
+    nikController.text = '';
+    nameController.text = '';
+    birthdateController.text = '';
+    birthplaceController.text = '';
+    addressController.text = '';
+    mobilePhoneController.text = '';
+    motherNameController.text = '';
+    messageResultController.text = '';
+    companyNameController.text = '';
+    companyPhoneController.text = '';
+    homeLatitudeController.text = '';
+    homeLongitudeController.text = '';
+    workLatitudeController.text = '';
+    workLongitudeController.text = '';
 
-    npwpController.text='';
-    incomeController.text='';
+    npwpController.text = '';
+    incomeController.text = '';
 
-    nopController.text='';
-    propertyNameController.text='';
-    propertySurfaceAreaController.text='';
-    propertyBuildingAreaController.text='';
-    propertyEstimationController.text='';
-    certificateNameController.text='';
-    certificateIdController.text='';
-    certificateTypeController.text='';
-    certificateDateController.text='';
+    nopController.text = '';
+    propertyNameController.text = '';
+    propertySurfaceAreaController.text = '';
+    propertyBuildingAreaController.text = '';
+    propertyEstimationController.text = '';
+    certificateNameController.text = '';
+    certificateIdController.text = '';
+    certificateTypeController.text = '';
+    certificateDateController.text = '';
 
-    _professionalImage=null;
-    selectedbirthdate=null;
-    selectedcertificatedate=null;
-    gestureSetSelected='';
-    gestureValue='';
-    gesture='';
+    _professionalImage = null;
+    selectedbirthdate = null;
+    selectedcertificatedate = null;
+    gestureSetSelected = '';
+    gestureValue = '';
+    gesture = '';
     isGestureSelected = false;
 
     _currentPropertySelected = '';
     _currentTaxSelected = '';
     _currentGestureSelected = '';
-    imgPath='';
+    imgPath = '';
 
     _currentPropertySelected = _propertyTypeEnum[1];
-    _currentTaxSelected=_taxTypeEnum[1];
-    _currentGestureSelected=_gestureSetEnum[0];
+    _currentTaxSelected = _taxTypeEnum[1];
+    _currentGestureSelected = _gestureSetEnum[0];
   }
 
   resetPreSubmitErrorMessage() {
-    _nikErrorMessage='';
-    _nameErrorMessage='';
-    _birthdateErrorMessage='';
-    _birthplaceErrorMessage='';
-    _addressErrorMessage='';
-    _mobilePhoneErrorMessage='';
-    _motherNameErrorMessage='';
-    _selfieErrorMessage='';
+    _nikErrorMessage = '';
+    _nameErrorMessage = '';
+    _birthdateErrorMessage = '';
+    _birthplaceErrorMessage = '';
+    _addressErrorMessage = '';
+    _mobilePhoneErrorMessage = '';
+    _motherNameErrorMessage = '';
+    _selfieErrorMessage = '';
 
-    _companyNameErrorMessage='';
-    _companyPhoneErrorMessage='';
-    _homeLatitudeErrorMessage='';
-    _homeLongitudeErrorMessage='';
-    _workLatitudeErrorMessage='';
-    _workLongitudeErrorMessage='';
+    _companyNameErrorMessage = '';
+    _companyPhoneErrorMessage = '';
+    _homeLatitudeErrorMessage = '';
+    _homeLongitudeErrorMessage = '';
+    _workLatitudeErrorMessage = '';
+    _workLongitudeErrorMessage = '';
 
-    _taxTypeErrorMessage='';
-    _npwpErrorMessage='';
-    _incomeErrorMessage='';
+    _taxTypeErrorMessage = '';
+    _npwpErrorMessage = '';
+    _incomeErrorMessage = '';
 
-    _nopErrorMessage='';
-    _propertyNameErrorMessage='';
-    _propertySurfaceAreaErrorMessage='';
-    _propertyBuildingAreaErrorMessage='';
-    _propertyEstimationErrorMessage='';
-    _certificateNameErrorMessage='';
-    _certificateIdErrorMessage='';
-    _certificateTypeErrorMessage='';
-    _certificateDateErrorMessage='';
+    _nopErrorMessage = '';
+    _propertyNameErrorMessage = '';
+    _propertySurfaceAreaErrorMessage = '';
+    _propertyBuildingAreaErrorMessage = '';
+    _propertyEstimationErrorMessage = '';
+    _certificateNameErrorMessage = '';
+    _certificateIdErrorMessage = '';
+    _certificateTypeErrorMessage = '';
+    _certificateDateErrorMessage = '';
   }
 
   resetPostSubmitErrorMessages() {
-    personalApiResultBool = Map<String, bool>();
-    personalApiResultMessage=Map<String, String>();
-    workplaceApiResultBool = Map<String, bool>();
-    workplaceApiResultMessage=Map<String, String>();
-    locationApiResultBool = Map<String, bool>();
-    locationApiResultMessage=Map<String, String>();
-    taxApiResultBool = Map<String, bool>();
-    taxApiResultMessage=Map<String, String>();
-    propertyApiResultBool=new Map<String, bool>();
-    propertyApiResultMessage=new Map<String, String>();
+    personalApiResultBool = Map<String, bool?>();
+    personalApiResultMessage = Map<String, String?>();
+    workplaceApiResultBool = Map<String, bool?>();
+    workplaceApiResultMessage = Map<String, String>();
+    locationApiResultBool = Map<String, bool?>();
+    locationApiResultMessage = Map<String, String>();
+    taxApiResultBool = Map<String, bool?>();
+    taxApiResultMessage = Map<String, String?>();
+    propertyApiResultBool = new Map<String, bool?>();
+    propertyApiResultMessage = new Map<String, String?>();
     livenessApiResultBool = new Map<String, bool>();
     livenessApiResultMessage = new Map<String, String>();
   }
@@ -616,53 +624,53 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   // 2. Negative Record
   // 3. Phone Extra
   // 4. Phone Age
-  personalProcess (BuildContext context) async {
+  personalProcess(BuildContext context) async {
     setState(() {
       loading = true;
     });
     try {
-      bool isStatusCodeValid=false;
-      bool isResultValid=false;
-      String result ='';
+      bool isStatusCodeValid = false;
+      bool isResultValid = false;
+      String result = '';
       //resetPreSubmitErrorMessage();
-      personalApiResultBool=new Map<String, bool>();
-      personalApiResultMessage=new Map<String, String>();
+      personalApiResultBool = new Map<String, bool?>();
+      personalApiResultMessage = new Map<String, String?>();
 
       if (isProfessionalTabInputValid()) {
         // 1. Professional Verification API
 
         // Input
         // trx_id, nik, name, birthdate, birthplace, identity_photo(null), selfie_photo(base64photo)
-        String trx_id = 'ProfessionalVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-        String nik=nikController.text.trim();
+        String trxId = 'ProfessionalVerification_' +
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        String nik = nikController.text.trim();
         String name = nameController.text;
-        String birthdate=birthdateController.text;
-        String birthplace=birthplaceController.text.trimRight().trimLeft();
-        String phone=mobilePhoneController.text.trim();
+        String birthdate = birthdateController.text;
+        String birthplace = birthplaceController.text.trimRight().trimLeft();
+        String phone = mobilePhoneController.text.trim();
 
-        bool isNameMatched=false;
-        bool isBirthplaceMatched=false;
-        bool isBirthdateMatched=false;
-        String addressResult = '';
-        double selfiePhotoResult=null;
-
-
+        bool? isNameMatched = false;
+        bool? isBirthplaceMatched = false;
+        bool? isBirthdateMatched = false;
+        String? addressResult = '';
+        double? selfiePhotoResult;
 
         AsliResponseModel asliResponseModel = new AsliResponseModel();
 
         // convert to base64string
 
-
-        if (!useDummyProfessionalApiResult){
-          if (_professionalImage!=null) {
-            var imageBytesFile = _professionalImage.readAsBytesSync(); // Convert registration image to base64
+        if (!useDummyProfessionalApiResult) {
+          if (_professionalImage != null) {
+            var imageBytesFile = _professionalImage!
+                .readAsBytesSync(); // Convert registration image to base64
             String base64ImageFile = base64Encode(imageBytesFile);
             // COBA VERIFY BASIC
             //start calling API
             //String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_basic';
-            String url='https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_profesional';
+            String url =
+                'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_profesional';
             Map bodyMap = {
-              'trx_id': trx_id,
+              'trx_id': trxId,
               'nik': nik,
               'name': name,
               'birthdate': birthdate,
@@ -672,18 +680,21 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             };
 
             asliResponseModel = await apiRequest(url, bodyMap);
-            isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-            isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error)
+            isStatusCodeValid =
+                checkStatusCode(asliResponseModel); // is status 200
+            isResultValid = checkErrorBlock(asliResponseModel
+                .errors!); // Does Errors not contain message (means there is an error)
             print('Professional API');
           } else {
             //var imageBytesFile = _professionalImage.readAsBytesSync(); // Convert registration image to base64
             //String base64ImageFile = base64Encode(imageBytesFile);
             // COBA VERIFY BASIC
             //start calling API
-            String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_basic';
+            String url =
+                'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_basic';
             //String url='https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_profesional';
             Map bodyMap = {
-              'trx_id': trx_id,
+              'trx_id': trxId,
               'nik': nik,
               'name': name,
               'birthdate': birthdate,
@@ -693,8 +704,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             };
 
             asliResponseModel = await apiRequest(url, bodyMap);
-            isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-            isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error)
+            isStatusCodeValid =
+                checkStatusCode(asliResponseModel); // is status 200
+            isResultValid = checkErrorBlock(asliResponseModel
+                .errors!); // Does Errors not contain message (means there is an error)
             print('Basic API');
           }
 
@@ -719,33 +732,34 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
           // isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error)
         } else {
           //AsliResponseModel dummyModel = new AsliResponseModel();
-          asliResponseModel.timestamp= 1598328841;
-          asliResponseModel.status=200;
-          asliResponseModel.trx_id='ProfessionalVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          asliResponseModel.timestamp = 1598328841;
+          asliResponseModel.status = 200;
+          asliResponseModel.trx_id = 'ProfessionalVerification_' +
+              DateFormat('yyyyMMddHHmmss').format(DateTime.now());
           asliResponseModel.data = new AsliDataModel();
-          asliResponseModel.data.name=true;
-          asliResponseModel.data.birthdate=true;
-          asliResponseModel.data.birthplace=true;
-          asliResponseModel.data.address='*PT T*M*N *NGGR*K R*S*D*NC*S TWR. C-27 H';
-          asliResponseModel.errors= new AsliErrorsModel();
-          asliResponseModel.errors.identity_photo='invalid';
-          asliResponseModel.data.selfie_photo=80.00;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data!.name = true;
+          asliResponseModel.data!.birthdate = true;
+          asliResponseModel.data!.birthplace = true;
+          asliResponseModel.data!.address =
+              '*PT T*M*N *NGGR*K R*S*D*NC*S TWR. C-27 H';
+          asliResponseModel.errors = new AsliErrorsModel();
+          asliResponseModel.errors!.identity_photo = 'invalid';
+          asliResponseModel.data!.selfie_photo = 80.00;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         // Interpreting API: Basic Verification
         if (isStatusCodeValid && isResultValid) {
-          if (asliResponseModel.data!=null) {
-            isNameMatched=asliResponseModel.data.name;
-            isBirthdateMatched=asliResponseModel.data.birthdate;
-            isBirthplaceMatched=asliResponseModel.data.birthplace;
-            addressResult=asliResponseModel.data.address;
-            selfiePhotoResult=asliResponseModel.data.selfie_photo;
+          if (asliResponseModel.data != null) {
+            isNameMatched = asliResponseModel.data!.name;
+            isBirthdateMatched = asliResponseModel.data!.birthdate;
+            isBirthplaceMatched = asliResponseModel.data!.birthplace;
+            addressResult = asliResponseModel.data!.address;
+            selfiePhotoResult = asliResponseModel.data!.selfie_photo;
 
-            personalApiResultBool['nik']=true;
-            personalApiResultMessage['nik']='NIK is registered';
-
+            personalApiResultBool['nik'] = true;
+            personalApiResultMessage['nik'] = 'NIK is registered';
 
 //            if (isNameMatched && isBirthdateMatched==true && isBirthplaceMatched==true) {
 //              isResultValid=true;
@@ -761,93 +775,116 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //              personalApiResultMessage['address']=addressResult;
 //              //result='NIK registered. Name, birthdate and birthplace belong to the same individual with the entered NIK. <br/>';
 //            } else {
-            if (!isNameMatched){
+            if (!isNameMatched!) {
               //result+='Name does not belong to the same individual as Nik.  <br/>';
-              personalApiResultBool['name']=false;
-              personalApiResultMessage['name']='Name does not belong to the NIK owner';
+              personalApiResultBool['name'] = false;
+              personalApiResultMessage['name'] =
+                  'Name does not belong to the NIK owner';
             } else {
-              personalApiResultBool['name']=true;
-              personalApiResultMessage['name']='Name belongs to the NIK owner';
+              personalApiResultBool['name'] = true;
+              personalApiResultMessage['name'] =
+                  'Name belongs to the NIK owner';
             }
 
-            if (!isBirthdateMatched){
+            if (!isBirthdateMatched!) {
               //result+='Birthdate does not belong to the same individual as Nik.  <br/>';
-              personalApiResultBool['birthdate']=false;
-              personalApiResultMessage['birthdate']='Birthdate does not belong to the NIK owner';
+              personalApiResultBool['birthdate'] = false;
+              personalApiResultMessage['birthdate'] =
+                  'Birthdate does not belong to the NIK owner';
             } else {
-              personalApiResultBool['birthdate']=true;
-              personalApiResultMessage['birthdate']='Birthdate belongs to the NIK owner';
+              personalApiResultBool['birthdate'] = true;
+              personalApiResultMessage['birthdate'] =
+                  'Birthdate belongs to the NIK owner';
             }
 
-            if (!isBirthplaceMatched){
+            if (!isBirthplaceMatched!) {
               //result+='Birthplace does not belong to the same individual as Nik.  <br/>';
-              personalApiResultBool['birthplace']=false;
-              personalApiResultMessage['birthplace']='Birthplace does not belong to the NIK owner';
+              personalApiResultBool['birthplace'] = false;
+              personalApiResultMessage['birthplace'] =
+                  'Birthplace does not belong to the NIK owner';
             } else {
-              personalApiResultBool['birthplace']=true;
-              personalApiResultMessage['birthplace']='Birthplace belongs to the NIK owner';
+              personalApiResultBool['birthplace'] = true;
+              personalApiResultMessage['birthplace'] =
+                  'Birthplace belongs to the NIK owner';
             }
 
             //if (addressResult!='')
-            personalApiResultBool['address']=null;
-            personalApiResultMessage['address']=addressResult;
+            personalApiResultBool['address'] = null;
+            personalApiResultMessage['address'] = addressResult;
 //            }
 
             debugPrint('masuk');
-            if (selfiePhotoResult!=null){
-              if (selfiePhotoResult>75) {
-                personalApiResultBool['selfie']=true;
-                personalApiResultMessage['selfie']='Selfie belong to the NIK owner ('+ selfiePhotoResult.toString() +'% match) ';
-              } else if (selfiePhotoResult>0){
-                personalApiResultBool['selfie']=null;
-                personalApiResultMessage['selfie']='Selfie may not belong to the NIK owner ('+ selfiePhotoResult.toString() +'% match) ';
-              } else if (selfiePhotoResult==0.0) {
-                personalApiResultBool['selfie']=false;
-                personalApiResultMessage['selfie']='Selfie does not belong to the NIK owner';
+            if (selfiePhotoResult != null) {
+              if (selfiePhotoResult > 75) {
+                personalApiResultBool['selfie'] = true;
+                personalApiResultMessage['selfie'] =
+                    'Selfie belong to the NIK owner (' +
+                        selfiePhotoResult.toString() +
+                        '% match) ';
+              } else if (selfiePhotoResult > 0) {
+                personalApiResultBool['selfie'] = null;
+                personalApiResultMessage['selfie'] =
+                    'Selfie may not belong to the NIK owner (' +
+                        selfiePhotoResult.toString() +
+                        '% match) ';
+              } else if (selfiePhotoResult == 0.0) {
+                personalApiResultBool['selfie'] = false;
+                personalApiResultMessage['selfie'] =
+                    'Selfie does not belong to the NIK owner';
               }
-            } else { // if selfiePhotoResult is null
-              if (_professionalImage!=null) { // if Professional API
-                personalApiResultBool['selfie']=false;
-                personalApiResultMessage['selfie']='Selfie does not belong to the NIK owner';
-                if (asliResponseModel.errors.selfie_photo!=null) {
-                  if (asliResponseModel.errors.selfie_photo=='Invalid'){
-                    personalApiResultBool['selfie']=false;
-                    personalApiResultMessage['selfie']='No selfie submitted';
-                  } else if (asliResponseModel.errors.selfie_photo=='no face detected'){
-                    personalApiResultBool['selfie']=false;
-                    personalApiResultMessage['selfie']='No face detected in the selfie';
+            } else {
+              // if selfiePhotoResult is null
+              if (_professionalImage != null) {
+                // if Professional API
+                personalApiResultBool['selfie'] = false;
+                personalApiResultMessage['selfie'] =
+                    'Selfie does not belong to the NIK owner';
+                if (asliResponseModel.errors!.selfie_photo != null) {
+                  if (asliResponseModel.errors!.selfie_photo == 'Invalid') {
+                    personalApiResultBool['selfie'] = false;
+                    personalApiResultMessage['selfie'] = 'No selfie submitted';
+                  } else if (asliResponseModel.errors!.selfie_photo ==
+                      'no face detected') {
+                    personalApiResultBool['selfie'] = false;
+                    personalApiResultMessage['selfie'] =
+                        'No face detected in the selfie';
                   }
                 }
-              } else { // if Basic API
-                personalApiResultBool['selfie']=null;
-                personalApiResultMessage['selfie']='No selfie submitted, so selfie is not checked';
+              } else {
+                // if Basic API
+                personalApiResultBool['selfie'] = null;
+                personalApiResultMessage['selfie'] =
+                    'No selfie submitted, so selfie is not checked';
               }
             }
 
-            personalApiResultBool['mothername']=null;
-            personalApiResultMessage['mothername']='This verification will be available upon request';
+            personalApiResultBool['mothername'] = null;
+            personalApiResultMessage['mothername'] =
+                'This verification will be available upon request';
           } else {
             // data null = NIK is not registered
-            isResultValid=false;
-            result='NIK is not registered';
-            personalApiResultBool['nik']=false;
-            personalApiResultMessage['nik']='Nik is not registered';
+            isResultValid = false;
+            result = 'NIK is not registered';
+            personalApiResultBool['nik'] = false;
+            personalApiResultMessage['nik'] = 'Nik is not registered';
           }
-          if (_professionalImage!=null)
-            await _professionalImage.delete();
+          if (_professionalImage != null) await _professionalImage!.delete();
         } else if (!isStatusCodeValid) {
-          createAlertDialog(context, 'Error '+asliResponseModel.status.toString(), 'Professional/Basic API: '+asliResponseModel.error);
+          createAlertDialog(
+              context,
+              'Error ' + asliResponseModel.status.toString(),
+              'Professional/Basic API: ' + asliResponseModel.error!);
         }
-
 
         /*
    * 2. Negative Record Start
    */
 
-        if (!useDummyNegativeRecordApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_negative_list';
+        if (!useDummyNegativeRecordApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_negative_list';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'nik': nik,
             'name': name,
             'dob': birthdate,
@@ -855,22 +892,37 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock2(asliResponseModel.errors);// Does Errors not contain message (means there is an error)
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock2(asliResponseModel
+              .errors!); // Does Errors not contain message (means there is an error)
         } else {
-          asliResponseModel.data.negative_record=false;
-          asliResponseModel.errors.message='Data not found';
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data!.negative_record = false;
+          asliResponseModel.errors!.message = 'Data not found';
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid && isResultValid) {
-          personalApiResultBool['no_negative_record']=(asliResponseModel.errors.message=='Data not found')? true:false;
-          personalApiResultMessage['no_negative_record']=(asliResponseModel.errors.message=='Data not found')? 'This person has no negative record. ': 'This person has negative record. ';
-          personalApiResultMessage['messageResult']=(asliResponseModel.errors.message=='Data not found')? 'This person has no negative record. ': 'This person has negative record. ';
-          messageResultController.text=personalApiResultMessage['messageResult'];
+          personalApiResultBool['no_negative_record'] =
+              (asliResponseModel.errors!.message == 'Data not found')
+                  ? true
+                  : false;
+          personalApiResultMessage['no_negative_record'] =
+              (asliResponseModel.errors!.message == 'Data not found')
+                  ? 'This person has no negative record. '
+                  : 'This person has negative record. ';
+          personalApiResultMessage['messageResult'] =
+              (asliResponseModel.errors!.message == 'Data not found')
+                  ? 'This person has no negative record. '
+                  : 'This person has negative record. ';
+          messageResultController.text =
+              personalApiResultMessage['messageResult'];
         } else if (!isStatusCodeValid) {
-          createAlertDialog(context, 'Error '+asliResponseModel.status.toString(), 'Negative Record API: '+asliResponseModel.error);
+          createAlertDialog(
+              context,
+              'Error ' + asliResponseModel.status.toString(),
+              'Negative Record API: ' + asliResponseModel.error!);
         }
 
         /*
@@ -881,54 +933,68 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
      *  3. Phone Age Start
      */
 
-        if (!useDummyPhoneAgeApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_phone_age';
+        if (!useDummyPhoneAgeApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_phone_age';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'nik': nik,
             'phone': phone,
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
           //isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error) NO Errors for this API
         } else {
-          asliResponseModel.data.result=true;
-          asliResponseModel.data.age=2;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data!.result = true;
+          asliResponseModel.data!.age = 2;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
-        int phoneAge = asliResponseModel.data.age;
+        int? phoneAge = asliResponseModel.data!.age;
         if (isStatusCodeValid && isResultValid) {
-          personalApiResultBool['phone_nik']=(asliResponseModel.data.result)? true:false;
-          personalApiResultMessage['phone_nik']=(asliResponseModel.data.result)? 'Phone and NIK belong to the same person.':'Phone and NIK don\'t belong to the same person.';
-          personalApiResultBool['phone_age']=null;
-          if (phoneAge==null) {
-            if (personalApiResultBool['phone_nik']){
-              personalApiResultMessage['phone_age']='Phone is not activated';
+          personalApiResultBool['phone_nik'] =
+              asliResponseModel.data!.result! ? true : false;
+          personalApiResultMessage['phone_nik'] =
+              asliResponseModel.data!.result!
+                  ? 'Phone and NIK belong to the same person.'
+                  : 'Phone and NIK don\'t belong to the same person.';
+          personalApiResultBool['phone_age'] = null;
+          if (phoneAge == null) {
+            if (personalApiResultBool['phone_nik']) {
+              personalApiResultMessage['phone_age'] = 'Phone is not activated';
             }
           } else {
             switch (phoneAge) {
               case 1:
-                personalApiResultMessage['phone_age']='Phone is registered under 3 months';
+                personalApiResultMessage['phone_age'] =
+                    'Phone is registered under 3 months';
                 break;
               case 2:
-                personalApiResultMessage['phone_age']='Phone is registered between 3 - 6 months';
+                personalApiResultMessage['phone_age'] =
+                    'Phone is registered between 3 - 6 months';
                 break;
               case 3:
-                personalApiResultMessage['phone_age']='Phone is registered between 6 - 12 months';
+                personalApiResultMessage['phone_age'] =
+                    'Phone is registered between 6 - 12 months';
                 break;
               case 4:
-                personalApiResultMessage['phone_age']='Phone is registered more than 1 year';
+                personalApiResultMessage['phone_age'] =
+                    'Phone is registered more than 1 year';
                 break;
               default:
-                personalApiResultMessage['phone_age']='Phone is not activated';
+                personalApiResultMessage['phone_age'] =
+                    'Phone is not activated';
                 break;
             }
           }
         } else if (!isStatusCodeValid) {
-          createAlertDialog(context, 'Error '+asliResponseModel.status.toString(), 'Phone Age API: '+asliResponseModel.error);
+          createAlertDialog(
+              context,
+              'Error ' + asliResponseModel.status.toString(),
+              'Phone Age API: ' + asliResponseModel.error!);
         }
         /*
      * Phone Age ends
@@ -937,83 +1003,89 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         /*
      *  4. Phone Extra Verif Start
      */
-        if (!useDummyPhoneExtraApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_phone_extra';
+        if (!useDummyPhoneExtraApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_phone_extra';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'nik': nik,
             'phone': phone,
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
           //isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error) NO Errors for this API
         } else {
-          asliResponseModel.data.result=true;
-          asliResponseModel.data.total=2;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data!.result = true;
+          asliResponseModel.data!.total = 2;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid) {
-          personalApiResultBool['phone_total']=null;
-          personalApiResultMessage['phone_total']='The NIK owner has '+asliResponseModel.data.total.toString()+' phone registered.';
+          personalApiResultBool['phone_total'] = null;
+          personalApiResultMessage['phone_total'] = 'The NIK owner has ' +
+              asliResponseModel.data!.total.toString() +
+              ' phone registered.';
         } else if (!isStatusCodeValid) {
-          createAlertDialog(context, 'Error '+asliResponseModel.status.toString(), 'Phone Extra API: '+asliResponseModel.error);
+          createAlertDialog(
+              context,
+              'Error ' + asliResponseModel.status.toString(),
+              'Phone Extra API: ' + asliResponseModel.error!);
         }
 
         /*
      *  Phone Extra Verif Ends
      */
 
-
         // } else { GAK PERLU SOALNYA SUDAH LANGSUNG KELUAR ERROR NYA
         // createAlertDialog(context, 'Input error', 'Input invalid. Please check again.');
       }
     } catch (e) {
       debugPrint("Error $e");
-      createAlertDialog(context,'Error', e.substring(0,50));
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
     });
   }
 
-  workplaceProcess (BuildContext context) async {
+  workplaceProcess(BuildContext context) async {
     setState(() {
       loading = true;
     });
     try {
-      bool isStatusCodeValid=false;
-      bool isResultValid=false;
+      bool isStatusCodeValid = false;
+      bool isResultValid = false;
       AsliResponseModel asliResponseModel = new AsliResponseModel();
-      bool isNikRegistered=null;
-      bool isNameMatched=null;
-      bool isCompanyNameMatched=null;
-      bool isCompanyPhoneMatched=null;
+      bool? isNikRegistered;
+      bool? isNameMatched;
+      bool? isCompanyNameMatched;
+      bool? isCompanyPhoneMatched;
       //String addressResult = '';
 
       //resetPreSubmitErrorMessage();
-      workplaceApiResultBool=new Map<String, bool>();
-      workplaceApiResultMessage=new Map<String, String>();
-
-
+      workplaceApiResultBool = new Map<String, bool?>();
+      workplaceApiResultMessage = new Map<String, String>();
 
       if (isWorkplaceTabInputValid()) {
-
-        if (!useDummyHomeLocationApiResult){
+        if (!useDummyHomeLocationApiResult) {
           // Workplace Verification API
-          String trx_id = 'WorkplaceVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          String nik=nikController.text.trim();
+          String trxId = 'WorkplaceVerification_' +
+              DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          String nik = nikController.text.trim();
           String name = nameController.text;
-          String companyName=companyNameController.text.trimRight().trimLeft();
-          String companyPhone=companyPhoneController.text.trim();
+          String companyName =
+              companyNameController.text.trimRight().trimLeft();
+          String companyPhone = companyPhoneController.text.trim();
 
           // COBA VERIFY BASIC
           //start ocr
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_workplace';
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_workplace';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'nik': nik,
             'name': name,
             'company_name': companyName,
@@ -1022,52 +1094,69 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          print ('workplaceVerif API passed');
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain message (means there is an error)
+          print('workplaceVerif API passed');
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock(asliResponseModel
+              .errors!); // Does Errors not contain message (means there is an error)
         } else {
           asliResponseModel.data = new AsliDataModel();
-          asliResponseModel.data.nik=true;
-          asliResponseModel.data.name=true;
-          asliResponseModel.data.company=true;
-          asliResponseModel.data.company_phone=true;
-          asliResponseModel.data.company_name='*NF*SYS S*L*S* T*RP*D*';
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data!.nik = true;
+          asliResponseModel.data!.name = true;
+          asliResponseModel.data!.company = true;
+          asliResponseModel.data!.company_phone = true;
+          asliResponseModel.data!.company_name = '*NF*SYS S*L*S* T*RP*D*';
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
+        if (isStatusCodeValid && isResultValid) {
+          // 200 and empty errors
+          if (asliResponseModel.data != null) {
+            isNikRegistered = asliResponseModel.data!.nik;
+            isNameMatched = asliResponseModel.data!.name;
+            isCompanyNameMatched = asliResponseModel.data!.company;
+            isCompanyPhoneMatched = asliResponseModel.data!.company_phone;
 
-        if (isStatusCodeValid && isResultValid) { // 200 and empty errors
-          if (asliResponseModel.data!=null) {
-            isNikRegistered=asliResponseModel.data.nik;
-            isNameMatched=asliResponseModel.data.name;
-            isCompanyNameMatched=asliResponseModel.data.company;
-            isCompanyPhoneMatched=asliResponseModel.data.company_phone;
-
-            workplaceApiResultBool['nik']=(isNikRegistered)?true:false;
-            workplaceApiResultMessage['nik']=(isNikRegistered)?'NIK is registered':'Nik is not registered';
-            workplaceApiResultBool['name']=(isNameMatched)?true:false;
-            workplaceApiResultMessage['name']=(isNameMatched)?'Name matches with NIK':'Name does not match with NIK';
-            workplaceApiResultBool['company']=(isCompanyNameMatched)?true:false;
-            workplaceApiResultMessage['company']=(isCompanyNameMatched)?'Last workplace':'Not last workplace';
-            workplaceApiResultBool['company_phone']=(isCompanyPhoneMatched)?true:false;
-            workplaceApiResultMessage['company_phone']=(isCompanyPhoneMatched)?'Last workplace phone number':'Not last workplace phone number';
-            if (!isCompanyNameMatched && asliResponseModel.data.company_name!=null){
-              workplaceApiResultBool['company_name']=null;
-              workplaceApiResultMessage['company_name']='Last workplace is '+asliResponseModel.data.company_name;
-              workplaceApiResultMessage['messageResult']='Last workplace is '+asliResponseModel.data.company_name;
+            workplaceApiResultBool['nik'] = isNikRegistered! ? true : false;
+            workplaceApiResultMessage['nik'] = (isNikRegistered)
+                ? 'NIK is registered'
+                : 'Nik is not registered';
+            workplaceApiResultBool['name'] = isNameMatched! ? true : false;
+            workplaceApiResultMessage['name'] = (isNameMatched)
+                ? 'Name matches with NIK'
+                : 'Name does not match with NIK';
+            workplaceApiResultBool['company'] =
+                isCompanyNameMatched! ? true : false;
+            workplaceApiResultMessage['company'] = (isCompanyNameMatched)
+                ? 'Last workplace'
+                : 'Not last workplace';
+            workplaceApiResultBool['company_phone'] =
+                isCompanyPhoneMatched! ? true : false;
+            workplaceApiResultMessage['company_phone'] = (isCompanyPhoneMatched)
+                ? 'Last workplace phone number'
+                : 'Not last workplace phone number';
+            if (!isCompanyNameMatched &&
+                asliResponseModel.data!.company_name != null) {
+              workplaceApiResultBool['company_name'] = null;
+              workplaceApiResultMessage['company_name'] =
+                  'Last workplace is ' + asliResponseModel.data!.company_name!;
+              workplaceApiResultMessage['messageResult'] =
+                  'Last workplace is ' + asliResponseModel.data!.company_name!;
             }
           }
         } else {
           if (!isStatusCodeValid) {
-            createAlertDialog(context, 'Error '+asliResponseModel.status.toString(), asliResponseModel.error);
+            createAlertDialog(
+                context,
+                'Error ' + asliResponseModel.status.toString(),
+                asliResponseModel.error);
           }
         }
-
       }
-    } catch (e){
-      debugPrint(e);
-      createAlertDialog(context, 'Error', e.substring(0, 50));
+    } catch (e) {
+      debugPrint(e.toString());
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
@@ -1081,94 +1170,110 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     try {
       if (isLocationTabInputValid()) {
         //resetPreSubmitErrorMessage();
-        locationApiResultBool=new Map<String, bool>();
-        locationApiResultMessage=new Map<String, String>();
+        locationApiResultBool = new Map<String, bool?>();
+        locationApiResultMessage = new Map<String, String>();
         // 1. Home Location API
         //if (homeLatitudeController.text!='' && homeLongitudeController.text!='')
         AsliResponseModel asliResponseModel = new AsliResponseModel();
-        bool isStatusCodeValid=false;
-        bool isResultValid=false;
+        bool isStatusCodeValid = false;
+        bool isResultValid = false;
 
-        String trx_id='HomeLocationVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-        String phone=mobilePhoneController.text.trim();
-        String homeLatitude=homeLatitudeController.text.trim();
-        String homeLongitude=homeLongitudeController.text;
-        String workLatitude=workLatitudeController.text.trim();
-        String workLongitude=workLongitudeController.text.trim();
+        String trxId = 'HomeLocationVerification_' +
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        String phone = mobilePhoneController.text.trim();
+        String homeLatitude = homeLatitudeController.text.trim();
+        String homeLongitude = homeLongitudeController.text;
+        String workLatitude = workLatitudeController.text.trim();
+        String workLongitude = workLongitudeController.text.trim();
 
-        if (!useDummyHomeLocationApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_location';
+        if (!useDummyHomeLocationApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_location';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'phone': phone,
             'latitude': homeLatitude,
             'longitude': homeLongitude,
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock3(asliResponseModel.errors);// Does Errors not contain phone, latitude, longitude (means there is an error)
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock3(asliResponseModel
+              .errors!); // Does Errors not contain phone, latitude, longitude (means there is an error)
         } else {
-          asliResponseModel.data=new AsliDataModel();
-          asliResponseModel.data.result=true;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data = new AsliDataModel();
+          asliResponseModel.data!.result = true;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid && isResultValid) {
-          locationApiResultBool['home']=asliResponseModel.data.result;
+          locationApiResultBool['home'] = asliResponseModel.data!.result;
 
-          if (asliResponseModel.data.result!=null) {
-            locationApiResultMessage['home']=(asliResponseModel.data.result)?'Current location is verified as Home':'Current location isn\'t verified as home';
+          if (asliResponseModel.data!.result != null) {
+            locationApiResultMessage['home'] = asliResponseModel.data!.result!
+                ? 'Current location is verified as Home'
+                : 'Current location isn\'t verified as home';
           } else {
             locationApiResultBool['phone'] = null;
-            locationApiResultMessage['phone'] ='Not registered as Telkomsel/Indosat \n or never online';
+            locationApiResultMessage['phone'] =
+                'Not registered as Telkomsel/Indosat \n or never online';
           }
         } else {
-          locationApiResultMessage['messageResult']='Data format enterred is invalid or empty';
+          locationApiResultMessage['messageResult'] =
+              'Data format enterred is invalid or empty';
         }
 
         // WORK
-        isStatusCodeValid=false;
-        isResultValid=false;
+        isStatusCodeValid = false;
+        isResultValid = false;
 
-        trx_id='WorkLocation_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        trxId = 'WorkLocation_' +
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-        if (!useDummyWorkLocationApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_work_location';
+        if (!useDummyWorkLocationApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_work_location';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'phone': phone,
             'latitude': workLatitude,
             'longitude': workLongitude,
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock3(asliResponseModel.errors);// Does Errors not contain phone, latitude, longitude (means there is an error)
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock3(asliResponseModel
+              .errors!); // Does Errors not contain phone, latitude, longitude (means there is an error)
         } else {
-          asliResponseModel.data=new AsliDataModel();
-          asliResponseModel.data.result=true;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data = new AsliDataModel();
+          asliResponseModel.data!.result = true;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid && isResultValid) {
-          locationApiResultBool['work']=asliResponseModel.data.result;
+          locationApiResultBool['work'] = asliResponseModel.data!.result;
 
-          if (asliResponseModel.data.result!=null) {
-            locationApiResultMessage['work']=(asliResponseModel.data.result)?'Work location valid':'Work location is not valid';
+          if (asliResponseModel.data!.result != null) {
+            locationApiResultMessage['work'] = asliResponseModel.data!.result!
+                ? 'Work location valid'
+                : 'Work location is not valid';
           } else {
             locationApiResultBool['phone'] = null;
-            locationApiResultMessage['phone'] ='Not registered as Telkomsel/Indosat \n or never online';
+            locationApiResultMessage['phone'] =
+                'Not registered as Telkomsel/Indosat \n or never online';
           }
         } else {
-          locationApiResultMessage['messageResult']='Data format enterred is invalid or empty';
+          locationApiResultMessage['messageResult'] =
+              'Data format enterred is invalid or empty';
         }
       }
-    } catch(e){
-      debugPrint(e);
-      createAlertDialog(context, 'Error', e.substring(0,50));
+    } catch (e) {
+      debugPrint(e.toString());
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
@@ -1183,102 +1288,112 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       await _getCurrentLocation();
       if (isLocationHomeTabInputValid()) {
         //resetPreSubmitErrorMessage();
-        locationApiResultBool=new Map<String, bool>();
-        locationApiResultMessage=new Map<String, String>();
+        locationApiResultBool = new Map<String, bool?>();
+        locationApiResultMessage = new Map<String, String>();
         // 1. Home Location API
         //if (homeLatitudeController.text!='' && homeLongitudeController.text!='')
         AsliResponseModel asliResponseModel = new AsliResponseModel();
-        bool isStatusCodeValid=false;
-        bool isResultValid=false;
+        bool isStatusCodeValid = false;
+        bool isResultValid = false;
 
-        String trx_id='HomeLocationVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-        String phone=mobilePhoneController.text.trim();
-        String homeLatitude=_homeLatitude;
-        String homeLongitude=_homeLongitude;
+        String trxId = 'HomeLocationVerification_' +
+            DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+        String phone = mobilePhoneController.text.trim();
+        String homeLatitude = _homeLatitude;
+        String homeLongitude = _homeLongitude;
 //      String homeLatitude=homeLatitudeController.text.trim();
 //      String homeLongitude=homeLongitudeController.text;
 //      String workLatitude=workLatitudeController.text.trim();
 //      String workLongitude=workLongitudeController.text.trim();
 
-        if (!useDummyHomeLocationApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_location';
+        if (!useDummyHomeLocationApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_location';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'phone': phone,
             'latitude': homeLatitude,
             'longitude': homeLongitude,
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock3(asliResponseModel.errors);// Does Errors not contain phone, latitude, longitude (means there is an error)
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock3(asliResponseModel
+              .errors!); // Does Errors not contain phone, latitude, longitude (means there is an error)
         } else {
-          asliResponseModel.data=new AsliDataModel();
-          asliResponseModel.data.result=true;
-          isStatusCodeValid=true;
-          isResultValid=true;
+          asliResponseModel.data = new AsliDataModel();
+          asliResponseModel.data!.result = true;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid && isResultValid) {
-          locationApiResultBool['home']=asliResponseModel.data.result;
+          locationApiResultBool['home'] = asliResponseModel.data!.result;
 
-          if (asliResponseModel.data.result!=null) {
-            locationApiResultMessage['home']=(asliResponseModel.data.result)?'Current location is verified as Home':'Current location isn\'t verified as home';
+          if (asliResponseModel.data!.result != null) {
+            locationApiResultMessage['home'] = asliResponseModel.data!.result!
+                ? 'Current location is verified as Home'
+                : 'Current location isn\'t verified as home';
           } else {
             locationApiResultBool['phone'] = null;
-            locationApiResultMessage['phone'] ='Not registered as Telkomsel/Indosat \n or never online';
+            locationApiResultMessage['phone'] =
+                'Not registered as Telkomsel/Indosat \n or never online';
           }
         } else {
-          locationApiResultMessage['messageResult']='Data format enterred is invalid or empty';
+          locationApiResultMessage['messageResult'] =
+              'Data format enterred is invalid or empty';
         }
         //if (workLatitudeController.text!='' && workLongitudeController.text!='')
         //workLocationApi();
       }
-    }catch(e){
-      debugPrint(e);
-      createAlertDialog(context, 'Error', e.substring(0,50));
+    } catch (e) {
+      debugPrint(e.toString());
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
     });
-
   }
 
-  taxProcess(BuildContext context) async { // NOTE: NOT FINISHED! PLEASE FIX LATER!
+  taxProcess(BuildContext context) async {
+    // NOTE: NOT FINISHED! PLEASE FIX LATER!
     // 1. Tax Extra Verif API
     // 2. Tax Company Verif API
     setState(() {
       loading = true;
     });
-    try{
+    try {
       if (isTaxTabInputValid()) {
         //resetPreSubmitErrorMessage();
-        taxApiResultBool=new Map<String, bool>();
-        taxApiResultMessage=new Map<String, String>();
+        taxApiResultBool = new Map<String, bool?>();
+        taxApiResultMessage = new Map<String, String?>();
 //    taxApiResultBool=new Map<String, bool>();
 //    taxApiResultMessage=new Map<String, String>();
 //    // 1. Tax Extra Verif API
 //    //if (homeLatitudeController.text!='' && homeLongitudeController.text!='')
         AsliResponseModel asliResponseModel = new AsliResponseModel();
-        bool isStatusCodeValid=false;
-        bool isResultValid=false;
+        bool isStatusCodeValid = false;
+        bool isResultValid = false;
 
         //String trx_id='TaxExtra_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-        String trx_id='';
-        String nik=nikController.text.trim();
-        String name=nameController.text;
-        String birthdate=birthdateController.text;
-        String birthplace=birthplaceController.text.trimRight().trimLeft();
-        String npwp=npwpController.text.trim();
-        String income=incomeController.text;
+        String trxId = '';
+        String nik = nikController.text.trim();
+        String name = nameController.text;
+        String birthdate = birthdateController.text;
+        String birthplace = birthplaceController.text.trimRight().trimLeft();
+        String npwp = npwpController.text.trim();
+        String income = incomeController.text;
 //
 
-        if (_currentTaxSelected=='Personal Tax') {
-          trx_id='TaxExtra_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          if (!useDummyTaxExtraApi){
-            String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_extra';
+        if (_currentTaxSelected == 'Personal Tax') {
+          trxId =
+              'TaxExtra_' + DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          if (!useDummyTaxExtraApi) {
+            String url =
+                'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_extra';
             Map bodyMap = {
-              'trx_id': trx_id,
+              'trx_id': trxId,
               'nik': nik,
               'npwp': npwp,
               'income': income,
@@ -1288,54 +1403,108 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             };
             asliResponseModel = await apiRequest(url, bodyMap);
 
-            isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-            isResultValid=checkErrorBlock2(asliResponseModel.errors);//
+            isStatusCodeValid =
+                checkStatusCode(asliResponseModel); // is status 200
+            isResultValid = checkErrorBlock2(asliResponseModel.errors!); //
           } else {
-            asliResponseModel.data=new AsliDataModel();
-            asliResponseModel.data.npwp=true;
-            asliResponseModel.data.nik=true;
-            asliResponseModel.data.match_result=true;
-            asliResponseModel.data.name=true;
-            asliResponseModel.data.birthdate=true;
-            asliResponseModel.data.birthplace=true;
-            asliResponseModel.data.income='AMIDST';
-            isStatusCodeValid=true;
-            isResultValid=true;
+            asliResponseModel.data = new AsliDataModel();
+            asliResponseModel.data!.npwp = true;
+            asliResponseModel.data!.nik = true;
+            asliResponseModel.data!.match_result = true;
+            asliResponseModel.data!.name = true;
+            asliResponseModel.data!.birthdate = true;
+            asliResponseModel.data!.birthplace = true;
+            asliResponseModel.data!.income = 'AMIDST';
+            isStatusCodeValid = true;
+            isResultValid = true;
           }
 
           // Start analysing the response
-          taxApiResultBool['income']=(asliResponseModel.data.income==null)?null:(asliResponseModel.data.income=='AMIDST')?true:false;
-          getPriceAnalysisMessage(asliResponseModel.data.income, 'income', 'income', taxApiResultMessage);
+          taxApiResultBool['income'] = (asliResponseModel.data!.income == null)
+              ? null
+              : (asliResponseModel.data!.income == 'AMIDST')
+                  ? true
+                  : false;
+          getPriceAnalysisMessage(asliResponseModel.data!.income, 'income',
+              'income', taxApiResultMessage as Map<String, String?>);
 
-          taxApiResultBool['name']=(asliResponseModel.data.name==null)?false:(asliResponseModel.data.name)?true:false;
-          taxApiResultMessage['name']=(asliResponseModel.data.name==null)?'Name is null or has wrong format':(asliResponseModel.data.name)?'Name is as registered in NPWP':'Name is not as registered in NPWP';
-          taxApiResultBool['birthdate']=(asliResponseModel.data.birthdate==null)?false:(asliResponseModel.data.birthdate)?true:false;
-          taxApiResultMessage['birthdate']=(asliResponseModel.data.birthdate==null)?'Birthdate is null or has wrong format':(asliResponseModel.data.birthdate)?'Birthdate is as registered in NPWP':'Birthdate is not as registered in NPWP';
-          taxApiResultBool['birthplace']=(asliResponseModel.data.birthplace==null)?false:(asliResponseModel.data.birthplace)? true:false;
-          taxApiResultMessage['birthplace']=(asliResponseModel.data.birthplace==null)?'Birthplace is null or has wrong format':(asliResponseModel.data.birthplace)?'Birthplace is as registered in NPWP':'Birthplace is not as registered in NPWP';
+          taxApiResultBool['name'] = (asliResponseModel.data!.name == null)
+              ? false
+              : asliResponseModel.data!.name!
+                  ? true
+                  : false;
+          taxApiResultMessage['name'] = (asliResponseModel.data!.name == null)
+              ? 'Name is null or has wrong format'
+              : asliResponseModel.data!.name!
+                  ? 'Name is as registered in NPWP'
+                  : 'Name is not as registered in NPWP';
+          taxApiResultBool['birthdate'] =
+              (asliResponseModel.data!.birthdate == null)
+                  ? false
+                  : asliResponseModel.data!.birthdate!
+                      ? true
+                      : false;
+          taxApiResultMessage['birthdate'] =
+              (asliResponseModel.data!.birthdate == null)
+                  ? 'Birthdate is null or has wrong format'
+                  : asliResponseModel.data!.birthdate!
+                      ? 'Birthdate is as registered in NPWP'
+                      : 'Birthdate is not as registered in NPWP';
+          taxApiResultBool['birthplace'] =
+              (asliResponseModel.data!.birthplace == null)
+                  ? false
+                  : asliResponseModel.data!.birthplace!
+                      ? true
+                      : false;
+          taxApiResultMessage['birthplace'] =
+              (asliResponseModel.data!.birthplace == null)
+                  ? 'Birthplace is null or has wrong format'
+                  : asliResponseModel.data!.birthplace!
+                      ? 'Birthplace is as registered in NPWP'
+                      : 'Birthplace is not as registered in NPWP';
 
-          taxApiResultBool['nik']=(asliResponseModel.data.nik==null)?false:(asliResponseModel.data.nik)?true:false;
-          taxApiResultMessage['nik']=(asliResponseModel.data.nik==null)?'NIK is null or has wrong format':(asliResponseModel.data.nik)?'NIK is registered':'NIK is not registered';
-          taxApiResultBool['npwp']=(asliResponseModel.data.npwp==null)?false:(asliResponseModel.data.npwp)?true:false;
-          taxApiResultMessage['npwp']=(asliResponseModel.data.npwp==null)?'NPWP is null or has wrong format':(asliResponseModel.data.npwp)?'NPWP is registered':'NPWP is not registered';
+          taxApiResultBool['nik'] = (asliResponseModel.data!.nik == null)
+              ? false
+              : asliResponseModel.data!.nik!
+                  ? true
+                  : false;
+          taxApiResultMessage['nik'] = (asliResponseModel.data!.nik == null)
+              ? 'NIK is null or has wrong format'
+              : asliResponseModel.data!.nik!
+                  ? 'NIK is registered'
+                  : 'NIK is not registered';
+          taxApiResultBool['npwp'] = (asliResponseModel.data!.npwp == null)
+              ? false
+              : asliResponseModel.data!.npwp!
+                  ? true
+                  : false;
+          taxApiResultMessage['npwp'] = (asliResponseModel.data!.npwp == null)
+              ? 'NPWP is null or has wrong format'
+              : asliResponseModel.data!.npwp!
+                  ? 'NPWP is registered'
+                  : 'NPWP is not registered';
 
-          if (asliResponseModel.data.match_result!=null){
-            if (asliResponseModel.data.match_result) { // if match_result == true
-              if (asliResponseModel.data.income==null) {
-                taxApiResultBool['income2']=null;
-                taxApiResultMessage['income2']='This person never reported their income';
+          if (asliResponseModel.data!.match_result != null) {
+            if (asliResponseModel.data!.match_result!) {
+              // if match_result == true
+              if (asliResponseModel.data!.income == null) {
+                taxApiResultBool['income2'] = null;
+                taxApiResultMessage['income2'] =
+                    'This person never reported their income';
               }
-            } else { // if match_result == false
-              if (asliResponseModel.data.nik==true && asliResponseModel.data.npwp==true) {
-                taxApiResultBool['nik2']=null;
-                taxApiResultMessage['nik2']='NIK and NPWP are registered before 2016 \nor NIK and NPWP do not belong to the same person';
+            } else {
+              // if match_result == false
+              if (asliResponseModel.data!.nik == true &&
+                  asliResponseModel.data!.npwp == true) {
+                taxApiResultBool['nik2'] = null;
+                taxApiResultMessage['nik2'] =
+                    'NIK and NPWP are registered before 2016 \nor NIK and NPWP do not belong to the same person';
               } // end if nik and npwp true
             }
           }
 //        else { // if match_result is null
 //          // commented because obsolete
 //        }
-
 
 //      if (isStatusCodeValid && isResultValid) {
 //        //asliResponseModel.data.income
@@ -1380,31 +1549,38 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //          taxApiResultMessage['income']='Income Invalid.  Birthplace cannot be verified';
 //        }
 //      }
-        } else { // if isPersonalTax=false
+        } else {
+          // if isPersonalTax=false
           // 2. COMPANY TAX
-          trx_id='TaxCompany_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-          if (!useDummyTaxCompanyApiResult){
-            String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_company';
+          trxId = 'TaxCompany_' +
+              DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+          if (!useDummyTaxCompanyApiResult) {
+            String url =
+                'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_company';
             Map bodyMap = {
-              'trx_id': trx_id,
+              'trx_id': trxId,
               'npwp': npwp,
               'income': income,
             };
             asliResponseModel = await apiRequest(url, bodyMap);
 
-            isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-            isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain phone, latitude, longitude (means there is an error)
+            isStatusCodeValid =
+                checkStatusCode(asliResponseModel); // is status 200
+            isResultValid = checkErrorBlock(asliResponseModel
+                .errors!); // Does Errors not contain phone, latitude, longitude (means there is an error)
           } else {
-            asliResponseModel.data=new AsliDataModel();
-            asliResponseModel.data.npwp=true;
-            asliResponseModel.data.income='AMIDST';
-            isStatusCodeValid=true;
-            isResultValid=true;
+            asliResponseModel.data = new AsliDataModel();
+            asliResponseModel.data!.npwp = true;
+            asliResponseModel.data!.income = 'AMIDST';
+            isStatusCodeValid = true;
+            isResultValid = true;
           }
 
           if (isStatusCodeValid) {
-            taxApiResultBool['npwp']=asliResponseModel.data.npwp;
-            taxApiResultMessage['npwp']=(asliResponseModel.data.npwp)?'NPWP is registered':'NPWP is not registered';
+            taxApiResultBool['npwp'] = asliResponseModel.data!.npwp;
+            taxApiResultMessage['npwp'] = asliResponseModel.data!.npwp!
+                ? 'NPWP is registered'
+                : 'NPWP is not registered';
 //         switch (asliResponseModel.data.income) {
 //          case 'AMIDST':
 //            taxApiResultBool['income']=true;
@@ -1427,19 +1603,25 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //            taxApiResultMessage['income']='Income data is not available';
 //            break;
 //        }
-            taxApiResultBool['income']=(asliResponseModel.data.income==null)?null:(asliResponseModel.data.income=='AMIDST')?true:false;
+            taxApiResultBool['income'] =
+                (asliResponseModel.data!.income == null)
+                    ? null
+                    : (asliResponseModel.data!.income == 'AMIDST')
+                        ? true
+                        : false;
             //taxApiResultMessage['income']=getPriceAnalysisMessage(asliResponseModel.data.income, 'income', 'income', taxApiResultBool, taxApiResultMessage);
-            getPriceAnalysisMessage(asliResponseModel.data.income, 'income', 'income', taxApiResultMessage);
-
+            getPriceAnalysisMessage(asliResponseModel.data!.income, 'income',
+                'income', taxApiResultMessage as Map<String, String?>);
           } else {
-            taxApiResultMessage['messageResult']=asliResponseModel.errors.message;
+            taxApiResultMessage['messageResult'] =
+                asliResponseModel.errors!.message;
           }
         } // end if isPersonalTax
 
       }
     } catch (e) {
       debugPrint("Error $e");
-      createAlertDialog(context, 'Error', e.substring(0, 50));
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
@@ -1452,33 +1634,36 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     });
     if (isPropertyTabInputValid()) {
       //resetPreSubmitErrorMessage();
-      propertyApiResultBool=new Map<String, bool>();
-      propertyApiResultMessage=new Map<String, String>();
+      propertyApiResultBool = new Map<String, bool?>();
+      propertyApiResultMessage = new Map<String, String?>();
       // 1. Home Location API
       //if (homeLatitudeController.text!='' && homeLongitudeController.text!='')
       AsliResponseModel asliResponseModel = new AsliResponseModel();
-      bool isStatusCodeValid=false;
-      bool isResultValid=false;
+      bool isStatusCodeValid = false;
+      bool isResultValid = false;
 
-      String trx_id='Property_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-      String nop=nopController.text.trim();
-      String propertyName=propertyNameController.text.trimRight().trimLeft();
-      String propertySurfaceArea=propertySurfaceAreaController.text.trim();
-      String propertyBuildingArea=propertyBuildingAreaController.text.trim();
-      String propertyEstimation=propertyEstimationController.text;
-      String nik=nikController.text.trim();
-      String certificateId=certificateIdController.text.trim();
-      String certificateType=_currentPropertySelected;
-      String certificateName=certificateNameController.text.trimRight().trimLeft();
-      String certificateDate=certificateDateController.text;
+      String trxId =
+          'Property_' + DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+      String nop = nopController.text.trim();
+      String propertyName = propertyNameController.text.trimRight().trimLeft();
+      String propertySurfaceArea = propertySurfaceAreaController.text.trim();
+      String propertyBuildingArea = propertyBuildingAreaController.text.trim();
+      String propertyEstimation = propertyEstimationController.text;
+      String nik = nikController.text.trim();
+      String certificateId = certificateIdController.text.trim();
+      String? certificateType = _currentPropertySelected;
+      String certificateName =
+          certificateNameController.text.trimRight().trimLeft();
+      String certificateDate = certificateDateController.text;
 
-      String errorMessageText='';
+      String errorMessageText = '';
 
-      try{
-        if (!useDummyPropertyApiResult){
-          String url = 'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_company';
+      try {
+        if (!useDummyPropertyApiResult) {
+          String url =
+              'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_tax_company';
           Map bodyMap = {
-            'trx_id': trx_id,
+            'trx_id': trxId,
             'nop': nop,
             'property_name': propertyName,
             'property_surface_area': propertySurfaceArea,
@@ -1488,25 +1673,29 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             'certificate_name': certificateName,
             'certificate_id': certificateId,
             'certificate_type': certificateType,
-            'certificate_date':certificateDate
+            'certificate_date': certificateDate
           };
           asliResponseModel = await apiRequest(url, bodyMap);
 
-          isStatusCodeValid=checkStatusCode(asliResponseModel); // is status 200
-          isResultValid=checkErrorBlock(asliResponseModel.errors);// Does Errors not contain phone, latitude, longitude (means there is an error)
+          isStatusCodeValid =
+              checkStatusCode(asliResponseModel); // is status 200
+          isResultValid = checkErrorBlock(asliResponseModel
+              .errors!); // Does Errors not contain phone, latitude, longitude (means there is an error)
         } else {
-          asliResponseModel.data=new AsliDataModel();
-          asliResponseModel.data.property_address='A** T*M*N *NGGR*K R*S*D*NC*S TWR-C 27H';
-          asliResponseModel.data.property_name=true;
-          asliResponseModel.data.property_building_area=true;
-          asliResponseModel.data.property_surface_area=true;
-          asliResponseModel.data.property_estimation='AMIDST';
+          asliResponseModel.data = new AsliDataModel();
+          asliResponseModel.data!.property_address =
+              'A** T*M*N *NGGR*K R*S*D*NC*S TWR-C 27H';
+          asliResponseModel.data!.property_name = true;
+          asliResponseModel.data!.property_building_area = true;
+          asliResponseModel.data!.property_surface_area = true;
+          asliResponseModel.data!.property_estimation = 'AMIDST';
 
-          asliResponseModel.data.certificate_address='A** T*M*N *NGGR*K R*S*D*NC*S TWR-C 27H';
-          asliResponseModel.data.certificate_id=true;
-          asliResponseModel.data.certificate_name=true;
-          asliResponseModel.data.certificate_type=true;
-          asliResponseModel.data.certificate_date=true;
+          asliResponseModel.data!.certificate_address =
+              'A** T*M*N *NGGR*K R*S*D*NC*S TWR-C 27H';
+          asliResponseModel.data!.certificate_id = true;
+          asliResponseModel.data!.certificate_name = true;
+          asliResponseModel.data!.certificate_type = true;
+          asliResponseModel.data!.certificate_date = true;
 
 //        asliResponseModel.data.property_address=null;
 //        asliResponseModel.data.property_name=null;
@@ -1520,12 +1709,12 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //        asliResponseModel.data.certificate_type=null;
 //        asliResponseModel.data.certificate_date=null;
 
-          isStatusCodeValid=true;
-          isResultValid=true;
+          isStatusCodeValid = true;
+          isResultValid = true;
         }
 
         if (isStatusCodeValid) {
-          AsliDataModel asliDataModel=asliResponseModel.data;
+          AsliDataModel asliDataModel = asliResponseModel.data!;
           // Possibilities why result not valid:
           // 1. nop registered/ valid (message: "data not found") +
           // property_address,
@@ -1540,31 +1729,82 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
           // certificate_type, and
           // certificate_date are null
 
-          propertyApiResultBool['propertyAddress']=null;
-          propertyApiResultBool['propertyName']=asliDataModel.property_name;
-          propertyApiResultBool['propertyBuildingArea']=asliDataModel.property_building_area;
-          propertyApiResultBool['propertySurfaceArea']=asliDataModel.property_surface_area;
-          propertyApiResultBool['propertyEstimation']=(asliResponseModel.data.property_estimation==null)?null:(asliResponseModel.data.property_estimation=='AMIDST')?true:false;
+          propertyApiResultBool['propertyAddress'] = null;
+          propertyApiResultBool['propertyName'] = asliDataModel.property_name;
+          propertyApiResultBool['propertyBuildingArea'] =
+              asliDataModel.property_building_area;
+          propertyApiResultBool['propertySurfaceArea'] =
+              asliDataModel.property_surface_area;
+          propertyApiResultBool['propertyEstimation'] =
+              (asliResponseModel.data!.property_estimation == null)
+                  ? null
+                  : (asliResponseModel.data!.property_estimation == 'AMIDST')
+                      ? true
+                      : false;
 
-          propertyApiResultMessage['propertyAddress']=asliDataModel.property_address;
-          propertyApiResultMessage['propertyName']=(asliDataModel.property_name==null)?'Property Name is empty':(asliDataModel.property_name)?'Property name is Valid':'Property name is Not Valid';
-          propertyApiResultMessage['propertyBuildingArea']=(asliDataModel.property_building_area==null)?'Building Area is empty':(asliDataModel.property_building_area)?'Building Area is Valid':'Building Area is Not Valid';
-          propertyApiResultMessage['propertySurfaceArea']=(asliDataModel.property_surface_area==null)?'Surface Area is empty':(asliDataModel.property_surface_area)?'Surface Area is Valid':'Surface Area is Not Valid';
+          propertyApiResultMessage['propertyAddress'] =
+              asliDataModel.property_address;
+          propertyApiResultMessage['propertyName'] =
+              (asliDataModel.property_name == null)
+                  ? 'Property Name is empty'
+                  : asliDataModel.property_name!
+                      ? 'Property name is Valid'
+                      : 'Property name is Not Valid';
+          propertyApiResultMessage['propertyBuildingArea'] =
+              (asliDataModel.property_building_area == null)
+                  ? 'Building Area is empty'
+                  : asliDataModel.property_building_area!
+                      ? 'Building Area is Valid'
+                      : 'Building Area is Not Valid';
+          propertyApiResultMessage['propertySurfaceArea'] =
+              (asliDataModel.property_surface_area == null)
+                  ? 'Surface Area is empty'
+                  : asliDataModel.property_surface_area!
+                      ? 'Surface Area is Valid'
+                      : 'Surface Area is Not Valid';
           //propertyApiResultMessage['propertyEstimation']=
-          getPriceAnalysisMessage(asliDataModel.property_estimation, 'propertyEstimation', 'price', propertyApiResultMessage);
+          getPriceAnalysisMessage(
+              asliDataModel.property_estimation,
+              'propertyEstimation',
+              'price',
+              propertyApiResultMessage as Map<String, String?>);
           //getPriceAnalysisMessage(asliDataModel.property_estimation, 'propertyEstimation', propertyApiResultBool, propertyApiResultMessage);
 
-          propertyApiResultBool['certificateAddress']=null;
-          propertyApiResultBool['certificateId']=asliDataModel.certificate_id;
-          propertyApiResultBool['certificateName']=asliDataModel.certificate_name;
-          propertyApiResultBool['certificateType']=asliDataModel.certificate_type;
-          propertyApiResultBool['certificateDate']=asliDataModel.certificate_date;
+          propertyApiResultBool['certificateAddress'] = null;
+          propertyApiResultBool['certificateId'] = asliDataModel.certificate_id;
+          propertyApiResultBool['certificateName'] =
+              asliDataModel.certificate_name;
+          propertyApiResultBool['certificateType'] =
+              asliDataModel.certificate_type;
+          propertyApiResultBool['certificateDate'] =
+              asliDataModel.certificate_date;
 
-          propertyApiResultMessage['certificateAddress']=asliDataModel.certificate_address;
-          propertyApiResultMessage['certificateId']=(asliDataModel.certificate_id==null)?'Certificate Id is empty':(asliDataModel.certificate_id)?'Certificate Id is Valid':'Certificate Id is Not Valid';
-          propertyApiResultMessage['certificateName']=(asliDataModel.certificate_name==null)?'Certificate Name is empty':(asliDataModel.certificate_name)?'Certificate Name is Valid':'Certificate Name is Not Valid';
-          propertyApiResultMessage['certificateType']=(asliDataModel.certificate_type==null)?'Certificate Type is empty':(asliDataModel.certificate_type)?'Certificate Type is Valid':'Certificate Type is Not Valid';
-          propertyApiResultMessage['certificateDate']=(asliDataModel.certificate_date==null)?'Certificate Date name is empty':(asliDataModel.certificate_date)?'Certificate Date is Valid':'Certificate Date is Not Valid';
+          propertyApiResultMessage['certificateAddress'] =
+              asliDataModel.certificate_address;
+          propertyApiResultMessage['certificateId'] =
+              (asliDataModel.certificate_id == null)
+                  ? 'Certificate Id is empty'
+                  : asliDataModel.certificate_id!
+                      ? 'Certificate Id is Valid'
+                      : 'Certificate Id is Not Valid';
+          propertyApiResultMessage['certificateName'] =
+              (asliDataModel.certificate_name == null)
+                  ? 'Certificate Name is empty'
+                  : asliDataModel.certificate_name!
+                      ? 'Certificate Name is Valid'
+                      : 'Certificate Name is Not Valid';
+          propertyApiResultMessage['certificateType'] =
+              (asliDataModel.certificate_type == null)
+                  ? 'Certificate Type is empty'
+                  : asliDataModel.certificate_type!
+                      ? 'Certificate Type is Valid'
+                      : 'Certificate Type is Not Valid';
+          propertyApiResultMessage['certificateDate'] =
+              (asliDataModel.certificate_date == null)
+                  ? 'Certificate Date name is empty'
+                  : asliDataModel.certificate_date!
+                      ? 'Certificate Date is Valid'
+                      : 'Certificate Date is Not Valid';
 
           //if (!isResultValid){ // if nik &/ nop not registered/ not valid
           if (asliDataModel.property_address == null &&
@@ -1633,7 +1873,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //        }
           //}
         } else {
-          propertyApiResultMessage['messageResult']=asliResponseModel.errors.message;
+          propertyApiResultMessage['messageResult'] =
+              asliResponseModel.errors!.message;
         }
       } catch (e) {
         debugPrint("Error $e");
@@ -1681,41 +1922,43 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //      return null;
 //  }
 
-  getPriceAnalysisMessage(String result, String mapKey, String priceName, Map<String, String> stringMap) {
-    if (result==null)
-      stringMap[mapKey]=mapKey +' is empty';
-    else{
+  getPriceAnalysisMessage(String? result, String mapKey, String priceName,
+      Map<String, String?> stringMap) {
+    if (result == null)
+      stringMap[mapKey] = mapKey + ' is empty';
+    else {
       switch (result) {
         case 'AMIDST':
-        //boolMap[priceName] = true;
+          //boolMap[priceName] = true;
           stringMap[mapKey] = 'Within the registered ' + priceName + ' range';
           break;
         case 'ABOVE':
-        //boolMap[priceName] = false;
-          stringMap[mapKey] ='Registered ' + priceName + ' is lower than this amount';
+          //boolMap[priceName] = false;
+          stringMap[mapKey] =
+              'Registered ' + priceName + ' is lower than this amount';
           break;
         case 'BELOW':
-        //boolMap[priceName] = false;
+          //boolMap[priceName] = false;
           stringMap[mapKey] =
               'Registered ' + priceName + ' is higher than this amount';
           break;
         case 'invalid':
-        //boolMap[priceName] = false;
+          //boolMap[priceName] = false;
           stringMap[mapKey] = priceName + ' input format invalid';
           break;
         default:
-        //boolMap[priceName] = null;
+          //boolMap[priceName] = null;
           stringMap[mapKey] = priceName + ' data is not available';
           break;
       }
     }
   }
 
-  void _getCurrentLocation() async {
+  Future<void> _getCurrentLocation() async {
     try {
       //_locationMessage = "";
-      _homeLatitude="";
-      _homeLongitude="";
+      _homeLatitude = "";
+      _homeLongitude = "";
       loc.Location location = new loc.Location();
 
       bool _serviceEnabled;
@@ -1742,12 +1985,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       _locationData = await location.getLocation();
 
       //final position = await geo.getCurrentPosition(desiredAccuracy: geo.LocationAccuracy.high);
-      final position = await geo.Geolocator() .getCurrentPosition(desiredAccuracy: geo.LocationAccuracy.high);
+      final position = await geo.Geolocator.getCurrentPosition(
+          desiredAccuracy: geo.LocationAccuracy.high);
       print(position);
 
       setState(() {
-        _homeLatitude= "${position.latitude}";
-        _homeLongitude= "${position.longitude}";
+        _homeLatitude = "${position.latitude}";
+        _homeLongitude = "${position.longitude}";
         //_locationMessage += "${position.latitude}, ${position.longitude}";
         //_locationMessage='';
       });
@@ -1776,14 +2020,16 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       }
 
       Map<String, dynamic> myList = jsonDecode(result.toString());
-      if (myList.containsKey("errors")){
-        Map<dynamic, dynamic>currentErrors=myList["errors"];
-        if (currentErrors.containsKey("message")){
-          responseModel.data=(myList["data"]==null)?null:myList["data"];
-          responseModel.errors=AsliErrorsModel();
-          responseModel.errors.message=currentErrors["message"];
-          responseModel.timestamp=(myList.containsKey("timestamp"))?myList["timestamp"]:null;
-          responseModel.status=(myList.containsKey("status"))?myList["status"]:null;
+      if (myList.containsKey("errors")) {
+        Map<dynamic, dynamic> currentErrors = myList["errors"];
+        if (currentErrors.containsKey("message")) {
+          responseModel.data = (myList["data"] == null) ? null : myList["data"];
+          responseModel.errors = AsliErrorsModel();
+          responseModel.errors!.message = currentErrors["message"];
+          responseModel.timestamp =
+              (myList.containsKey("timestamp")) ? myList["timestamp"] : null;
+          responseModel.status =
+              (myList.containsKey("status")) ? myList["status"] : null;
         }
       } else {
         //OcrModel sample = OcrModel.fromJson(myList);
@@ -1794,18 +2040,16 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //
       httpClient.close();
       return responseModel;
-    }
-    catch(e) {
-      debugPrint(e);
-      responseModel.errors=AsliErrorsModel();
-      responseModel.errors.message="Unexpected error";
+    } catch (e) {
+      debugPrint(e.toString());
+      responseModel.errors = AsliErrorsModel();
+      responseModel.errors!.message = "Unexpected error";
       return responseModel;
     }
     return responseModel;
   }
 
-  _getImage(BuildContext context, ImageSource source) async{
-
+  _getImage(BuildContext context, ImageSource source) async {
     this.setState(() {
       loading = true;
     });
@@ -1813,61 +2057,71 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     Directory tempDir = await getTemporaryDirectory();
     String tempPath = tempDir.path;
 
-    if (await tempDir.exists())
-      tempDir.delete(recursive: false);
+    if (await tempDir.exists()) tempDir.delete(recursive: false);
 
-    Directory appdocdir= await getApplicationSupportDirectory();
-    String test=appdocdir.path;
+    Directory appdocdir = await getApplicationSupportDirectory();
+    String test = appdocdir.path;
 
-    if (await appdocdir.exists())
-      appdocdir.delete(recursive: false);
+    if (await appdocdir.exists()) appdocdir.delete(recursive: false);
 
-    var picture =  await ImagePicker.pickImage(source: source);
-    int appFileDirectory=picture.path.lastIndexOf('/');
-    String resultDirectory=picture.path.substring(0,appFileDirectory+1); // = appdocdir+'/Pictures/'
-    String resultPath=resultDirectory+DateFormat('yyyyMMddHHmmss').format(DateTime.now())+'.jpg';
+    final picker = new ImagePicker();
+    final picture = await picker.pickImage(source: source);
+    int appFileDirectory = picture!.path.lastIndexOf('/');
+    String resultDirectory = picture.path
+        .substring(0, appFileDirectory + 1); // = appdocdir+'/Pictures/'
+    String resultPath = resultDirectory +
+        DateFormat('yyyyMMddHHmmss').format(DateTime.now()) +
+        '.jpg';
     //String resultPath='/storage/emulated/0/Android/data/com.smartherd.flutter_app_section2/files/Pictures/'+DateFormat('yyyyMMddHHmmss').format(DateTime.now())+'.jpg';
 
-    int photoQuality=50;
-    if(picture != null) {
+    int photoQuality = 50;
+    if (picture != null) {
       try {
-        var result = await FlutterImageCompress.compressAndGetFile(
-          picture.absolute.path, resultPath,
+        final file = File(picture.path);
+        var result = await (FlutterImageCompress.compressAndGetFile(
+          file.absolute.path,
+          resultPath,
           quality: photoQuality,
-        );
+        ) as FutureOr<File>);
 
-        int pictureLength=picture.lengthSync();
-        int resultLength=result.lengthSync();
+        int? pictureLength = file.lengthSync();
+        int resultLength = result.lengthSync();
 
         var i = 1;
 
-        while ((resultLength < professionalMinPhotoSize || resultLength > professionalMaxPhotoSize) && photoQuality>0 && photoQuality<100) {
-          if (result!=null)
-            await result.delete();
-          resultPath=resultDirectory+DateFormat('yyyyMMddHHmmss').format(DateTime.now())+'.jpg';
-          photoQuality=(resultLength>professionalMaxPhotoSize)? photoQuality-10:photoQuality+10;
-          result = await FlutterImageCompress.compressAndGetFile(
-            picture.absolute.path, resultPath,
+        while ((resultLength < professionalMinPhotoSize ||
+                resultLength > professionalMaxPhotoSize) &&
+            photoQuality > 0 &&
+            photoQuality < 100) {
+ await result.delete();
+          resultPath = resultDirectory +
+              DateFormat('yyyyMMddHHmmss').format(DateTime.now()) +
+              '.jpg';
+          photoQuality = (resultLength > professionalMaxPhotoSize)
+              ? photoQuality - 10
+              : photoQuality + 10;
+          result = await (FlutterImageCompress.compressAndGetFile(
+            file.absolute.path,
+            resultPath,
             quality: photoQuality,
-          );
-          resultLength=result.lengthSync();
+          ) as FutureOr<File>);
+          resultLength = result.lengthSync();
         }
 
-        double sizeinKb=resultLength.toDouble()/1024;
-        debugPrint('Photo compressed size is '+sizeinKb.toString()+' kb');
+        double sizeinKb = resultLength.toDouble() / 1024;
+        debugPrint('Photo compressed size is ' + sizeinKb.toString() + ' kb');
         //print(pictureLength+resultLength);
-        await picture.delete();
+        await file.delete();
         this.setState(() {
           //_imageFileProfile = cropped;
           _professionalImage = result;
           loading = false;
         });
-      }
-      catch (e) {
-        print (e);
+      } catch (e) {
+        print(e);
         debugPrint("Error $e");
       }
-    }else{
+    } else {
       this.setState(() {
         loading = false;
       });
@@ -1876,45 +2130,48 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   bool checkStatusCode(AsliResponseModel responseModel) {
-    if (responseModel.status==200)
+    if (responseModel.status == 200)
       return true;
     else
       return false;
   }
 
   bool checkErrorBlock(AsliErrorsModel errorsModel) {
-    if (errorsModel.message!=null)
+    if (errorsModel.message != null)
       return false;
     else
       return true;
   }
 
-  bool checkErrorBlock2 (AsliErrorsModel errorsModel) {
-    if (errorsModel.message=='Data not found')
+  bool checkErrorBlock2(AsliErrorsModel errorsModel) {
+    if (errorsModel.message == 'Data not found')
       return true;
     else
       return false;
   }
 
   bool checkErrorBlock3(AsliErrorsModel errorsModel) {
-    if (errorsModel.phone==null && errorsModel.latitude==null && errorsModel.longitude==null)
+    if (errorsModel.phone == null &&
+        errorsModel.latitude == null &&
+        errorsModel.longitude == null)
       return true;
     else
       return false;
   }
 
-  AsliResponseModel dummyBasicVerificationModel(){
+  AsliResponseModel dummyBasicVerificationModel() {
     AsliResponseModel dummyModel = new AsliResponseModel();
-    dummyModel.timestamp= 1598328841;
-    dummyModel.status=200;
-    dummyModel.trx_id='ProfessionalVerification_'+DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    dummyModel.timestamp = 1598328841;
+    dummyModel.status = 200;
+    dummyModel.trx_id = 'ProfessionalVerification_' +
+        DateFormat('yyyyMMddHHmmss').format(DateTime.now());
     dummyModel.data = new AsliDataModel();
-    dummyModel.data.name=true;
-    dummyModel.data.birthdate=true;
-    dummyModel.data.birthplace=false;
-    dummyModel.data.address='*PT T*M*N *NGGR*K R*S*D*NC*S TWR. C-27 H';
-    dummyModel.errors= new AsliErrorsModel();
-    dummyModel.errors.identity_photo='invalid';
+    dummyModel.data!.name = true;
+    dummyModel.data!.birthdate = true;
+    dummyModel.data!.birthplace = false;
+    dummyModel.data!.address = '*PT T*M*N *NGGR*K R*S*D*NC*S TWR. C-27 H';
+    dummyModel.errors = new AsliErrorsModel();
+    dummyModel.errors!.identity_photo = 'invalid';
 
     return dummyModel;
   }
@@ -1923,104 +2180,163 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
    *  LOGIC ENDS
    */
 
-  /**
-   *  VALIDATION START
-   */
+  ///  VALIDATION START
 
   bool isProfessionalTabInputValid() {
-    bool resultBool=false;
-    String nik=nikController.text.trim();
-    String name=nameController.text.trimRight().trimLeft();
-    String birthplace=birthplaceController.text.trimRight().trimLeft();
-    String birthdate=birthdateController.text.trim();
+    bool resultBool = false;
+    String nik = nikController.text.trim();
+    String name = nameController.text.trimRight().trimLeft();
+    String birthplace = birthplaceController.text.trimRight().trimLeft();
+    String birthdate = birthdateController.text.trim();
     // String address=addressController.text.trimRight().trimLeft();
-    String mobilePhone=mobilePhoneController.text.trim();
+    String mobilePhone = mobilePhoneController.text.trim();
 
-    resultBool=intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true);
-    resultBool=(resultBool)?textValidation(name, 'Name', _nameErrorMessage, false):resultBool;
-    resultBool=(resultBool)?dateValidation(birthdate, 'Birthdate', _birthdateErrorMessage, false):resultBool;
-    resultBool=(resultBool)?textValidation(birthplace, 'Birthplace', _birthplaceErrorMessage, false):resultBool;
+    resultBool = intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true);
+    resultBool = (resultBool)
+        ? textValidation(name, 'Name', _nameErrorMessage, false)
+        : resultBool;
+    resultBool = (resultBool)
+        ? dateValidation(birthdate, 'Birthdate', _birthdateErrorMessage, false)
+        : resultBool;
+    resultBool = (resultBool)
+        ? textValidation(
+            birthplace, 'Birthplace', _birthplaceErrorMessage, false)
+        : resultBool;
     // resultBool=(resultBool)?textNumberValidation(address, 'Address', _addressErrorMessage, false):resultBool;
-    resultBool=(resultBool)?intValidation(mobilePhone, 'Mobile Phone', _mobilePhoneErrorMessage, 9, 20, true):resultBool;
+    resultBool = (resultBool)
+        ? intValidation(
+            mobilePhone, 'Mobile Phone', _mobilePhoneErrorMessage, 9, 20, true)
+        : resultBool;
     // resultBool=(resultBool)?(_professionalImage!=null)?true:false:resultBool;
 
-    _nikErrorMessage=intValidation2(nik, 'NIK', 16, 16, true);
-    _nameErrorMessage=textValidation2(name, 'Name', false);
-    _birthdateErrorMessage=dateValidation2(birthdate, 'Birthdate', false);
-    _birthplaceErrorMessage=textValidation2(birthplace, 'Birthplace', false);
+    _nikErrorMessage = intValidation2(nik, 'NIK', 16, 16, true);
+    _nameErrorMessage = textValidation2(name, 'Name', false);
+    _birthdateErrorMessage = dateValidation2(birthdate, 'Birthdate', false);
+    _birthplaceErrorMessage = textValidation2(birthplace, 'Birthplace', false);
     // _addressErrorMessage=textNumberValidation2(address, 'Address', false);
-    _mobilePhoneErrorMessage=intValidation2(mobilePhone, 'Mobile Phone', 9, 20, true);
+    _mobilePhoneErrorMessage =
+        intValidation2(mobilePhone, 'Mobile Phone', 9, 20, true);
     // _selfieErrorMessage=(_professionalImage==null)?'You must take selfie':'';
 
     return resultBool;
   }
 
   bool isLocationTabInputValid() {
-    bool resultBool=false;
-    String mobilePhone=mobilePhoneController.text.trim();
-    String homeLatitude=homeLatitudeController.text.trim();
-    String homeLongitude=homeLongitudeController.text.trim();
-    String workLatitude=workLatitudeController.text.trim();
-    String workLongitude=workLongitudeController.text.trim();
+    bool resultBool = false;
+    String mobilePhone = mobilePhoneController.text.trim();
+    String homeLatitude = homeLatitudeController.text.trim();
+    String homeLongitude = homeLongitudeController.text.trim();
+    String workLatitude = workLatitudeController.text.trim();
+    String workLongitude = workLongitudeController.text.trim();
 
-    resultBool=intValidation(mobilePhone, 'Mobile Phone', _mobilePhoneErrorMessage, 9, 20, true);
+    resultBool = intValidation(
+        mobilePhone, 'Mobile Phone', _mobilePhoneErrorMessage, 9, 20, true);
     // cek apakah bisa null
-    if (homeLatitude.length!=0 && homeLongitude.length!=0) {
-      resultBool=(resultBool)?doubleValidation(homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, true):resultBool;
-      resultBool=(resultBool)?doubleValidation(homeLongitude, 'Home Longitude', _homeLongitudeErrorMessage, true):resultBool;
-    } else if (homeLatitude.length==0 && homeLongitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, false):resultBool;
-      resultBool=(resultBool)?doubleValidation(homeLongitude, 'Home Longitude', _homeLongitudeErrorMessage, false):resultBool;
-    } else if (homeLatitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, true):resultBool;
-    } else if (homeLongitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(homeLongitude, 'Home Longitude', _homeLongitudeErrorMessage, true):resultBool;
+    if (homeLatitude.length != 0 && homeLongitude.length != 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, true)
+          : resultBool;
+      resultBool = (resultBool)
+          ? doubleValidation(
+              homeLongitude, 'Home Longitude', _homeLongitudeErrorMessage, true)
+          : resultBool;
+    } else if (homeLatitude.length == 0 && homeLongitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, false)
+          : resultBool;
+      resultBool = (resultBool)
+          ? doubleValidation(homeLongitude, 'Home Longitude',
+              _homeLongitudeErrorMessage, false)
+          : resultBool;
+    } else if (homeLatitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              homeLatitude, 'Home Latitude', _homeLatitudeErrorMessage, true)
+          : resultBool;
+    } else if (homeLongitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              homeLongitude, 'Home Longitude', _homeLongitudeErrorMessage, true)
+          : resultBool;
     }
 
-    if (workLatitude.length!=0 && workLongitude.length!=0) {
-      resultBool=(resultBool)?doubleValidation(workLatitude, 'Work Latitude', _workLatitudeErrorMessage, true):resultBool;
-      resultBool=(resultBool)?doubleValidation(workLongitude, 'Work Longitude', _workLongitudeErrorMessage, true):resultBool;
-    } else if (workLatitude.length==0 && workLongitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(workLatitude, 'Work Latitude', _workLatitudeErrorMessage, false):resultBool;
-      resultBool=(resultBool)?doubleValidation(workLongitude, 'Work Longitude', _workLongitudeErrorMessage, false):resultBool;
-    } else if (workLatitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(workLatitude, 'Work Latitude', _workLatitudeErrorMessage, true):resultBool;
-    } else if (workLongitude.length==0) {
-      resultBool=(resultBool)?doubleValidation(workLongitude, 'Work Longitude', _workLongitudeErrorMessage, true):resultBool;
+    if (workLatitude.length != 0 && workLongitude.length != 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              workLatitude, 'Work Latitude', _workLatitudeErrorMessage, true)
+          : resultBool;
+      resultBool = (resultBool)
+          ? doubleValidation(
+              workLongitude, 'Work Longitude', _workLongitudeErrorMessage, true)
+          : resultBool;
+    } else if (workLatitude.length == 0 && workLongitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              workLatitude, 'Work Latitude', _workLatitudeErrorMessage, false)
+          : resultBool;
+      resultBool = (resultBool)
+          ? doubleValidation(workLongitude, 'Work Longitude',
+              _workLongitudeErrorMessage, false)
+          : resultBool;
+    } else if (workLatitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              workLatitude, 'Work Latitude', _workLatitudeErrorMessage, true)
+          : resultBool;
+    } else if (workLongitude.length == 0) {
+      resultBool = (resultBool)
+          ? doubleValidation(
+              workLongitude, 'Work Longitude', _workLongitudeErrorMessage, true)
+          : resultBool;
     }
 
-    _mobilePhoneErrorMessage=intValidation2(mobilePhone, 'Mobile Phone', 9, 20, true);
+    _mobilePhoneErrorMessage =
+        intValidation2(mobilePhone, 'Mobile Phone', 9, 20, true);
     // cek apakah bisa null
-    if (homeLatitude.length!=0 && homeLongitude.length!=0) {
-      _homeLatitudeErrorMessage=doubleValidation2(homeLatitude, 'Home Latitude', true);
-      _homeLongitudeErrorMessage=doubleValidation2(homeLongitude, 'Home Longitude', true);
-    } else if (homeLatitude.length==0 && homeLongitude.length==0) {
-      _homeLatitudeErrorMessage=doubleValidation2(homeLatitude, 'Home Latitude', false);
-      _homeLongitudeErrorMessage=doubleValidation2(homeLongitude, 'Home Longitude', false);
-    } else if (homeLatitude.length==0) {
-      _homeLatitudeErrorMessage=doubleValidation2(homeLatitude, 'Home Latitude', true);
-    } else if (homeLongitude.length==0) {
-      _homeLongitudeErrorMessage=doubleValidation2(homeLongitude, 'Home Longitude', true);
+    if (homeLatitude.length != 0 && homeLongitude.length != 0) {
+      _homeLatitudeErrorMessage =
+          doubleValidation2(homeLatitude, 'Home Latitude', true);
+      _homeLongitudeErrorMessage =
+          doubleValidation2(homeLongitude, 'Home Longitude', true);
+    } else if (homeLatitude.length == 0 && homeLongitude.length == 0) {
+      _homeLatitudeErrorMessage =
+          doubleValidation2(homeLatitude, 'Home Latitude', false);
+      _homeLongitudeErrorMessage =
+          doubleValidation2(homeLongitude, 'Home Longitude', false);
+    } else if (homeLatitude.length == 0) {
+      _homeLatitudeErrorMessage =
+          doubleValidation2(homeLatitude, 'Home Latitude', true);
+    } else if (homeLongitude.length == 0) {
+      _homeLongitudeErrorMessage =
+          doubleValidation2(homeLongitude, 'Home Longitude', true);
     }
 
-    if (workLatitude.length!=0 && workLongitude.length!=0) {
-      _workLatitudeErrorMessage=doubleValidation2(workLatitude, 'Work Latitude', true);
-      _workLongitudeErrorMessage=doubleValidation2(workLongitude, 'Work Longitude', true);
-    } else if (workLatitude.length==0 && workLongitude.length==0) {
-      _workLatitudeErrorMessage=doubleValidation2(workLatitude, 'Work Latitude', false);
-      _workLongitudeErrorMessage=doubleValidation2(workLongitude, 'Work Longitude', false);
-    } else if (workLatitude.length==0) {
-      _workLatitudeErrorMessage=doubleValidation2(workLatitude, 'Work Latitude', true);
-    } else if (workLongitude.length==0) {
-      _workLongitudeErrorMessage=doubleValidation2(workLongitude, 'Work Longitude', true);
+    if (workLatitude.length != 0 && workLongitude.length != 0) {
+      _workLatitudeErrorMessage =
+          doubleValidation2(workLatitude, 'Work Latitude', true);
+      _workLongitudeErrorMessage =
+          doubleValidation2(workLongitude, 'Work Longitude', true);
+    } else if (workLatitude.length == 0 && workLongitude.length == 0) {
+      _workLatitudeErrorMessage =
+          doubleValidation2(workLatitude, 'Work Latitude', false);
+      _workLongitudeErrorMessage =
+          doubleValidation2(workLongitude, 'Work Longitude', false);
+    } else if (workLatitude.length == 0) {
+      _workLatitudeErrorMessage =
+          doubleValidation2(workLatitude, 'Work Latitude', true);
+    } else if (workLongitude.length == 0) {
+      _workLongitudeErrorMessage =
+          doubleValidation2(workLongitude, 'Work Longitude', true);
     }
 
     return resultBool;
   }
 
   bool isLocationHomeTabInputValid() {
-    if(_homeLatitude!=null && _homeLongitude!=null) {
-      if (_homeLatitude.length!=0 || _homeLongitude.length!=0) {
+    if (_homeLongitude != null) {
+      if (_homeLatitude.length != 0 || _homeLongitude.length != 0) {
         return true;
       } else {
         return false;
@@ -2031,162 +2347,229 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   bool isWorkplaceTabInputValid() {
-    bool resultBool=false;
-    String nik=nikController.text.trim();
-    String name=nameController.text.trimRight().trimLeft();
+    bool resultBool = false;
+    String nik = nikController.text.trim();
+    String name = nameController.text.trimRight().trimLeft();
     String companyName = companyNameController.text.trimRight().trimLeft();
     String companyPhone = companyPhoneController.text.trim();
 
-    resultBool=intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true);
-    resultBool=(resultBool)?textValidation(name, 'Name', _nameErrorMessage, false):resultBool;
-    resultBool=(resultBool)?textValidation(companyName, 'Company Name', _companyNameErrorMessage, true):resultBool;
-    resultBool=intValidation(companyPhone, 'Company Phone', _companyPhoneErrorMessage, 6, 20, true);
+    resultBool = intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true);
+    resultBool = (resultBool)
+        ? textValidation(name, 'Name', _nameErrorMessage, false)
+        : resultBool;
+    resultBool = (resultBool)
+        ? textValidation(
+            companyName, 'Company Name', _companyNameErrorMessage, true)
+        : resultBool;
+    resultBool = intValidation(
+        companyPhone, 'Company Phone', _companyPhoneErrorMessage, 6, 20, true);
 
-    _nikErrorMessage=intValidation2(nik, 'NIK', 16, 16, true);
-    _nameErrorMessage=textValidation2(name, 'Name',  false);
-    _companyNameErrorMessage=textValidation2(companyName, 'Company Name', true);
-    _companyPhoneErrorMessage=intValidation2(companyPhone, 'Company Phone', 6, 20, true);
+    _nikErrorMessage = intValidation2(nik, 'NIK', 16, 16, true);
+    _nameErrorMessage = textValidation2(name, 'Name', false);
+    _companyNameErrorMessage =
+        textValidation2(companyName, 'Company Name', true);
+    _companyPhoneErrorMessage =
+        intValidation2(companyPhone, 'Company Phone', 6, 20, true);
 
     return resultBool;
   }
 
-  bool isTaxTabInputValid () {
-    bool resultBool=false;
-    String taxType=_currentTaxSelected;
-    String npwp=npwpController.text.trim();
-    String nik=nikController.text.trim();
-    String name=nameController.text.trimRight().trimLeft();
-    String birthplace=birthplaceController.text.trimRight().trimLeft();
-    String birthdate=birthdateController.text.trim();
-    String income=incomeController.text.trim();
+  bool isTaxTabInputValid() {
+    bool resultBool = false;
+    String taxType = _currentTaxSelected;
+    String npwp = npwpController.text.trim();
+    String nik = nikController.text.trim();
+    String name = nameController.text.trimRight().trimLeft();
+    String birthplace = birthplaceController.text.trimRight().trimLeft();
+    String birthdate = birthdateController.text.trim();
+    String income = incomeController.text.trim();
 
-    if (taxType=='Personal Tax' || taxType=='Company Tax'){
-      resultBool=true;
+    if (taxType == 'Personal Tax' || taxType == 'Company Tax') {
+      resultBool = true;
     } else {
-      _taxTypeErrorMessage='Tax Type has not been chosen';
-      resultBool=false;
+      _taxTypeErrorMessage = 'Tax Type has not been chosen';
+      resultBool = false;
     }
-    resultBool=(resultBool)?intValidation(npwp, 'NPWP', _npwpErrorMessage, 15, 15, true):resultBool;
-    if (taxType=='Personal Tax') {
-      resultBool=(resultBool)?intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true):resultBool;
-      resultBool=(resultBool)?textValidation(name, 'Name', _nameErrorMessage, false):resultBool;
-      resultBool=(resultBool)?dateValidation(birthdate, 'Birthdate', _birthdateErrorMessage, false):resultBool;
-      resultBool=(resultBool)?textValidation(birthplace, 'Birthplace', _birthplaceErrorMessage, false):resultBool;
+    resultBool = (resultBool)
+        ? intValidation(npwp, 'NPWP', _npwpErrorMessage, 15, 15, true)
+        : resultBool;
+    if (taxType == 'Personal Tax') {
+      resultBool = (resultBool)
+          ? intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true)
+          : resultBool;
+      resultBool = (resultBool)
+          ? textValidation(name, 'Name', _nameErrorMessage, false)
+          : resultBool;
+      resultBool = (resultBool)
+          ? dateValidation(
+              birthdate, 'Birthdate', _birthdateErrorMessage, false)
+          : resultBool;
+      resultBool = (resultBool)
+          ? textValidation(
+              birthplace, 'Birthplace', _birthplaceErrorMessage, false)
+          : resultBool;
     }
-    resultBool=(resultBool)?doubleValidation(income, 'Income', _incomeErrorMessage, true):resultBool;
+    resultBool = (resultBool)
+        ? doubleValidation(income, 'Income', _incomeErrorMessage, true)
+        : resultBool;
 
-    _npwpErrorMessage=intValidation2(npwp, 'NPWP', 15, 15, true);
-    if (taxType=='Personal Tax') {
-      _nikErrorMessage=intValidation2(nik, 'NIK', 16, 16, true);
-      _nameErrorMessage=textValidation2(name, 'Name',  false);
-      _birthdateErrorMessage=dateValidation2(birthdate, 'Birthdate', false);
-      _birthplaceErrorMessage=textValidation2(birthplace, 'Birthplace', false);
+    _npwpErrorMessage = intValidation2(npwp, 'NPWP', 15, 15, true);
+    if (taxType == 'Personal Tax') {
+      _nikErrorMessage = intValidation2(nik, 'NIK', 16, 16, true);
+      _nameErrorMessage = textValidation2(name, 'Name', false);
+      _birthdateErrorMessage = dateValidation2(birthdate, 'Birthdate', false);
+      _birthplaceErrorMessage =
+          textValidation2(birthplace, 'Birthplace', false);
     }
-    _incomeErrorMessage=doubleValidation2(income, 'Income', true);
+    _incomeErrorMessage = doubleValidation2(income, 'Income', true);
 
     return resultBool;
   }
 
   bool isPropertyTabInputValid() {
     // All parameters are Mandatory
-    bool resultBool=false;
+    bool resultBool = false;
 
-    String nop=nopController.text.trim();
-    String propertyName=propertyNameController.text.trimRight().trimLeft();
-    String propertySurfaceArea=propertySurfaceAreaController.text.trim();
-    String propertyBuildingArea=propertyBuildingAreaController.text.trim();
-    String estimation=propertyEstimationController.text.trim();
+    String nop = nopController.text.trim();
+    String propertyName = propertyNameController.text.trimRight().trimLeft();
+    String propertySurfaceArea = propertySurfaceAreaController.text.trim();
+    String propertyBuildingArea = propertyBuildingAreaController.text.trim();
+    String estimation = propertyEstimationController.text.trim();
 
-    String nik=nikController.text.trim();
-    String certificateName=certificateNameController.text.trimRight().trimLeft();
-    String certificateId=certificateIdController.text.trim();
-    String certificateType=_currentPropertySelected;
-    String certificateDate=certificateDateController.text.trim();
+    String nik = nikController.text.trim();
+    String certificateName =
+        certificateNameController.text.trimRight().trimLeft();
+    String certificateId = certificateIdController.text.trim();
+    String? certificateType = _currentPropertySelected;
+    String certificateDate = certificateDateController.text.trim();
 
-    if (certificateType!='HM' || certificateType!='HGB'){
-      _taxTypeErrorMessage='Please choose certificate type';
-      resultBool=false;
+    if (certificateType != 'HM' || certificateType != 'HGB') {
+      _taxTypeErrorMessage = 'Please choose certificate type';
+      resultBool = false;
     }
-    resultBool=(resultBool)?textNumberValidation(propertyName, 'Property Name', _propertyNameErrorMessage, true):resultBool;
-    resultBool=(resultBool)?doubleValidation(propertySurfaceArea, 'Surface Area', _propertySurfaceAreaErrorMessage, true):resultBool;
-    resultBool=(resultBool)?doubleValidation(propertyBuildingArea, 'Building Area', _propertyBuildingAreaErrorMessage, true):resultBool;
-    resultBool=(resultBool)?doubleValidation(estimation, 'Estimation', _propertyEstimationErrorMessage, true):resultBool;
+    resultBool = (resultBool)
+        ? textNumberValidation(
+            propertyName, 'Property Name', _propertyNameErrorMessage, true)
+        : resultBool;
+    resultBool = (resultBool)
+        ? doubleValidation(propertySurfaceArea, 'Surface Area',
+            _propertySurfaceAreaErrorMessage, true)
+        : resultBool;
+    resultBool = (resultBool)
+        ? doubleValidation(propertyBuildingArea, 'Building Area',
+            _propertyBuildingAreaErrorMessage, true)
+        : resultBool;
+    resultBool = (resultBool)
+        ? doubleValidation(
+            estimation, 'Estimation', _propertyEstimationErrorMessage, true)
+        : resultBool;
 
-    resultBool=(resultBool)?intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true):resultBool;
-    resultBool=(resultBool)?textValidation(certificateName, 'Certificate Name', _certificateNameErrorMessage, false):resultBool;
-    resultBool=(resultBool)?intValidation(certificateId, 'Certificate Id', _certificateIdErrorMessage, 0, 100, true):resultBool;
-    resultBool=(resultBool)?dateValidation(certificateDate, 'Certificate Date', _certificateDateErrorMessage, false):resultBool;
+    resultBool = (resultBool)
+        ? intValidation(nik, 'NIK', _nikErrorMessage, 16, 16, true)
+        : resultBool;
+    resultBool = (resultBool)
+        ? textValidation(certificateName, 'Certificate Name',
+            _certificateNameErrorMessage, false)
+        : resultBool;
+    resultBool = (resultBool)
+        ? intValidation(certificateId, 'Certificate Id',
+            _certificateIdErrorMessage, 0, 100, true)
+        : resultBool;
+    resultBool = (resultBool)
+        ? dateValidation(certificateDate, 'Certificate Date',
+            _certificateDateErrorMessage, false)
+        : resultBool;
 
-    _propertyNameErrorMessage=textNumberValidation2(propertyName, 'Property Name', true);
-    _propertySurfaceAreaErrorMessage=doubleValidation2(propertySurfaceArea, 'Surface Area', true);
-    _propertyBuildingAreaErrorMessage=doubleValidation2(propertyBuildingArea, 'Building Area', true);
-    _propertyEstimationErrorMessage=doubleValidation2(estimation, 'Estimation', true);
+    _propertyNameErrorMessage =
+        textNumberValidation2(propertyName, 'Property Name', true);
+    _propertySurfaceAreaErrorMessage =
+        doubleValidation2(propertySurfaceArea, 'Surface Area', true);
+    _propertyBuildingAreaErrorMessage =
+        doubleValidation2(propertyBuildingArea, 'Building Area', true);
+    _propertyEstimationErrorMessage =
+        doubleValidation2(estimation, 'Estimation', true);
 
-    _nikErrorMessage=intValidation2(nik, 'NIK', 16, 16, true);
-    _certificateNameErrorMessage=textValidation2(certificateName, 'Certificate Name', false);
-    _certificateIdErrorMessage=textValidation2(certificateId, 'Certificate Id', true);
-    _certificateDateErrorMessage=dateValidation2(certificateDate, 'Certificate Date', false);
+    _nikErrorMessage = intValidation2(nik, 'NIK', 16, 16, true);
+    _certificateNameErrorMessage =
+        textValidation2(certificateName, 'Certificate Name', false);
+    _certificateIdErrorMessage =
+        textValidation2(certificateId, 'Certificate Id', true);
+    _certificateDateErrorMessage =
+        dateValidation2(certificateDate, 'Certificate Date', false);
 
     return resultBool;
   }
 
-  bool textValidation(String fieldName, String fieldNameText, String errorMessageField, bool isMandatory) {
-    if (fieldName==null ) {
-      errorMessageField=isMandatory?fieldNameText+' can\'t be empty':null;
-      return isMandatory? false:true;
+  bool textValidation(String fieldName, String fieldNameText,
+      String? errorMessageField, bool isMandatory) {
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
+      return isMandatory ? false : true;
 //    } else if (!RegExp('^[a-zA-Z -]*').hasMatch(fieldName)) {
 //      errorMessageField=fieldNameText+' can only contains alphabets';
 //      return false;
-    } else if (fieldName.length<1){
-      errorMessageField=fieldNameText+' can\'t be empty';
+    } else if (fieldName.length < 1) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return false;
     }
     return true;
   }
 
-  bool intValidation(String fieldName, String fieldNameText, String errorMessageField, int minCharNum, int maxCharNum, bool isMandatory) {
-    if (fieldName==null){
-      errorMessageField=isMandatory? fieldNameText+' can\'t be empty':null;
-      return isMandatory? false:true;
+  bool intValidation(
+      String fieldName,
+      String fieldNameText,
+      String? errorMessageField,
+      int minCharNum,
+      int maxCharNum,
+      bool isMandatory) {
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
+      return isMandatory ? false : true;
     }
-    if (fieldName.length<0) {
-      errorMessageField=fieldNameText+' can\'t be empty';
+    if (fieldName.length < 0) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return false;
-    } else if (fieldName.length<minCharNum || fieldName.length>maxCharNum) {
-      errorMessageField=(fieldName.length<minCharNum)?fieldNameText+' is too short':fieldNameText+' is too long';
-      return false;
-    }
-    if (!RegExp(r"^[0-9]*").hasMatch(fieldName)){
-      errorMessageField=fieldNameText+' can only contain numbers';
+    } else if (fieldName.length < minCharNum || fieldName.length > maxCharNum) {
+      errorMessageField = (fieldName.length < minCharNum)
+          ? fieldNameText + ' is too short'
+          : fieldNameText + ' is too long';
       return false;
     }
-    if (fieldNameText=='Mobile Phone') {
-      if (fieldName.substring(0,2)!='62') {
-        errorMessageField=fieldNameText+ ' must be started with 62';
+    if (!RegExp(r"^[0-9]*").hasMatch(fieldName)) {
+      errorMessageField = fieldNameText + ' can only contain numbers';
+      return false;
+    }
+    if (fieldNameText == 'Mobile Phone') {
+      if (fieldName.substring(0, 2) != '62') {
+        errorMessageField = fieldNameText + ' must be started with 62';
         return false;
       } else {
         return true;
       }
     }
 
-    if (fieldNameText=='Company Phone'){
-      if (fieldName.substring(0,1)=='0' && fieldName.substring(0,2)!='08') {
-        errorMessageField=fieldNameText+ ' must not contain area code';
+    if (fieldNameText == 'Company Phone') {
+      if (fieldName.substring(0, 1) == '0' &&
+          fieldName.substring(0, 2) != '08') {
+        errorMessageField = fieldNameText + ' must not contain area code';
         return false;
-      }
-      else
+      } else
         return true;
     }
     return true;
   }
 
-  bool doubleValidation(String fieldName, String fieldNameText, String errorMessageField, bool isMandatory) {
-    if (fieldName==null){
-      errorMessageField=isMandatory? fieldNameText+' can\'t be empty':null;
-      return isMandatory? false:true;
+  bool doubleValidation(String fieldName, String fieldNameText,
+      String? errorMessageField, bool isMandatory) {
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
+      return isMandatory ? false : true;
     }
-    if (fieldName.length<0) {
-      errorMessageField=fieldNameText+' can\'t be empty';
+    if (fieldName.length < 0) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return false;
     }
 //    if (!RegExp(r"/\d+\.\d*|\.?\d+/").hasMatch(fieldName)){
@@ -2196,78 +2579,88 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     return true;
   }
 
-  bool textNumberValidation(String fieldName, String fieldNameText, String errorMessageField, bool isMandatory) {
-    if (fieldName==null ) {
-      errorMessageField=isMandatory?fieldNameText+' can\'t be empty':null;
-      return isMandatory? false:true;
+  bool textNumberValidation(String fieldName, String fieldNameText,
+      String? errorMessageField, bool isMandatory) {
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
+      return isMandatory ? false : true;
 //    } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(fieldName)) {
 //      errorMessageField=fieldNameText+' can only contains alphabets';
 //      return false;
-    } else if (fieldName.length<1){
-      errorMessageField=fieldNameText+' can\'t be empty';
+    } else if (fieldName.length < 1) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return false;
     }
     return true;
   }
 
-  bool dateValidation(String fieldName, String fieldNameText, String errorMessageField, bool isMandatory) {
+  bool dateValidation(String fieldName, String fieldNameText,
+      String? errorMessageField, bool isMandatory) {
     if (fieldName != null) {
       try {
         DateTime tempDate = new DateFormat("dd-MM-yyyy").parse(fieldName);
-        if (Jiffy(DateTime.now()).add(years: -17).isBefore(tempDate)){
+        if (Jiffy(DateTime.now()).add(years: -17).isBefore(tempDate)) {
           //errorMessageField='Below 17 years old are \nnot supposed to qualify for eKTP';
           return false;
         }
         return true;
       } catch (e) {
-        errorMessageField =fieldNameText + ' must be in dd-MM-yyyy format';
+        errorMessageField = fieldNameText + ' must be in dd-MM-yyyy format';
         return false;
       }
     } else {
-      errorMessageField=isMandatory? fieldNameText + ' can\'t be empty':null;
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       return isMandatory ? false : true;
     }
   }
 
-  String textValidation2(String fieldName, String fieldNameText, bool isMandatory) {
-    String errorMessageField=null;
-    if (fieldName==null ) {
-      errorMessageField=isMandatory?fieldNameText+' can\'t be empty':null;
+  String? textValidation2(
+      String fieldName, String fieldNameText, bool isMandatory) {
+    String? errorMessageField;
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       return errorMessageField;
 //    } else if (!RegExp('[a-zA-Z]').hasMatch(fieldName)) {
 //      errorMessageField=fieldNameText+' can only contains alphabets';
 //      return errorMessageField;
-    } else if (fieldName.length<1){
-      errorMessageField=fieldNameText+' can\'t be empty';
+    } else if (fieldName.length < 1) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return errorMessageField;
     }
     return errorMessageField;
   }
 
-  String intValidation2(String fieldName, String fieldNameText, int minCharNum, int maxCharNum, bool isMandatory) {
-    String errorMessageField = null;
-    if (fieldName==null){
-      errorMessageField=isMandatory? fieldNameText+' can\'t be empty':null;
+  String? intValidation2(String fieldName, String fieldNameText, int minCharNum,
+      int maxCharNum, bool isMandatory) {
+    String? errorMessageField;
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       return errorMessageField;
       //return isMandatory? false:true;
     }
-    if (fieldName.length<0) {
-      errorMessageField=fieldNameText+' can\'t be empty';
+    if (fieldName.length < 0) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return errorMessageField;
       //return false;
-    } else if (fieldName.length<minCharNum || fieldName.length>maxCharNum) {
-      errorMessageField=(fieldName.length<minCharNum)?fieldNameText+' is too short':fieldNameText+' is too long';
-      return errorMessageField;
-      //return false;
-    }
-    if (!RegExp(r"^[0-9]*").hasMatch(fieldName)){
-      errorMessageField=fieldNameText+' can only contain numbers';
+    } else if (fieldName.length < minCharNum || fieldName.length > maxCharNum) {
+      errorMessageField = (fieldName.length < minCharNum)
+          ? fieldNameText + ' is too short'
+          : fieldNameText + ' is too long';
       return errorMessageField;
       //return false;
     }
-    if (fieldNameText=='Mobile Phone') {
-      if (fieldName.substring(0,2)!='62') {
-        errorMessageField=fieldNameText+ ' must be started with 62';
+    if (!RegExp(r"^[0-9]*").hasMatch(fieldName)) {
+      errorMessageField = fieldNameText + ' can only contain numbers';
+      return errorMessageField;
+      //return false;
+    }
+    if (fieldNameText == 'Mobile Phone') {
+      if (fieldName.substring(0, 2) != '62') {
+        errorMessageField = fieldNameText + ' must be started with 62';
         return errorMessageField;
         //return false;
       } else {
@@ -2275,28 +2668,30 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       }
     }
 
-    if (fieldNameText=='Company Phone'){
-      if (fieldName.substring(0,1)=='0' && fieldName.substring(0,2)!='08') {
-        errorMessageField=fieldNameText+ ' must not contain area code';
+    if (fieldNameText == 'Company Phone') {
+      if (fieldName.substring(0, 1) == '0' &&
+          fieldName.substring(0, 2) != '08') {
+        errorMessageField = fieldNameText + ' must not contain area code';
         //return false;
         return errorMessageField;
-      }
-      else
+      } else
         //return true;
         return null;
     }
     return null;
   }
 
-  String doubleValidation2(String fieldName, String fieldNameText, bool isMandatory) {
-    String errorMessageField=null;
-    if (fieldName==null){
-      errorMessageField=isMandatory? fieldNameText+' can\'t be empty':null;
+  String? doubleValidation2(
+      String fieldName, String fieldNameText, bool isMandatory) {
+    String? errorMessageField;
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       //return isMandatory? false:true;
       return errorMessageField;
     }
-    if (fieldName.length<0) {
-      errorMessageField=fieldNameText+' can\'t be empty';
+    if (fieldName.length < 0) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return errorMessageField;
     }
 //    if (!RegExp(r"/\d+\.\d*|\.?\d+/").hasMatch(fieldName)){
@@ -2306,115 +2701,134 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     return errorMessageField;
   }
 
-  String textNumberValidation2(String fieldName, String fieldNameText, bool isMandatory) {
-    String errorMessageField=null;
-    if (fieldName==null ) {
-      errorMessageField=isMandatory?fieldNameText+' can\'t be empty':null;
+  String? textNumberValidation2(
+      String fieldName, String fieldNameText, bool isMandatory) {
+    String? errorMessageField;
+    if (fieldName == null) {
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       return errorMessageField;
 //    } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(fieldName)) {
 //      errorMessageField=fieldNameText+' can only contains alphabets';
 //      return errorMessageField;
-    } else if (fieldName.length<1){
-      errorMessageField=fieldNameText+' can\'t be empty';
+    } else if (fieldName.length < 1) {
+      errorMessageField = fieldNameText + ' can\'t be empty';
       return errorMessageField;
     }
     return errorMessageField;
   }
 
-  String dateValidation2(String fieldName, String fieldNameText, bool isMandatory) {
-    String errorMessageField=null;
+  String? dateValidation2(
+      String fieldName, String fieldNameText, bool isMandatory) {
+    String? errorMessageField;
     if (fieldName != null) {
       try {
         DateTime tempDate = new DateFormat("dd-MM-yyyy").parse(fieldName);
-        if (Jiffy(DateTime.now()).add(years: -17).isBefore(tempDate)){
-          errorMessageField='Below 17 years old are not supposed to qualify for eKTP';
+        if (Jiffy(DateTime.now()).add(years: -17).isBefore(tempDate)) {
+          errorMessageField =
+              'Below 17 years old are not supposed to qualify for eKTP';
         }
         return errorMessageField;
       } catch (e) {
-        errorMessageField =fieldNameText + ' must be in dd-MM-yyyy format';
+        errorMessageField = fieldNameText + ' must be in dd-MM-yyyy format';
         return errorMessageField;
       }
     } else {
-      errorMessageField=isMandatory? fieldNameText + ' can\'t be empty':null;
+      errorMessageField =
+          isMandatory ? fieldNameText + ' can\'t be empty' : null;
       return errorMessageField;
     }
   }
-
 
   /**
    *  VALIDATIONS END
    */
 
-
-
-  /**
-   *  UI PAGE START
-   */
-  Widget PersonalPageUI0(TextStyle textStyle) {
-    return loading? _showCircularProgress(): PersonalPageUI(textStyle);
+  ///  UI PAGE START
+  Widget PersonalPageUI0(TextStyle? textStyle) {
+    return loading ? _showCircularProgress() : PersonalPageUI(textStyle);
   }
 
-  Widget PersonalPageUI(TextStyle textStyle) {
-    return ListView(
-        children: <Widget>[
-          showNikInput(true),
-          showErrorMessage(_nikErrorMessage),
-          (personalApiResultMessage.containsKey('nik'))? showApiFieldVerification2('nik'):Container(),
-          showNameInput(false),
-          showErrorMessage(_nameErrorMessage),
-          (personalApiResultMessage.containsKey('name'))? showApiFieldVerification2('name'):Container(),
-          (personalApiResultMessage.containsKey('no_negative_record'))? showApiFieldVerification2('no_negative_record'):Container(),
-          showBirthdateInput(false),
-          showErrorMessage(_birthdateErrorMessage),
-          (personalApiResultMessage.containsKey('birthdate'))? showApiFieldVerification2('birthdate'):Container(),
-          showBirthplaceInput(false),
-          showErrorMessage(_birthplaceErrorMessage),
-          (personalApiResultMessage.containsKey('birthplace'))? showApiFieldVerification2('birthplace'):Container(),
-          //showAddressInput(),
-          showErrorMessage(_addressErrorMessage),
-          (personalApiResultMessage.containsKey('address'))? showApiFieldVerification2('address'):Container(),
-          showMobilePhoneInput(true),
-          showErrorMessage(_mobilePhoneErrorMessage),
-          (personalApiResultMessage.containsKey('phone_nik'))? showApiFieldVerification2('phone_nik'):Container(),
-          (personalApiResultMessage.containsKey('phone_age'))? showApiFieldVerification2('phone_age'):Container(),
-          (personalApiResultMessage.containsKey('phone_total'))? showApiFieldVerification2('phone_total'):Container(),
-          //showMotherNameInput(),
-          //showErrorMessage(_motherNameErrorMessage),
-          (personalApiResultMessage.containsKey('mothername'))? showApiFieldVerification2('mothername'):Container(),
-          // (personalApiResultMessage.containsKey('messageResult'))?showMessageResult():Container(),
-          showUploadPhotoButton(),
-          showErrorMessage(_selfieErrorMessage),
-          (personalApiResultMessage.containsKey('selfie'))? showApiFieldVerification2('selfie'):Container(),
-          showNotes('* Mandatory (Must be filled)', Colors.red),
-          showButtons('personal'),
-        ]);
+  Widget PersonalPageUI(TextStyle? textStyle) {
+    return ListView(children: <Widget>[
+      showNikInput(true),
+      showErrorMessage(_nikErrorMessage),
+      (personalApiResultMessage.containsKey('nik'))
+          ? showApiFieldVerification2('nik')
+          : Container(),
+      showNameInput(false),
+      showErrorMessage(_nameErrorMessage),
+      (personalApiResultMessage.containsKey('name'))
+          ? showApiFieldVerification2('name')
+          : Container(),
+      (personalApiResultMessage.containsKey('no_negative_record'))
+          ? showApiFieldVerification2('no_negative_record')
+          : Container(),
+      showBirthdateInput(false),
+      showErrorMessage(_birthdateErrorMessage),
+      (personalApiResultMessage.containsKey('birthdate'))
+          ? showApiFieldVerification2('birthdate')
+          : Container(),
+      showBirthplaceInput(false),
+      showErrorMessage(_birthplaceErrorMessage),
+      (personalApiResultMessage.containsKey('birthplace'))
+          ? showApiFieldVerification2('birthplace')
+          : Container(),
+      //showAddressInput(),
+      showErrorMessage(_addressErrorMessage),
+      (personalApiResultMessage.containsKey('address'))
+          ? showApiFieldVerification2('address')
+          : Container(),
+      showMobilePhoneInput(true),
+      showErrorMessage(_mobilePhoneErrorMessage),
+      (personalApiResultMessage.containsKey('phone_nik'))
+          ? showApiFieldVerification2('phone_nik')
+          : Container(),
+      (personalApiResultMessage.containsKey('phone_age'))
+          ? showApiFieldVerification2('phone_age')
+          : Container(),
+      (personalApiResultMessage.containsKey('phone_total'))
+          ? showApiFieldVerification2('phone_total')
+          : Container(),
+      //showMotherNameInput(),
+      //showErrorMessage(_motherNameErrorMessage),
+      (personalApiResultMessage.containsKey('mothername'))
+          ? showApiFieldVerification2('mothername')
+          : Container(),
+      // (personalApiResultMessage.containsKey('messageResult'))?showMessageResult():Container(),
+      showUploadPhotoButton(),
+      showErrorMessage(_selfieErrorMessage),
+      (personalApiResultMessage.containsKey('selfie'))
+          ? showApiFieldVerification2('selfie')
+          : Container(),
+      showNotes('* Mandatory (Must be filled)', Colors.red),
+      showButtons('personal'),
+    ]);
   }
 
   // Nathanael code START
 
-
-
-  void onNewCameraSelected(CameraDescription cameraDescription) async {
+  void onNewCameraSelected(CameraDescription? cameraDescription) async {
     if (controller != null) {
-      await controller.dispose();
+      await controller!.dispose();
     }
     controller = CameraController(
-      cameraDescription,
+      cameraDescription!,
       ResolutionPreset.veryHigh,
       enableAudio: enableAudio,
     );
 
     // If the controller is updated then update the UI.
-    controller.addListener(() {
+    controller!.addListener(() {
       if (mounted) setState(() {});
-      if (controller.value.hasError) {
-        showInSnackBar('Camera error ${controller.value.errorDescription}');
+      if (controller!.value.hasError) {
+        showInSnackBar('Camera error ${controller!.value.errorDescription}');
         //createAlertDialog(this.context, 'Error','Camera error ${controller.value.errorDescription}');
       }
     });
 
     try {
-      await controller.initialize();
+      await controller!.initialize();
     } on CameraException catch (e) {
       _showCameraException(e);
     }
@@ -2425,14 +2839,18 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   void showInSnackBar(String message) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 
   Widget LivenessPageUI0() {
-    return loading? _showCircularProgress(): LivenessPageUI();
+    return loading ? _showCircularProgress() : LivenessPageUI();
   }
 
-  Widget LivenessPageUI(){
+  Widget LivenessPageUI() {
     return Scaffold(
       key: _scaffoldKey,
       body: Column(
@@ -2448,9 +2866,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               decoration: BoxDecoration(
                 color: Colors.black,
                 border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
+                  color:
+                      controller != null && controller!.value.isRecordingVideo
+                          ? Colors.redAccent
+                          : Colors.grey,
                   width: 3.0,
                 ),
               ),
@@ -2535,20 +2954,21 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     return Row(children: toggles);
   }
 
-  Widget _LivenessGestureDropBox(){
+  Widget _LivenessGestureDropBox() {
     return new DropdownButton<String>(
       items: _gestureSetEnum.map((dynamic value) {
         return DropdownMenuItem<String>(
           value: value,
           child: new Text(value),
         );
-      }).toList(),/**/
+      }).toList(),
+      /**/
       value: _currentGestureSelected,
       onChanged: (value) {
         setState(() {
           _currentGestureSelected = value;
           print(_currentGestureSelected);
-          switch(value){
+          switch (value) {
             case 'left eye closed, mouth closed, right eye closed':
               gestureSetSelected = '0';
               break;
@@ -2579,7 +2999,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         });
         setState(() {
           isGestureSelected = true;
-          gestureValue=_gestureSetEnum[int.parse(gestureSetSelected)];
+          gestureValue = _gestureSetEnum[int.parse(gestureSetSelected!)];
           // switch(gestureSetSelected){
           //   case '1':
           //     gestureValue = _gestureSetEnum[0];
@@ -2604,7 +3024,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
           //     break;
           // }
           gesture = gestureValue;
-          _currentGestureSelected=gestureValue;
+          _currentGestureSelected = gestureValue;
           //print(gestureSetSelected);
         });
       },
@@ -2615,7 +3035,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget _cameraPreviewWidget() {
-    if (controller == null || !controller.value.isInitialized) {
+    if (controller == null || !controller!.value.isInitialized) {
       return const Text(
         'Tap a camera',
         style: TextStyle(
@@ -2626,8 +3046,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       );
     } else {
       return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: CameraPreview(controller),
+        aspectRatio: controller!.value.aspectRatio,
+        child: CameraPreview(controller!),
       );
     }
   }
@@ -2687,11 +3107,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       child: Row(
         children: <Widget>[
           Expanded(
-            child: RaisedButton(
-              color: Theme.of(this.context).primaryColorDark,
-              textColor: Theme.of(this.context).primaryColorLight,
-              disabledColor: Theme.of(this.context).primaryColorDark,
-
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(this.context).primaryColorDark,
+                foregroundColor: Theme.of(this.context).primaryColorLight,
+                disabledBackgroundColor:
+                    Theme.of(this.context).primaryColorDark,
+              ),
               child: Text(
                 'Step1. Take Photos',
                 textScaleFactor: 1,
@@ -2706,30 +3128,30 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //                isContinuePhoto=false;
 //                warnLivenessPhotosCapture();
 //                if (isContinuePhoto)
-
               },
             ),
           ),
-
-          Container(width: 5.0,),
-
+          Container(
+            width: 5.0,
+          ),
           Expanded(
-            child: RaisedButton(
-              color: Theme.of(this.context).primaryColorDark,
-              textColor: Theme.of(this.context).primaryColorLight,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(this.context).primaryColorDark,
+                foregroundColor: Theme.of(this.context).primaryColorLight,
+                disabledBackgroundColor:
+                    Theme.of(this.context).primaryColorDark,
+              ),
               child: Text(
                 'Step 2. Check Liveness',
                 textScaleFactor: 1,
               ),
               onPressed: () {
                 processLiveness(this.context);
-                setState(() {
-
-                });
+                setState(() {});
               },
             ),
           ),
-
         ],
       ),
     );
@@ -2744,25 +3166,24 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             icon: const Icon(Icons.camera_alt),
             color: Colors.blue,
             onPressed: controller != null &&
-                controller.value.isInitialized &&
-                !controller.value.isRecordingVideo
+                    controller!.value.isInitialized &&
+                    !controller!.value.isRecordingVideo
                 ? onTakePictureButtonPressed
                 : null,
           )
-        ]
-    );
+        ]);
   }
 
 //  warnLivenessPhotosCapture() {
 //    //showInSnackBar('Now hold your pose. It will take about 1-2 minutes.');
-//    Widget cancelButton = FlatButton(
+//    Widget cancelButton = TextButton(
 //      child: Text("Cancel"),
 //      onPressed:  () {
 //        isContinuePhoto=false;
 //        Navigator.of(this.context).pop();
 //      },
 //    );
-//    Widget continueButton = FlatButton(
+//    Widget continueButton = TextButton(
 //      child: Text("Continue"),
 //      onPressed:  () {
 //        //onTakePictureButtonPressed();
@@ -2794,30 +3215,29 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     setState(() {
       loading = true;
     });
-    try{
-      isGestureSelected=true;
-      if(isGestureSelected) {
+    try {
+      isGestureSelected = true;
+      if (isGestureSelected) {
         //takePicture().then((String filePath) {
-        takePicture().then((String result) {
+        takePicture().then((String? result) {
           if (mounted) {
-            setState(() {
-
-            });
+            setState(() {});
             if (result != null)
               //showInSnackBar('Picture captured successfully');
-              createAlertDialog(this.context, 'Success','Photos captured successfully. Now click Check Liveness button.');
+              createAlertDialog(this.context, 'Success',
+                  'Photos captured successfully. Now click Check Liveness button.');
             else
               //showInSnackBar('Error taking pictures');
-              createAlertDialog(this.context, 'Error','Error taking photos. Please redo.');
+              createAlertDialog(
+                  this.context, 'Error', 'Error taking photos. Please redo.');
           }
         });
-      }
-      else{
+      } else {
         //showInSnackBar('Please select gesture set');
         createAlertDialog(this.context, 'Warning', 'Please select gesture set');
       }
-    }catch(e){
-      createAlertDialog(this.context, 'Error', e.substring(0, 50));
+    } catch (e) {
+      createAlertDialog(this.context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
@@ -2826,47 +3246,64 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 
   String timestamp() => DateTime.now().microsecond.toString();
 
-  Future<String> takePicture() async {
+  Future<String?> takePicture() async {
     try {
-      if (!controller.value.isInitialized) {
+      if (!controller!.value.isInitialized) {
         //showInSnackBar('Error: select a camera first.');
-        createAlertDialog(this.context,'Error','Error: select a camera first.');
+        createAlertDialog(
+            this.context, 'Error', 'Error: select a camera first.');
         return null;
       }
       final Directory extDir = await getApplicationDocumentsDirectory();
       final String dirPath = '${extDir.path}/Pictures/Liveness';
-      final String dirPathCompressed = '${extDir.path}/Pictures/LivenessCompressed';
-      List<String> dirsToDelete=[dirPath, dirPathCompressed];
-      livenessPhotos=new List(8);
-      livenessCompressedPhotos=new List(8);
+      final String dirPathCompressed =
+          '${extDir.path}/Pictures/LivenessCompressed';
+      List<String> dirsToDelete = [dirPath, dirPathCompressed];
+      livenessPhotos = [];
+      livenessCompressedPhotos = [];
 
-      await Directory(dirPathCompressed).createSync(recursive: true);
-      await Directory(dirPath).createSync(recursive: true);
+      Directory(dirPathCompressed).createSync(recursive: true);
+      Directory(dirPath).createSync(recursive: true);
       await deleteExistingPictures(dirPath, dirPathCompressed);
 
-      if (controller.value.isTakingPicture) {
+      if (controller!.value.isTakingPicture) {
         // A capture is already pending, do nothing.
         return null;
       }
 
       try {
-        for (int i=1;i< livenessPhotos.length+1;i++) {
-          livenessPhotos[i-1]=await takePictureWithTimer('$dirPath/$i.jpg');
+        for (int i = 1; i < livenessPhotos.length + 1; i++) {
+          livenessPhotos[i - 1] = await takePictureWithTimer('$dirPath/$i.jpg');
         }
       } on CameraException catch (e) {
         _showCameraException(e);
         return null;
       }
 
-      if (livenessPhotos[0]!=null && livenessPhotos[1]!=null && livenessPhotos[2]!=null && livenessPhotos[3]!= null && livenessPhotos[4]!=null && livenessPhotos[5]!=null && livenessPhotos[6]!=null && livenessPhotos[7]!= null) {
-        if (livenessPhotos[0].length()!=0 && livenessPhotos[1].length()!=0 && livenessPhotos[2].length()!=0 && livenessPhotos[3]!= null && livenessPhotos[4].length()!=0 && livenessPhotos[5].length()!=0 && livenessPhotos[6].length()!=0 && livenessPhotos[7].length()!=0) {
+      if (livenessPhotos[0] != null &&
+          livenessPhotos[1] != null &&
+          livenessPhotos[2] != null &&
+          livenessPhotos[3] != null &&
+          livenessPhotos[4] != null &&
+          livenessPhotos[5] != null &&
+          livenessPhotos[6] != null &&
+          livenessPhotos[7] != null) {
+        if (livenessPhotos[0]!.length() != 0 &&
+            livenessPhotos[1]!.length() != 0 &&
+            livenessPhotos[2]!.length() != 0 &&
+            livenessPhotos[3] != null &&
+            livenessPhotos[4]!.length() != 0 &&
+            livenessPhotos[5]!.length() != 0 &&
+            livenessPhotos[6]!.length() != 0 &&
+            livenessPhotos[7]!.length() != 0) {
           return 'success';
         }
       }
       return null;
     } catch (e) {
-      createAlertDialog(this.context, 'Error', e.substring(0, 50));
+      createAlertDialog(this.context, 'Error', e.toString().substring(0, 50));
     }
+    return null;
   }
 
   processLiveness(BuildContext context) async {
@@ -2875,44 +3312,83 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     });
     try {
       final Directory extDir = await getApplicationDocumentsDirectory();
-      final String dirPathCompressed = '${extDir.path}/Pictures/LivenessCompressed';
-      bool isResultSuccess=false;
+      final String dirPathCompressed =
+          '${extDir.path}/Pictures/LivenessCompressed';
+      bool isResultSuccess = false;
 
-      if (livenessPhotos[0]!=null && livenessPhotos[1]!=null && livenessPhotos[2]!=null && livenessPhotos[3]!= null && livenessPhotos[4]!=null && livenessPhotos[5]!=null && livenessPhotos[6]!=null && livenessPhotos[7]!= null) {
-        if (livenessPhotos[0].length()!=0 && livenessPhotos[1].length()!=0 && livenessPhotos[2].length()!=0 && livenessPhotos[3]!= null && livenessPhotos[4].length()!=0 && livenessPhotos[5].length()!=0 && livenessPhotos[6].length()!=0 && livenessPhotos[7].length()!=0) {
-          for (int i=1; i< livenessCompressedPhotos.length+1;i++) {
-            livenessCompressedPhotos[i-1]=await compressPictures(livenessPhotos[i-1], dirPathCompressed, i.toString());
+      if (livenessPhotos[0] != null &&
+          livenessPhotos[1] != null &&
+          livenessPhotos[2] != null &&
+          livenessPhotos[3] != null &&
+          livenessPhotos[4] != null &&
+          livenessPhotos[5] != null &&
+          livenessPhotos[6] != null &&
+          livenessPhotos[7] != null) {
+        if (livenessPhotos[0]!.length() != 0 &&
+            livenessPhotos[1]!.length() != 0 &&
+            livenessPhotos[2]!.length() != 0 &&
+            livenessPhotos[3] != null &&
+            livenessPhotos[4]!.length() != 0 &&
+            livenessPhotos[5]!.length() != 0 &&
+            livenessPhotos[6]!.length() != 0 &&
+            livenessPhotos[7]!.length() != 0) {
+          for (int i = 1; i < livenessCompressedPhotos.length + 1; i++) {
+            livenessCompressedPhotos[i - 1] = await compressPictures(
+                livenessPhotos[i - 1], dirPathCompressed, i.toString());
           }
 
-          if (livenessCompressedPhotos[0]!=null && livenessCompressedPhotos[1]!=null && livenessCompressedPhotos[2]!=null && livenessCompressedPhotos[3]!=null && livenessCompressedPhotos[4]!=null && livenessCompressedPhotos[5]!=null && livenessCompressedPhotos[6]!=null && livenessCompressedPhotos[7]!=null) {
-            if (livenessCompressedPhotos[0].length()!=0 && livenessCompressedPhotos[1].length()!=0 && livenessCompressedPhotos[2].length()!=0 && livenessCompressedPhotos[3]!= null && livenessCompressedPhotos[4].length()!=0 && livenessCompressedPhotos[5].length()!=0 && livenessCompressedPhotos[6].length()!=0 && livenessCompressedPhotos[7].length()!=0) {
+          if (livenessCompressedPhotos[0] != null &&
+              livenessCompressedPhotos[1] != null &&
+              livenessCompressedPhotos[2] != null &&
+              livenessCompressedPhotos[3] != null &&
+              livenessCompressedPhotos[4] != null &&
+              livenessCompressedPhotos[5] != null &&
+              livenessCompressedPhotos[6] != null &&
+              livenessCompressedPhotos[7] != null) {
+            if (livenessCompressedPhotos[0]!.length() != 0 &&
+                livenessCompressedPhotos[1]!.length() != 0 &&
+                livenessCompressedPhotos[2]!.length() != 0 &&
+                livenessCompressedPhotos[3] != null &&
+                livenessCompressedPhotos[4]!.length() != 0 &&
+                livenessCompressedPhotos[5]!.length() != 0 &&
+                livenessCompressedPhotos[6]!.length() != 0 &&
+                livenessCompressedPhotos[7]!.length() != 0) {
               await livenessProcess(this.context);
               //isResultSuccess=true;
-            }else { // one of the pictures length is 0 b after compression
-              createAlertDialog(context, 'Not executed', 'Please hold selected pose and click \'Step1.\' Take Pictures button');
+            } else {
+              // one of the pictures length is 0 b after compression
+              createAlertDialog(context, 'Not executed',
+                  'Please hold selected pose and click \'Step1.\' Take Pictures button');
             }
-          }else { // one of the pictures null after compression
-            createAlertDialog(context, 'Not executed', 'Please hold selected pose and click \'Step1.\' Take Pictures button');
+          } else {
+            // one of the pictures null after compression
+            createAlertDialog(context, 'Not executed',
+                'Please hold selected pose and click \'Step1.\' Take Pictures button');
           }
-        } else { // one of the pictures length is 0 b
-          createAlertDialog(context, 'Not executed', 'Please hold selected pose and click \'Step1.\' Take Pictures button');
+        } else {
+          // one of the pictures length is 0 b
+          createAlertDialog(context, 'Not executed',
+              'Please hold selected pose and click \'Step1.\' Take Pictures button');
         }
-      } else { // one of the pictures null
-        createAlertDialog(context, 'Not executed', 'Please hold selected pose and click \'Step1.\' Take Pictures button');
+      } else {
+        // one of the pictures null
+        createAlertDialog(context, 'Not executed',
+            'Please hold selected pose and click \'Step1.\' Take Pictures button');
       }
-    }
-    catch (e) {
-      createAlertDialog(context, 'Error', e.substring(0, 50));
+    } catch (e) {
+      createAlertDialog(context, 'Error', e.toString().substring(0, 50));
     }
     setState(() {
       loading = false;
     });
   }
 
-
-  Future<String>deleteExistingPictures(String dirPath, String dirPathCompressed) async {
+  Future<String> deleteExistingPictures(
+    String dirPath,
+    String dirPathCompressed,
+  ) async {
     try {
-      for (int i=1;i<livenessPhotos.length+1;i++) {
+      for (int i = 1; i < livenessPhotos.length + 1; i++) {
         if (await File('$dirPath/$i.jpg').exists()) {
           await File('$dirPath/$i.jpg').delete();
         }
@@ -2921,63 +3397,70 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         }
       }
     } catch (e) {
-      createAlertDialog(this.context, 'Error', e.substring(0, 50));
+      createAlertDialog(this.context, 'Error', e.toString().substring(0, 50));
     }
+    return '';
   }
 
   Future<File> takePictureWithTimer(String filePath) async {
-    await controller.takePicture(filePath);
-    Future<File> result=Future.delayed(Duration(milliseconds: 800), () {
-      try{
-        return new File(filePath);
+    final file = await controller!.takePicture();
+    Future<File> result = Future.delayed(Duration(milliseconds: 800), () {
+      try {
+        return new File(file.path);
       } on CameraException catch (e) {
         _showCameraException(e);
-        return null;
       }
-    });
+    }).then((value) => value ?? File(filePath));
     return result;
   }
 
-  Future<File> compressPictures(File picture, String resultDirectory, String compressedPhotoName) async {
-    String resultPath=resultDirectory+ '/' +compressedPhotoName+'.jpg';
-    int photoQuality=40;
-    if(picture != null) {
+  Future<File?> compressPictures(
+      File? picture, String resultDirectory, String compressedPhotoName) async {
+    String resultPath = resultDirectory + '/' + compressedPhotoName + '.jpg';
+    int photoQuality = 40;
+    if (picture != null) {
       try {
-        var result = await FlutterImageCompress.compressAndGetFile(
-          picture.absolute.path, resultPath,
+        var result = await (FlutterImageCompress.compressAndGetFile(
+          picture.absolute.path,
+          resultPath,
           quality: photoQuality,
-        );
+        ) as FutureOr<File>);
 
-        int pictureLength=picture.lengthSync();
-        int resultLength=result.lengthSync();
+        int pictureLength = picture.lengthSync();
+        int resultLength = result.lengthSync();
 
         var i = 1;
 
-        while ((resultLength< livenessMinPhotoSize || resultLength > livenessMaxPhotoSize) && photoQuality>0 && photoQuality<100) {
-          if (result!=null)
-            await result.delete();
+        while ((resultLength < livenessMinPhotoSize ||
+                resultLength > livenessMaxPhotoSize) &&
+            photoQuality > 0 &&
+            photoQuality < 100) {
+ await result.delete();
 //          resultPath=resultDirectory+compressedPhotoName+'.jpg';
-          photoQuality=(resultLength>livenessMaxPhotoSize)? photoQuality-10:photoQuality+10;
-          result = await FlutterImageCompress.compressAndGetFile(
-            picture.absolute.path, resultPath,
+          photoQuality = (resultLength > livenessMaxPhotoSize)
+              ? photoQuality - 10
+              : photoQuality + 10;
+          result = await (FlutterImageCompress.compressAndGetFile(
+            picture.absolute.path,
+            resultPath,
             quality: photoQuality,
-          );
-          resultLength=result.lengthSync();
+          ) as FutureOr<File>);
+          resultLength = result.lengthSync();
         }
 
-        double sizeinKb=resultLength.toDouble()/1024;
-        debugPrint('Photo compressed size is '+sizeinKb.toString()+' kb');
+        double sizeinKb = resultLength.toDouble() / 1024;
+        debugPrint('Photo compressed size is ' + sizeinKb.toString() + ' kb');
 
         await picture.delete();
         return result;
-      }
-      catch (e) {
-        print (e);
+      } catch (e) {
+        print(e);
         debugPrint("Error $e");
       }
     } else {
       return null;
     }
+    return null;
   }
 
   // Future<String> takePicture_backup() async {
@@ -3116,64 +3599,71 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   //   }
   // }
 
-  Future<bool> deleteDirectories(List<String> directoryPaths) async{
+  Future<bool> deleteDirectories(List<String> directoryPaths) async {
     for (var i = 0; i < directoryPaths.length; i++) {
       var currentDir = Directory(directoryPaths[i]);
-      if (await currentDir.exists())
-        await currentDir.delete(recursive: true);
+      if (await currentDir.exists()) await currentDir.delete(recursive: true);
     }
     return true;
   }
 
-  livenessProcess(BuildContext context) async{
-    String trx_id = 'Liveness_' + DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+  livenessProcess(BuildContext context) async {
+    String trxId =
+        'Liveness_' + DateFormat('yyyyMMddHHmmss').format(DateTime.now());
     String token = '21bc8a0b-2398-413b-8159-7b389f51e40f';
     String contentType = 'application/json';
-    try{
-      var uri = Uri.parse('https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_liveness');
+    try {
+      var uri = Uri.parse(
+          'https://api.asliri.id:8443/infosyssolusiterpadu_poc/verify_liveness');
       var request = new http.MultipartRequest('POST', uri);
 
-      request.fields['trx_id'] = trx_id;
-      request.fields['gestures_set'] = gestureSetSelected;
+      request.fields['trx_id'] = trxId;
+      request.fields['gestures_set'] = gestureSetSelected!;
       request.headers['token'] = token;
       request.headers['Content-Type'] = contentType;
-      for (int i=0;i<livenessCompressedPhotos.length;i++) {
-        request.files.add(http.MultipartFile('file', File(livenessCompressedPhotos[i].path).readAsBytes().asStream(), File(livenessCompressedPhotos[i].path).lengthSync(), filename: basename(livenessCompressedPhotos[i].path)));
+      for (int i = 0; i < livenessCompressedPhotos.length; i++) {
+        request.files.add(http.MultipartFile(
+            'file',
+            File(livenessCompressedPhotos[i]!.path).readAsBytes().asStream(),
+            File(livenessCompressedPhotos[i]!.path).lengthSync(),
+            filename: basename(livenessCompressedPhotos[i]!.path)));
       }
-      print('files: '+ request.files.length.toString());
+      print('files: ' + request.files.length.toString());
 
       var response = await request.send();
       var resStr = await response.stream.bytesToString();
       print(resStr);
 
       Map<String, dynamic> listResult = jsonDecode(resStr.toString());
-      AsliGesturesSetNamesModel gestureModel = AsliGesturesSetNamesModel.fromJson(listResult);
+      AsliGesturesSetNamesModel gestureModel =
+          AsliGesturesSetNamesModel.fromJson(listResult);
 
       //TODO: response validation
-      if(gestureModel.gesturesSetResults != null){
-        if(gestureModel.passed = false){
-          createAlertDialog(context,'Error','Your gesture photo does not match with the selected gesture set');
+      if (gestureModel.gesturesSetResults != null) {
+        if (gestureModel.passed = false) {
+          createAlertDialog(context, 'Error',
+              'Your gesture photo does not match with the selected gesture set');
           //showInSnackBar('Your gesture photo does not match with the selected gesture set');
-        }
-        else{
+        } else {
           //showInSnackBar('You pass the liveness detection');
-          createAlertDialog(context,'Success','Photos taken from live person and matched the gesture set');
+          createAlertDialog(context, 'Success',
+              'Photos taken from live person and matched the gesture set');
         }
-      }
-      else{
+      } else {
         //showInSnackBar('Photo is from more than 1 person or image is not readable');
-        createAlertDialog(context,'Error','Photo is taken from more than 1 person or images is not readable');
+        createAlertDialog(context, 'Error',
+            'Photo is taken from more than 1 person or images is not readable');
       }
-    }
-    catch(e){
+    } catch (e) {
       debugPrint('Error $e');
-      createAlertDialog(context,'Failed','Liveness verification failed. Photos may not be taken from live person.');
+      createAlertDialog(context, 'Failed',
+          'Liveness verification failed. Photos may not be taken from live person.');
     }
     return true;
   }
 
   Widget LocationPageUI0() {
-    return loading? _showCircularProgress(): LocationPageUI();
+    return loading ? _showCircularProgress() : LocationPageUI();
   }
 
   Widget LocationPageUI() {
@@ -3181,14 +3671,26 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       children: <Widget>[
         showMobilePhoneInput(true),
         showErrorMessage(_mobilePhoneErrorMessage),
-        (locationApiResultMessage.containsKey('phone'))? showApiFieldVerification(locationApiResultBool, locationApiResultMessage,'phone'):Container(),
+        (locationApiResultMessage.containsKey('phone'))
+            ? showApiFieldVerification(
+                locationApiResultBool as Map<String, bool?>,
+                locationApiResultMessage as Map<String, String?>,
+                'phone')
+            : Container(),
         showNotes('* Mandatory (Must be filled)', Colors.red),
         showHomeVerificationButton(),
-        showNotes('Home Verification is checked if the mobile phone owner\nused internet data package in current location\nbetween 22PM - 3AM for the past 3 days', Colors.blue),
+        showNotes(
+            'Home Verification is checked if the mobile phone owner\nused internet data package in current location\nbetween 22PM - 3AM for the past 3 days',
+            Colors.blue),
 //        showHomeLatitudeLongitudeInput(),
 //        showErrorMessage(_homeLatitudeErrorMessage),
 //        showErrorMessage(_homeLongitudeErrorMessage),
-        (locationApiResultMessage.containsKey('home'))? showApiFieldVerification(locationApiResultBool, locationApiResultMessage,'home'):Container(),
+        (locationApiResultMessage.containsKey('home'))
+            ? showApiFieldVerification(
+                locationApiResultBool as Map<String, bool?>,
+                locationApiResultMessage as Map<String, String?>,
+                'home')
+            : Container(),
 //        showWorkLatitudeLongitudeInput(),
 //        showErrorMessage(_workLatitudeErrorMessage),
 //        showErrorMessage(_workLongitudeErrorMessage),
@@ -3198,63 +3700,144 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     );
   }
 
-  Widget WorkplacePageUI0(TextStyle textStyle) {
-    return loading? _showCircularProgress(): WorkplacePageUI(textStyle);
+  Widget WorkplacePageUI0(TextStyle? textStyle) {
+    return loading ? _showCircularProgress() : WorkplacePageUI(textStyle);
   }
 
-  Widget WorkplacePageUI(TextStyle textStyle) {
+  Widget WorkplacePageUI(TextStyle? textStyle) {
     return ListView(
       children: <Widget>[
         showNikInput(true),
         showErrorMessage(_nikErrorMessage),
-        (workplaceApiResultMessage.containsKey('nik'))? showApiFieldVerification(workplaceApiResultBool, workplaceApiResultMessage,'nik'):Container(),
+        (workplaceApiResultMessage.containsKey('nik'))
+            ? showApiFieldVerification(
+                workplaceApiResultBool as Map<String, bool?>,
+                workplaceApiResultMessage as Map<String, String?>,
+                'nik')
+            : Container(),
         showNameInput(false),
         showErrorMessage(_nameErrorMessage),
-        (workplaceApiResultMessage.containsKey('name'))? showApiFieldVerification(workplaceApiResultBool, workplaceApiResultMessage,'name'):Container(),
+        (workplaceApiResultMessage.containsKey('name'))
+            ? showApiFieldVerification(
+                workplaceApiResultBool as Map<String, bool?>,
+                workplaceApiResultMessage as Map<String, String?>,
+                'name')
+            : Container(),
         showCompanyNameInput(true),
         showErrorMessage(_companyNameErrorMessage),
-        (workplaceApiResultMessage.containsKey('company'))? showApiFieldVerification(workplaceApiResultBool, workplaceApiResultMessage,'company'):Container(),
-        (workplaceApiResultMessage.containsKey('company_name'))? showApiFieldVerification(workplaceApiResultBool, workplaceApiResultMessage,'company_name'):Container(),
+        (workplaceApiResultMessage.containsKey('company'))
+            ? showApiFieldVerification(
+                workplaceApiResultBool as Map<String, bool?>,
+                workplaceApiResultMessage as Map<String, String?>,
+                'company')
+            : Container(),
+        (workplaceApiResultMessage.containsKey('company_name'))
+            ? showApiFieldVerification(
+                workplaceApiResultBool as Map<String, bool?>,
+                workplaceApiResultMessage as Map<String, String?>,
+                'company_name')
+            : Container(),
         showCompanyPhoneInput(),
         showErrorMessage(_companyPhoneErrorMessage),
-        (workplaceApiResultMessage.containsKey('company_phone'))? showApiFieldVerification(workplaceApiResultBool, workplaceApiResultMessage,'company_phone'):Container(),
-        (workplaceApiResultMessage.containsKey('messageResult'))?showMessageResult2(workplaceApiResultMessage):Container(),
+        (workplaceApiResultMessage.containsKey('company_phone'))
+            ? showApiFieldVerification(
+                workplaceApiResultBool as Map<String, bool?>,
+                workplaceApiResultMessage as Map<String, String?>,
+                'company_phone')
+            : Container(),
+        (workplaceApiResultMessage.containsKey('messageResult'))
+            ? showMessageResult2(
+                workplaceApiResultMessage as Map<String, String?>)
+            : Container(),
         showNotes('* Mandatory (Must be filled)', Colors.red),
         showButtons('workplace'),
       ],
     );
   }
 
-  Widget TaxPageUI0(TextStyle textStyle) {
-    return loading? _showCircularProgress(): TaxPageUI(textStyle);
+  Widget TaxPageUI0(TextStyle? textStyle) {
+    return loading ? _showCircularProgress() : TaxPageUI(textStyle);
   }
 
-  Widget TaxPageUI(TextStyle textStyle) {
+  Widget TaxPageUI(TextStyle? textStyle) {
     return ListView(
       children: <Widget>[
 //        showNpwpTaxTypeInput(),
         //showTaxTypeInput(),
         showNpwpInput(true),
         showErrorMessage(_npwpErrorMessage),
-        (taxApiResultMessage.containsKey('npwp'))? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'npwp'):Container(),
-        (_currentTaxSelected=='Personal Tax')?showNikInput(true):Container(),
-        (_currentTaxSelected=='Personal Tax')?showErrorMessage(_nikErrorMessage):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('nik'))? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'nik'):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('nik2'))? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'nik2'):Container(),
-        (_currentTaxSelected=='Personal Tax')?showNameInput(false):Container(),
-        (_currentTaxSelected=='Personal Tax')?showErrorMessage(_nameErrorMessage):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('name')&&_currentTaxSelected=='Personal Tax')? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'name'):Container(),
-        (_currentTaxSelected=='Personal Tax')?showBirthdateInput(false):Container(),
-        (_currentTaxSelected=='Personal Tax')?showErrorMessage(_birthdateErrorMessage):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('birthdate')&&_currentTaxSelected=='Personal Tax')? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'birthdate'):Container(),
-        (_currentTaxSelected=='Personal Tax')?showBirthplaceInput(false):Container(),
-        (_currentTaxSelected=='Personal Tax')?showErrorMessage(_birthplaceErrorMessage):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('birthplace')&&_currentTaxSelected=='Personal Tax')? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'birthplace'):Container(),
+        (taxApiResultMessage.containsKey('npwp'))
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'npwp')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showNikInput(true)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showErrorMessage(_nikErrorMessage)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('nik'))
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'nik')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('nik2'))
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'nik2')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showNameInput(false)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showErrorMessage(_nameErrorMessage)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('name') &&
+                _currentTaxSelected == 'Personal Tax')
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'name')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showBirthdateInput(false)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showErrorMessage(_birthdateErrorMessage)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('birthdate') &&
+                _currentTaxSelected == 'Personal Tax')
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'birthdate')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showBirthplaceInput(false)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax')
+            ? showErrorMessage(_birthplaceErrorMessage)
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('birthplace') &&
+                _currentTaxSelected == 'Personal Tax')
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'birthplace')
+            : Container(),
         showIncomeInput(true),
         showErrorMessage(_incomeErrorMessage),
-        (taxApiResultMessage.containsKey('income'))? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'income'):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('income2')&&_currentTaxSelected=='Personal Tax')? showApiFieldVerification(taxApiResultBool, taxApiResultMessage,'income2'):Container(),
-        (_currentTaxSelected=='Personal Tax' && taxApiResultMessage.containsKey('messageResult'))? showMessageResult2(taxApiResultMessage):Container(),
+        (taxApiResultMessage.containsKey('income'))
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'income')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('income2') &&
+                _currentTaxSelected == 'Personal Tax')
+            ? showApiFieldVerification(taxApiResultBool as Map<String, bool?>,
+                taxApiResultMessage as Map<String, String?>, 'income2')
+            : Container(),
+        (_currentTaxSelected == 'Personal Tax' &&
+                taxApiResultMessage.containsKey('messageResult'))
+            ? showMessageResult2(taxApiResultMessage as Map<String, String?>)
+            : Container(),
         showNotes('* Mandatory (Must be filled)', Colors.red),
         showButtons('tax'),
       ],
@@ -3266,34 +3849,94 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       children: <Widget>[
         showNopInput(),
         showErrorMessage(_nopErrorMessage),
-        (propertyApiResultMessage.containsKey('nop'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'nop'):Container(),
+        (propertyApiResultMessage.containsKey('nop'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'nop')
+            : Container(),
         showPropertyNameInput(),
         showErrorMessage(_propertyNameErrorMessage),
-        (propertyApiResultMessage.containsKey('propertyName'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'propertyName'):Container(),
-        (propertyApiResultMessage.containsKey('propertyAddress'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'propertyAddress'):Container(),
+        (propertyApiResultMessage.containsKey('propertyName'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'propertyName')
+            : Container(),
+        (propertyApiResultMessage.containsKey('propertyAddress'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'propertyAddress')
+            : Container(),
         showPropertyAreaInput(),
         showErrorMessage(_propertyBuildingAreaErrorMessage),
         showErrorMessage(_propertySurfaceAreaErrorMessage),
-        (propertyApiResultMessage.containsKey('propertyBuildingArea'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'propertyBuildingArea'):Container(),
-        (propertyApiResultMessage.containsKey('propertySurfaceArea'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'propertySurfaceArea'):Container(),
+        (propertyApiResultMessage.containsKey('propertyBuildingArea'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'propertyBuildingArea')
+            : Container(),
+        (propertyApiResultMessage.containsKey('propertySurfaceArea'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'propertySurfaceArea')
+            : Container(),
         showPropertyEstimationInput(),
         showErrorMessage(_propertyEstimationErrorMessage),
-        (propertyApiResultMessage.containsKey('propertyEstimation'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'propertyEstimation'):Container(),
+        (propertyApiResultMessage.containsKey('propertyEstimation'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'propertyEstimation')
+            : Container(),
         showNikInput(true),
         showErrorMessage(_nikErrorMessage),
-        (propertyApiResultMessage.containsKey('nik'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'nik'):Container(),
+        (propertyApiResultMessage.containsKey('nik'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'nik')
+            : Container(),
         showCertificateNameInput(),
         showErrorMessage(_certificateNameErrorMessage),
-        (propertyApiResultMessage.containsKey('certificateName'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'certificateName'):Container(),
-        (propertyApiResultMessage.containsKey('certificateAddress'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'certificateAddress'):Container(),
+        (propertyApiResultMessage.containsKey('certificateName'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'certificateName')
+            : Container(),
+        (propertyApiResultMessage.containsKey('certificateAddress'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'certificateAddress')
+            : Container(),
         showCertificateIdAndTypeInput(),
         showErrorMessage(_certificateIdErrorMessage),
         showErrorMessage(_certificateTypeErrorMessage),
-        (propertyApiResultMessage.containsKey('certificateId'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'certificateId'):Container(),
-        (propertyApiResultMessage.containsKey('certificateType'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'certificateType'):Container(),
+        (propertyApiResultMessage.containsKey('certificateId'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'certificateId')
+            : Container(),
+        (propertyApiResultMessage.containsKey('certificateType'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'certificateType')
+            : Container(),
         showCertificateDateInput(),
         showErrorMessage(_certificateDateErrorMessage),
-        (propertyApiResultMessage.containsKey('certificateDate'))? showApiFieldVerification(propertyApiResultBool, propertyApiResultMessage,'certificateDate'):Container(),
+        (propertyApiResultMessage.containsKey('certificateDate'))
+            ? showApiFieldVerification(
+                propertyApiResultBool as Map<String, bool?>,
+                propertyApiResultMessage as Map<String, String?>,
+                'certificateDate')
+            : Container(),
         showNotes('* Mandatory (Must be filled)', Colors.red),
         showButtons('property'),
       ],
@@ -3319,9 +3962,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               decoration: BoxDecoration(
                 color: Colors.black,
                 border: Border.all(
-                  color: controller != null && controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
+                  color:
+                      controller != null && controller!.value.isRecordingVideo
+                          ? Colors.redAccent
+                          : Colors.grey,
                   width: 3.0,
                 ),
               ),
@@ -3348,14 +3992,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
    *  UI PAGE ENDS
    */
 
-  /**
-   * UI MINOR START
-   */
-
-
+  /// UI MINOR START
 
   Widget showNikInput(bool isMandatory) {
-    String label=(isMandatory)?'NIK *':'NIK';
+    String label = (isMandatory) ? 'NIK *' : 'NIK';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3374,6 +4014,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         //   resetPostSubmitErrorMessages();
         // },
         validator: (value) {
+          return null;
+        
           // if (value.isEmpty) {
           //   return 'NIK can\'t be empty';
 //          } else if (!RegExp(r"^[0-9]*").hasMatch(value.trim())) {
@@ -3392,7 +4034,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showNameInput(bool isMandatory) {
-    String label=(isMandatory)?'Name *':'Name';
+    String label = (isMandatory) ? 'Name *' : 'Name';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3407,6 +4049,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Name can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -3420,7 +4064,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showBirthdateInput(isMandatory) {
-    String label=(isMandatory)?'Birthdate *':'Birthdate';
+    String label = (isMandatory) ? 'Birthdate *' : 'Birthdate';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3436,18 +4080,18 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             )),
         onTap: () {
           showDatePicker(
-            context:this.context,
+            context: this.context,
             //initialDate:selectedbirthdate==null? DateTime.now():selectedbirthdate,
-            initialDate:DateTime.now(),
+            initialDate: DateTime.now(),
             //firstDate: DateTime.now().add(Duration(years:16)),
             firstDate: DateTime(1900, 1, 1),
-            lastDate:DateTime.now(),
+            lastDate: DateTime.now(),
             //lastDate: Jiffy(DateTime.now()).add(years: -17)
-          ).then((selectedDate){
-            selectedbirthdate=selectedDate;
-            birthdateController.text= DateFormat('dd-MM-yyyy').format(selectedDate).toString();
+          ).then((selectedDate) {
+            selectedbirthdate = selectedDate;
+            birthdateController.text =
+                DateFormat('dd-MM-yyyy').format(selectedDate!).toString();
             //new DateFormat.yMMMd().format(selectedDate);
-                ;
           });
         },
         onChanged: (value) {
@@ -3458,7 +4102,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showBirthplaceInput(bool isMandatory) {
-    String label=(isMandatory)?'Birthplace *':'Birthplace';
+    String label = (isMandatory) ? 'Birthplace *' : 'Birthplace';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3473,6 +4117,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Birthplace can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -3505,6 +4151,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Address can\'t be empty';
 ////          } else
@@ -3524,7 +4172,9 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showMobilePhoneInput(bool isMandatory) {
-    String label=(isMandatory)?'Mobile Phone Number * (must start with 62)':'Mobile Phone Number (must start with 62)';
+    String label = (isMandatory)
+        ? 'Mobile Phone Number * (must start with 62)'
+        : 'Mobile Phone Number (must start with 62)';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3539,6 +4189,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Mobile Phone can\'t be empty';
 //          } else if (!RegExp(r"^[0-9]*").hasMatch(value.trim())) {
@@ -3571,6 +4223,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Mother Name can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -3589,7 +4243,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showCompanyNameInput(bool isMandatory) {
-    String label=(isMandatory)?'Company Name *':'Company Name';
+    String label = (isMandatory) ? 'Company Name *' : 'Company Name';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3604,6 +4258,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Company Name can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -3631,6 +4287,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isNotEmpty) {
 //            if (!RegExp(r"^[0-9]*").hasMatch(value.trim())) {
 //              return 'Company Phone can only be numbers';
@@ -3708,14 +4366,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               );
             }).toList(),
             value: _currentTaxSelected,
-            onChanged: (String newValueSelected) {
+            onChanged: (String? newValueSelected) {
               _onPropertyDropDownItemSelected(newValueSelected);
-            })
-    );
+            }));
   }
 
   Widget showNpwpInput(bool isMandatory) {
-    String label=(isMandatory)?'NPWP *':'NPWP';
+    String label = (isMandatory) ? 'NPWP *' : 'NPWP';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3730,6 +4387,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'NPWP can\'t be empty';
 //          } else if (!RegExp(r"^[0-9]*").hasMatch(value.trim())) {
@@ -3743,7 +4402,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showIncomeInput(bool isMandatory) {
-    String label = (isMandatory)?'Income *':'Income';
+    String label = (isMandatory) ? 'Income *' : 'Income';
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
@@ -3758,6 +4417,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Income can\'t be empty';
 //          } else if (!RegExp(r"/\d+\.\d*|\.?\d+/").hasMatch(value.trim())) {
@@ -3785,6 +4446,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Home Latitude can\'t be empty';
 //              } else {
@@ -3808,6 +4471,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Home Longitude can\'t be empty';
 //              } else {
@@ -3815,7 +4480,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //                  return 'Home Longitude can only be numbers';
 //              }
             },
-          ),),
+          ),
+        ),
       ]),
     );
   }
@@ -3837,6 +4503,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Work Latitude can\'t be empty';
 //              } else {
@@ -3862,6 +4530,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Home Longitude can\'t be empty';
 //              } else {
@@ -3871,7 +4541,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //                  return 'Home Longitude can only be numbers';
 //              }
             },
-          ),),
+          ),
+        ),
       ]),
     );
   }
@@ -3897,6 +4568,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Property Surface Area can\'t be empty';
 //              }
@@ -3920,6 +4593,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Property Building Area can\'t be empty';
 //              }
@@ -3927,7 +4602,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //                return 'Property Building Area can only be numbers';
 //              }
             },
-          ),),
+          ),
+        ),
       ]),
     );
   }
@@ -3949,6 +4625,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   color: Colors.grey,
                 )),
             validator: (value) {
+              return null;
+            
 //              if (value.isEmpty) {
 //                return 'Certificate ID can\'t be empty';
 //              }
@@ -3965,7 +4643,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   );
                 }).toList(),
                 value: _currentPropertySelected,
-                onChanged: (String newValueSelected) {
+                onChanged: (String? newValueSelected) {
                   _onPropertyDropDownItemSelected(newValueSelected);
                 })),
       ]),
@@ -3987,6 +4665,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'NOP can\'t be empty';
 //          } else if (!RegExp(r"^[0-9]*").hasMatch(value.trim())) {
@@ -4019,6 +4699,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Property Name can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -4051,6 +4733,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Property Surface Area can\'t be empty';
 //          }
@@ -4074,6 +4758,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Property Building Area can\'t be empty';
 //          }
@@ -4097,6 +4783,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Property Estimation can\'t be empty';
 //          } else if(!RegExp(r"/\d+\.\d*|\.?\d+/").hasMatch(value)) {
@@ -4124,6 +4812,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Certificate Name can\'t be empty';
 //          } else if (!RegExp(r"[a-zA-Z ]*").hasMatch(value)) {
@@ -4156,6 +4846,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Certificate Id can\'t be empty';
 //          }
@@ -4184,6 +4876,8 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
               color: Colors.grey,
             )),
         validator: (value) {
+          return null;
+        
 //          if (value.isEmpty) {
 //            return 'Certificate Type can\'t be empty';
 ////          } else {
@@ -4214,15 +4908,17 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
             )),
         onTap: () {
           showDatePicker(
-            context:this.context,
-            initialDate:selectedcertificatedate==null? DateTime.now():selectedcertificatedate,
+            context: this.context,
+            initialDate: selectedcertificatedate == null
+                ? DateTime.now()
+                : selectedcertificatedate!,
             firstDate: DateTime(1900),
-            lastDate:DateTime.now(),
-          ).then((selectedDate){
-            selectedcertificatedate=selectedDate;
-            certificateDateController.text= DateFormat('dd-MM-yyyy').format(selectedDate).toString();
+            lastDate: DateTime.now(),
+          ).then((selectedDate) {
+            selectedcertificatedate = selectedDate;
+            certificateDateController.text =
+                DateFormat('dd-MM-yyyy').format(selectedDate!).toString();
             //new DateFormat.yMMMd().format(selectedDate);
-                ;
           });
         },
         onChanged: (value) {
@@ -4233,12 +4929,14 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     );
   }
 
-  Widget showUploadPhotoButton(){
+  Widget showUploadPhotoButton() {
     return Padding(
         padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-        child: RaisedButton(
-          color: Colors.orange,
-          textColor: Colors.white,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            foregroundColor: Colors.white,
+          ),
           child: Text(
             'Upload Selfie',
             textScaleFactor: 1.5,
@@ -4250,16 +4948,18 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //
 //        });
           },
-        )
-    );
+        ));
   }
 
-  Widget showHomeVerificationButton(){
+  Widget showHomeVerificationButton() {
     return Padding(
         padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-        child: RaisedButton(
-          color: Theme.of(this.context).primaryColorDark,
-          textColor: Theme.of(this.context).primaryColorLight,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(this.context).primaryColorDark,
+            foregroundColor: Theme.of(this.context).primaryColorLight,
+            disabledBackgroundColor: Theme.of(this.context).primaryColorDark,
+          ),
           child: Text(
             'Verify Current Location as Home',
             textScaleFactor: 1.5,
@@ -4271,8 +4971,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
 //
 //        });
           },
-        )
-    );
+        ));
   }
 
   Widget showButtons(String tabName) {
@@ -4281,9 +4980,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       child: Row(
         children: <Widget>[
           Expanded(
-            child: RaisedButton(
-              color: Theme.of(this.context).primaryColorDark,
-              textColor: Theme.of(this.context).primaryColorLight,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(this.context).primaryColorDark,
+                foregroundColor: Theme.of(this.context).primaryColorLight,
+                disabledBackgroundColor:
+                    Theme.of(this.context).primaryColorDark,
+              ),
               child: Text(
                 'Submit',
                 textScaleFactor: 1.5,
@@ -4292,65 +4995,67 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                 setState(() {
                   debugPrint("Submit button clicked");
                   //_save();
-                  if (tabName=='personal')
+                  if (tabName == 'personal')
                     personalProcess(this.context);
-                  else if (tabName=='liveness'){
+                  else if (tabName == 'liveness') {
                     livenessProcess(this.context);
 //                  } else if (tabName=='location'){
 //                    //locationProcess(context);
 //                    locationHomeProcess(context);
-                  } else if (tabName=='workplace'){
+                  } else if (tabName == 'workplace') {
                     workplaceProcess(this.context);
-                  } else if (tabName=='tax'){
+                  } else if (tabName == 'tax') {
                     taxProcess(this.context);
-                  } else if (tabName=='property'){
+                  } else if (tabName == 'property') {
                     propertyProcess(this.context);
                   }
                 });
               },
             ),
           ),
-
-          Container(width: 5.0,),
-
+          Container(
+            width: 5.0,
+          ),
           Expanded(
-            child: RaisedButton(
-                color: Theme.of(this.context).primaryColorDark,
-                textColor: Theme.of(this.context).primaryColorLight,
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(this.context).primaryColorDark,
+                  foregroundColor: Theme.of(this.context).primaryColorLight,
+                  disabledBackgroundColor:
+                      Theme.of(this.context).primaryColorDark,
+                ),
                 child: Text(
                   'Reset',
                   textScaleFactor: 1.5,
                 ),
                 onPressed: () => resetProcess(this.context)
-              // onPressed: resetField()
-              //onPressed: resetForm
-            ),
+                // onPressed: resetField()
+                //onPressed: resetForm
+                ),
           ),
-
         ],
       ),
     );
   }
 
-  Widget showMessageResult2(Map<String, String> currentResultMessageMap) {
-    messageResultController.text=currentResultMessageMap['mesageResult'];
-    if (messageResultController.text!= null && messageResultController.text!='')
-    {
+  Widget showMessageResult2(Map<String, String?> currentResultMessageMap) {
+    messageResultController.text = currentResultMessageMap['mesageResult']!;
+    if (messageResultController.text != '') {
       return Padding(
         padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
         child: new TextFormField(
           minLines: 1,
           maxLines: 10,
-          enabled:false,
+          enabled: false,
           keyboardType: null,
           autofocus: false,
           controller: messageResultController,
           decoration: new InputDecoration(
-            //hintText: 'NIK',
+              //hintText: 'NIK',
               icon: new Icon(
-                Icons.assignment,
-                color: Colors.grey,
-              )),
+            Icons.assignment,
+            color: Colors.grey,
+          )),
         ),
       );
     } else {
@@ -4361,24 +5066,23 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showMessageResult() {
-    messageResultController.text=personalApiResultMessage['mesageResult'];
-    if (messageResultController.text!= null && messageResultController.text!='')
-    {
+    messageResultController.text = personalApiResultMessage['mesageResult'];
+    if (messageResultController.text != '') {
       return Padding(
         padding: const EdgeInsets.fromLTRB(0.0, 5.0, 0.0, 0.0),
         child: new TextFormField(
           minLines: 1,
           maxLines: 10,
-          enabled:false,
+          enabled: false,
           keyboardType: null,
           autofocus: false,
           controller: messageResultController,
           decoration: new InputDecoration(
-            //hintText: 'NIK',
+              //hintText: 'NIK',
               icon: new Icon(
-                Icons.assignment,
-                color: Colors.grey,
-              )),
+            Icons.assignment,
+            color: Colors.grey,
+          )),
         ),
       );
     } else {
@@ -4386,11 +5090,10 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
         height: 0.0,
       );
     }
-
   }
 
-  Widget showErrorMessage(String errorToDisplay) {
-    if (errorToDisplay!=null) {
+  Widget showErrorMessage(String? errorToDisplay) {
+    if (errorToDisplay != null) {
       if (errorToDisplay.length > 0) {
         return Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 0.0),
@@ -4402,12 +5105,14 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   height: 1.0,
                   fontWeight: FontWeight.bold),
             ));
-      } else { // if errorMessage.length=0
+      } else {
+        // if errorMessage.length=0
         return new Container(
           height: 0.0,
         );
       }
-    } else { // is errorMessage is null
+    } else {
+      // is errorMessage is null
       return new Container(
         height: 0.0,
       );
@@ -4415,7 +5120,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
   }
 
   Widget showNotes(String notes, Color color) {
-    if (notes!=null) {
+    if (notes != null) {
       if (notes.length > 0) {
         return Padding(
             padding: const EdgeInsets.fromLTRB(10.0, 10.0, 0.0, 0.0),
@@ -4427,55 +5132,64 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
                   height: 1.0,
                   fontWeight: FontWeight.bold),
             ));
-      } else { // if errorMessage.length=0
+      } else {
+        // if errorMessage.length=0
         return new Container(
           height: 0.0,
         );
       }
-    } else { // is errorMessage is null
+    } else {
+      // is errorMessage is null
       return new Container(
         height: 0.0,
       );
     }
   }
 
-  createAlertDialog(BuildContext context, String title, String message) {
-    Widget okButton = FlatButton(
+  createAlertDialog(BuildContext context, String title, String? message) {
+    Widget okButton = TextButton(
       child: Text("Close"),
-      onPressed: () {Navigator.of(context).pop(); },
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(title: Text(title), content: Text(message),  actions: [
-            okButton,
-          ],);
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message!),
+            actions: [
+              okButton,
+            ],
+          );
         });
   }
 
   Widget showMessage(BuildContext context) {
-
-    Widget okButton = FlatButton(
+    Widget okButton = TextButton(
       child: Text("Close"),
-      onPressed: () {Navigator.of(context).pop(); },
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
 
-    return AlertDialog(title: Text('Liveness Verification Steps'),
-      content:
-      Container(
-          width:300,
-          height:410,
+    return AlertDialog(
+      title: Text('Liveness Verification Steps'),
+      content: Container(
+          width: 300,
+          height: 410,
           decoration: BoxDecoration(
-              image:DecorationImage(
-                  fit:BoxFit.fill,
+              image: DecorationImage(
+                  fit: BoxFit.fill,
                   //image:NetworkImage('https://ml7k0yxbfti1.i.optimole.com/ksZOHHk-8dvf3uL_/w:180/h:180/q:auto/https://www.plushplush.sg/wp-content/uploads/2020/08/Mochi-Mochi-Peach-Cat-Daily-Life-.png')
-                  image:NetworkImage('https://i.ibb.co/L652k77/Liveness-How-Tos2.jpg')
-              )
-          )
-      ),  actions: [
+                  image: NetworkImage(
+                      'https://i.ibb.co/L652k77/Liveness-How-Tos2.jpg')))),
+      actions: [
         okButton,
-      ],);
+      ],
+    );
     // return Row(children:<Widget>[
     //   Container(child:Container(
     //     width: 50.0,
@@ -4494,14 +5208,13 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     // );
   }
 
-
-  void _onGestureSetDropDownItemSelected(String newValueSelected){
+  void _onGestureSetDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this._currentGestureSelected = newValueSelected;
     });
   }
 
-  void _onPropertyDropDownItemSelected(String newValueSelected) {
+  void _onPropertyDropDownItemSelected(String? newValueSelected) {
     setState(() {
       // assign the current item selected into the new value selected by the user
       this._currentPropertySelected = newValueSelected;
@@ -4514,6 +5227,7 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
       this._currentTaxSelected = newValueSelected;
     });
   }
+
   // Widget _determineBlankOrNot() {
   //   return loading? _showCircularProgress(): _determineFormToShow();
   // }
@@ -4531,50 +5245,50 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     // _currentPropertySelected = _propertyTypeEnum[0];
     // _currentTaxSelected=_taxTypeEnum[0];
 
-    nikController.text='';
-    nameController.text='';
-    birthdateController.text='';
-    birthplaceController.text='';
-    addressController.text='';
-    mobilePhoneController.text='';
-    motherNameController.text='';
-    messageResultController.text='';
-    companyNameController.text='';
-    companyPhoneController.text='';
-    homeLatitudeController.text='';
-    homeLongitudeController.text='';
-    workLatitudeController.text='';
-    workLongitudeController.text='';
+    nikController.text = '';
+    nameController.text = '';
+    birthdateController.text = '';
+    birthplaceController.text = '';
+    addressController.text = '';
+    mobilePhoneController.text = '';
+    motherNameController.text = '';
+    messageResultController.text = '';
+    companyNameController.text = '';
+    companyPhoneController.text = '';
+    homeLatitudeController.text = '';
+    homeLongitudeController.text = '';
+    workLatitudeController.text = '';
+    workLongitudeController.text = '';
 
-    npwpController.text='';
-    incomeController.text='';
+    npwpController.text = '';
+    incomeController.text = '';
 
-    nopController.text='';
-    propertyNameController.text='';
-    propertySurfaceAreaController.text='';
-    propertyBuildingAreaController.text='';
-    propertyEstimationController.text='';
-    certificateNameController.text='';
-    certificateIdController.text='';
-    certificateTypeController.text='';
-    certificateDateController.text='';
+    nopController.text = '';
+    propertyNameController.text = '';
+    propertySurfaceAreaController.text = '';
+    propertyBuildingAreaController.text = '';
+    propertyEstimationController.text = '';
+    certificateNameController.text = '';
+    certificateIdController.text = '';
+    certificateTypeController.text = '';
+    certificateDateController.text = '';
 
     _currentPropertySelected = _propertyTypeEnum[1];
-    _currentTaxSelected=_taxTypeEnum[1];
-    _currentGestureSelected=_gestureSetEnum[0];
+    _currentTaxSelected = _taxTypeEnum[1];
+    _currentGestureSelected = _gestureSetEnum[0];
 
-    imgPath=null;
-    selectedbirthdate=null;
-    selectedcertificatedate=null;
+    imgPath = null;
+    selectedbirthdate = null;
+    selectedcertificatedate = null;
 
-    _professionalImage=null;
+    _professionalImage = null;
     resetPreSubmitErrorMessage();
     resetPostSubmitErrorMessages();
   }
 
   // Check if form is valid before perform login or signup
   bool validateAndSave() {
-    final form = _formKey.currentState;
+    final form = _formKey.currentState!;
     if (form.validate()) {
       form.save();
       return true;
@@ -4582,33 +5296,26 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     return false;
   }
 
-
-
   // Widget _determineFormToShow() {
   //   return _isRegisterLoginOption? _showOptionForm(): _showForm();
   // }
 
-  /**
-   * UI MINOR ENDS
-   */
+  /// UI MINOR ENDS
 
 // Update the title of Note object
-  void updateTitle(){
+  void updateTitle() {
     //note.title = titleController.text;
   }
 
-  /**
-   * OTHERS
-   */
+  /// OTHERS
 
-  void updateNik() {
-
-  }
+  void updateNik() {}
 
   // Update the title of Note object
-  void updatebirthdate(){
+  void updatebirthdate() {
     //note.title = titleController.text;
-    birthdateController.text= (selectedbirthdate==null? '':selectedbirthdate.toString());
+    birthdateController.text =
+        (selectedbirthdate == null ? '' : selectedbirthdate.toString());
   }
 
 // Update the description of Note object
@@ -4616,7 +5323,3 @@ class AsliState extends State<Asli> with WidgetsBindingObserver, SingleTickerPro
     //note.description = descriptionController.text;
   }
 }
-
-
-
-

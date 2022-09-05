@@ -10,10 +10,10 @@ class AsliGesturesSetNamesModel {
     this.gesturesSetBin,
   });
 
-  bool passed;
-  GesturesSetResults gesturesSetResults;
-  GesturesSetNames gesturesSetNames;
-  List<dynamic> gesturesSetBin;
+  bool? passed;
+  GesturesSetResults? gesturesSetResults;
+  GesturesSetNames? gesturesSetNames;
+  List<dynamic>? gesturesSetBin;
 
   factory AsliGesturesSetNamesModel.fromJson(Map<String, dynamic> json) => AsliGesturesSetNamesModel(
     passed: json["_passed"],
@@ -24,9 +24,9 @@ class AsliGesturesSetNamesModel {
 
   Map<String, dynamic> toJson() => {
     "_passed": passed,
-    "_gestures_set_results": gesturesSetResults.toJson(),
-    "_gestures_set_names": gesturesSetNames.toJson(),
-    "_gestures_set_bin": List<dynamic>.from(gesturesSetBin.map((x) => x)),
+    "_gestures_set_results": gesturesSetResults!.toJson(),
+    "_gestures_set_names": gesturesSetNames!.toJson(),
+    "_gestures_set_bin": List<dynamic>.from(gesturesSetBin!.map((x) => x)),
   };
 }
 
@@ -35,14 +35,14 @@ class GesturesSetNames {
     this.stage0,
   });
 
-  List<dynamic> stage0;
+  List<dynamic>? stage0;
 
   factory GesturesSetNames.fromJson(Map<String, dynamic> json) => GesturesSetNames(
     stage0: List<String>.from(json["Stage_0"].map((x) => x)),
   );
 
   Map<String, dynamic> toJson() => {
-    "Stage_0": List<dynamic>.from(stage0.map((x) => x)),
+    "Stage_0": List<dynamic>.from(stage0!.map((x) => x)),
   };
 }
 
@@ -51,13 +51,13 @@ class GesturesSetResults {
     this.stage0,
   });
 
-  List<dynamic> stage0;
+  List<dynamic>? stage0;
 
   factory GesturesSetResults.fromJson(Map<String, dynamic> json) => GesturesSetResults(
     stage0: List<bool>.from(json["stage_0"].map((x) => x)),
   );
 
   Map<String, dynamic> toJson() => {
-    "stage_0": List<dynamic>.from(stage0.map((x) => x)),
+    "stage_0": List<dynamic>.from(stage0!.map((x) => x)),
   };
 }

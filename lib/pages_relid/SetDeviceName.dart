@@ -32,7 +32,7 @@ class SetDeviceName extends StatelessWidget {
                 padding: EdgeInsets.only(top: 50),
                 child: Text(
                   'Welcome',
-                  style: Theme.of(context).textTheme.headline,
+                  style: Theme.of(context).textTheme.headline1,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -40,11 +40,10 @@ class SetDeviceName extends StatelessWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                   "Username_here",
-                  style: Theme.of(context).textTheme.title,
+                  style: Theme.of(context).textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
               ),
-
               Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: TextField(
@@ -57,33 +56,33 @@ class SetDeviceName extends StatelessWidget {
                       hintText: 'Device Name'),
                 ),
               ),
-
               Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: ButtonTheme(
-                    minWidth: 100.0,
-                    height: 60.0,
-                    padding: EdgeInsets.only(top: 5),
-                    child: new RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(15.0),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      Dashboard() 
-                                  ));
-                        },
-                        child: const Text('Register',
-                            style: TextStyle(fontSize: 20)),
-                        color: Colors.blue,
-                        textColor: Colors.white
-                      
-                        ),
-                  )),
-
+                padding: EdgeInsets.only(top: 10),
+                child: ButtonTheme(
+                  minWidth: 100.0,
+                  height: 60.0,
+                  padding: EdgeInsets.only(top: 5),
+                  child: new ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(15.0),
+                      ),
+                      backgroundColor: Colors.blue,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => Dashboard()));
+                    },
+                    child: const Text(
+                      'Register',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

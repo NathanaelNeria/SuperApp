@@ -24,7 +24,7 @@ class _NewestDeviceDataState extends State<NewestDeviceData> {
   String ioteraAccId = '1000000155-1000000001';
   String ioteraAccRefToken = 'Iotera-Account-Refresh-Token';
   String ioteraAccAccessToken = 'Iotera-Account-Access-Token';
-  String accessToken = '';
+  String? accessToken = '';
   String device = '14e1a2d8-d4b4-4e05-9399-ab9592b83d00';
   String token =
       'b46e69391acecd970e15d8af33e43ca044a3ff677bacb5ddaf15f3d8a5b42d5f';
@@ -61,26 +61,26 @@ class _NewestDeviceDataState extends State<NewestDeviceData> {
     // 'cpuTemp',
   ];
 
-  var currentSensorSelected = '';
+  String? currentSensorSelected = '';
   int sensorSelected = 99;
   var refreshTokenAPI = 'https://api.iotera.io/v3/token/refresh';
 
   String nData = '5';
-  String sensorName;
-  String config;
-  String param;
+  String? sensorName;
+  String? config;
+  String? param;
 
-  bool intVal;
-  bool strVal;
-  bool boolVal;
+  late bool intVal;
+  late bool strVal;
+  late bool boolVal;
 
-  String showTime;
-  String showTimestamp;
-  String showSensor;
-  String showConfig;
-  String showParam;
-  String showValue;
-  String showDataType;
+  String? showTime;
+  String? showTimestamp;
+  String? showSensor;
+  String? showConfig;
+  String? showParam;
+  String? showValue;
+  String? showDataType;
 
   void initState(){
     super.initState();
@@ -105,7 +105,7 @@ class _NewestDeviceDataState extends State<NewestDeviceData> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
@@ -116,7 +116,7 @@ class _NewestDeviceDataState extends State<NewestDeviceData> {
       print(newestDeviceDataModel.data);
 
       var status = newestDeviceDataModel.status;
-      var name = newestDeviceDataModel.data[0];
+      var name = newestDeviceDataModel.data![0];
       var startTime = 'Time: ';
       var endTime = 'Timestamp: ';
       var startSensor = 'Sensor: ';
@@ -528,7 +528,7 @@ class _NewestDeviceDataState extends State<NewestDeviceData> {
     }
   }
 
-  void _onSensorDropDownItemSelected(String newValueSelected) {
+  void _onSensorDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentSensorSelected = newValueSelected;
     });

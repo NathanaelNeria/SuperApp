@@ -18,12 +18,12 @@ class RefreshToken {
     this.statusMessage,
   });
 
-  String refreshToken;
-  String accessToken;
-  int expiredAt;
-  String status;
-  int statusCode;
-  String statusMessage;
+  String? refreshToken;
+  String? accessToken;
+  int? expiredAt;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
   factory RefreshToken.fromJson(Map<String, dynamic> json) => RefreshToken(
     refreshToken: json["refresh_token"],

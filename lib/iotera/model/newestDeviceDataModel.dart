@@ -16,10 +16,10 @@ class NewestDeviceDataModel {
     this.statusMessage,
   });
 
-  List<dynamic> data;
-  String status;
-  int statusCode;
-  String statusMessage;
+  List<dynamic>? data;
+  String? status;
+  int? statusCode;
+  String? statusMessage;
 
   factory NewestDeviceDataModel.fromJson(Map<String, dynamic> json) => NewestDeviceDataModel(
     data: List<dynamic>.from(json["data"].map((x) => Data.fromJson(x))),
@@ -29,7 +29,7 @@ class NewestDeviceDataModel {
   );
 
   Map<String, dynamic> toJson() => {
-    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+    "data": List<dynamic>.from(data!.map((x) => x.toJson())),
     "status": status,
     "status_code": statusCode,
     "status_message": statusMessage,
@@ -46,11 +46,11 @@ class Data {
     this.value,
   });
 
-  DateTime time;
-  int timestamp;
-  String sensor;
-  String config;
-  String param;
+  DateTime? time;
+  int? timestamp;
+  String? sensor;
+  String? config;
+  String? param;
   var value;
 
   @override toString() =>
@@ -74,7 +74,7 @@ class Data {
   );
 
   Map<String, dynamic> toJson() => {
-    "time": time.toIso8601String(),
+    "time": time!.toIso8601String(),
     "timestamp": timestamp,
     "sensor": sensor,
     "config": config,

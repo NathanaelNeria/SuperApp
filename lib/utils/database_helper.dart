@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 class DatabaseHelper {
 
   // singleton object: initialized only once throughout the app and use it till the app shut down
-  static DatabaseHelper _databaseHelper; // Singleton DatabaseHelper
-  static Database _database;
+  static DatabaseHelper? _databaseHelper; // Singleton DatabaseHelper
+  static Database? _database;
 
 //  String noteTable = 'note_table';
 //  String colId = 'id';
@@ -34,10 +34,10 @@ class DatabaseHelper {
     if(_databaseHelper==null) {
       _databaseHelper = DatabaseHelper._createInstance();
     }
-    return _databaseHelper;
+    return _databaseHelper!;
   }
 
-  Future<Database> get database async {
+  Future<Database?> get database async {
     if(_database == null) {
       _database= await initializeDatabase();
     }
@@ -80,7 +80,7 @@ class DatabaseHelper {
 //  }
 
   Future <List<Map<String, dynamic>>> getUserProfileMapList() async {
-    Database db = await this.database;
+    Database db = await (this.database as FutureOr<Database>);
     var result = await db.query(userProfileTable, orderBy: '$colId ASC');
     return result;
   }
@@ -94,7 +94,7 @@ class DatabaseHelper {
 //  }
 
   Future <int> insertUserProfile (UserProfile userProfile) async {
-    Database db = await this.database;
+    Database db = await (this.database as FutureOr<Database>);
     var result = await db.insert(userProfileTable, userProfile.toMap());
     debugPrint('RESULT IS:' + result.toString());
     return result;
@@ -108,7 +108,7 @@ class DatabaseHelper {
 //  }
 
   Future<int> updateUserProfile(UserProfile userProfile) async {
-    var db = await this.database;
+    var db = await (this.database as FutureOr<Database>);
     var result = await db.update(userProfileTable, userProfile.toMap(), where: '$colUid=?', whereArgs:[userProfile.uid]);
     return result;
   }
@@ -121,13 +121,13 @@ class DatabaseHelper {
 //  }
 
   Future<int> deleteUserProfile (int uid) async {
-    var db = await this.database;
+    var db = await (this.database as FutureOr<Database>);
     int result = await db.rawDelete('DELETE FROM $userProfileTable WHERE $colUid = $uid');
     return result;
   }
 
   Future<int> deleteAllUserProfile () async {
-    var db = await this.database;
+    var db = await (this.database as FutureOr<Database>);
     int result = await db.rawDelete('DELETE FROM $userProfileTable');
     return result;
   }
@@ -140,10 +140,10 @@ class DatabaseHelper {
 //    return result;
 //  }
 
-  Future<int> getCount() async {
-    Database db = await this.database;
+  Future<int?> getCount() async {
+    Database db = await (this.database as FutureOr<Database>);
     List<Map<String, dynamic>> x = await db.rawQuery('SELECT COUNT(*) from $userProfileTable');
-    int result = Sqflite.firstIntValue(x);
+    int? result = Sqflite.firstIntValue(x);
     return result;
   }
 
@@ -163,7 +163,7 @@ class DatabaseHelper {
     var userProfileMapList = await getUserProfileMapList(); // Get 'Map List' from database
     int count = userProfileMapList.length;
 
-    List<UserProfile> userProfileList = List<UserProfile>();
+    List<UserProfile> userProfileList = <UserProfile>[];
     // For loop to create a 'Note List' from a 'Map List'
     for (int i=0; i< count; i++) {
       userProfileList.add(UserProfile.fromMapObject(userProfileMapList[i]));

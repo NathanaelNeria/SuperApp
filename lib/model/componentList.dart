@@ -1,8 +1,8 @@
 class ComponentList {
-  String code;
-  String label;
-  String value;
-  String imageUrl;
+  String? code;
+  String? label;
+  String? value;
+  String? imageUrl;
   dynamic refImageUrl;
 
   ComponentList({

@@ -21,13 +21,15 @@ part 'recognizer.g.dart';
 class Recognizer {
 
   /// Type of recognizer 
-  String recognizerType;
+  String? recognizerType;
 
-  Recognizer(String recognizerType) {
+  Recognizer(String? recognizerType) {
     this.recognizerType = recognizerType;
   }
 
-  RecognizerResult createResultFromNative(Map<String, dynamic> nativeResult) {}
+  RecognizerResult createResultFromNative(Map<String, dynamic> nativeResult) {
+    throw UnimplementedError();
+  }
 
   factory Recognizer.fromJson(Map<String, dynamic> json) => _$RecognizerFromJson(json);
 
@@ -50,9 +52,9 @@ enum RecognizerResultState {
 class RecognizerResult {
 
   /// State of the result. It is always one of the values represented by RecognizerResultState enum 
-  RecognizerResultState resultState;
+  RecognizerResultState? resultState;
 
-  RecognizerResult(RecognizerResultState resultState) {
+  RecognizerResult(RecognizerResultState? resultState) {
     this.resultState = resultState;
   }
 
@@ -64,13 +66,13 @@ class RecognizerResult {
 @JsonSerializable()
 class RecognizerCollection {
 
-  List<Recognizer> recognizerArray;
+  List<Recognizer>? recognizerArray;
 
-  bool allowMultipleResults = false;
+  bool? allowMultipleResults = false;
 
-  int milisecondsBeforeTimeout = 10000;
+  int? milisecondsBeforeTimeout = 10000;
 
-  RecognizerCollection(List<Recognizer> recognizerArray) {
+  RecognizerCollection(List<Recognizer>? recognizerArray) {
     this.recognizerArray = recognizerArray;
   }
 

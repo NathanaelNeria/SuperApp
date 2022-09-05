@@ -30,7 +30,7 @@ class _getDeviceProfileScreenState extends State<getDeviceProfileScreen> {
   String ioteraAccId = '1000000155-1000000001';
   String ioteraAccRefToken = 'Iotera-Account-Refresh-Token';
   String ioteraAccAccessToken = 'Iotera-Account-Access-Token';
-  String accessToken = '';
+  String? accessToken = '';
   String device = '14e1a2d8-d4b4-4e05-9399-ab9592b83d00';
   String token =
       'b46e69391acecd970e15d8af33e43ca044a3ff677bacb5ddaf15f3d8a5b42d5f';
@@ -64,10 +64,10 @@ class _getDeviceProfileScreenState extends State<getDeviceProfileScreen> {
     'cpuTemp',
     'camera',
   ];
-  var currentSensorSelected = '';
+  String? currentSensorSelected = '';
   int sensorSelected = 99;
   var currentDeviceIdSelected = '';
-  int deviceIdSelected;
+  int? deviceIdSelected;
 
   var dataType;
   var sensor;
@@ -104,7 +104,7 @@ class _getDeviceProfileScreenState extends State<getDeviceProfileScreen> {
 
       request.headers[ioteraAppDomName] = ioteraAppDom;
       request.headers[ioteraAccIdName] = ioteraAccId;
-      request.headers[ioteraAccAccessToken] = accessToken;
+      request.headers[ioteraAccAccessToken] = accessToken!;
 
       var response = await request.send();
       var res = await response.stream.bytesToString();
@@ -123,7 +123,7 @@ class _getDeviceProfileScreenState extends State<getDeviceProfileScreen> {
       var endSensor = 'Config';
       var startConfig = 'Configtype.';
       var endConfig = 'Param: ';
-      sensorName = atmSensorModel.sensors[sensorSelected];
+      sensorName = atmSensorModel.sensors![sensorSelected];
       if(sensorName.toString().contains(sensorEnum[0])){
         var startIndex = sensorName.toString().indexOf(startDT);
         var endIndex = sensorName.toString().indexOf(endDT, startIndex + startDT.length);
@@ -508,7 +508,7 @@ class _getDeviceProfileScreenState extends State<getDeviceProfileScreen> {
         });
   }
 
-  void _onSensorDropDownItemSelected(String newValueSelected) {
+  void _onSensorDropDownItemSelected(String? newValueSelected) {
     setState(() {
       this.currentSensorSelected = newValueSelected;
     });

@@ -5,28 +5,28 @@ import 'package:simple_app/model/todo.dart';
 import 'dart:async';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.auth, this.userId, this.logoutCallback})
+  HomePage({Key? key, this.auth, this.userId, this.logoutCallback})
       : super(key: key);
 
-  final BaseAuth auth;
-  final VoidCallback logoutCallback;
-  final String userId;
+  final BaseAuth? auth;
+  final VoidCallback? logoutCallback;
+  final String? userId;
 
   @override
   State<StatefulWidget> createState() => new _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Todo> _todoList;
+  late List<Todo> _todoList;
 
   final FirebaseDatabase _database = FirebaseDatabase.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final _textEditingController = TextEditingController();
-  StreamSubscription<Event> _onTodoAddedSubscription;
-  StreamSubscription<Event> _onTodoChangedSubscription;
+  late StreamSubscription<DatabaseEvent> _onTodoAddedSubscription;
+  late StreamSubscription<DatabaseEvent> _onTodoChangedSubscription;
 
-  Query _todoQuery;
+  late Query _todoQuery;
 
   //bool _isEmailVerified = false;
 
@@ -36,7 +36,7 @@ class _HomePageState extends State<HomePage> {
 
     //_checkEmailVerification();
 
-    _todoList = new List();
+    _todoList = [];
     _todoQuery = _database
         .reference()
         .child("todo")
@@ -68,14 +68,14 @@ class _HomePageState extends State<HomePage> {
 //          title: new Text("Verify your account"),
 //          content: new Text("Please verify account in the link sent to email"),
 //          actions: <Widget>[
-//            new FlatButton(
+//            new TextButton(
 //              child: new Text("Resent link"),
 //              onPressed: () {
 //                Navigator.of(context).pop();
 //                _resentVerifyEmail();
 //              },
 //            ),
-//            new FlatButton(
+//            new TextButton(
 //              child: new Text("Dismiss"),
 //              onPressed: () {
 //                Navigator.of(context).pop();
@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
 //          title: new Text("Verify your account"),
 //          content: new Text("Link to verify account has been sent to your email"),
 //          actions: <Widget>[
-//            new FlatButton(
+//            new TextButton(
 //              child: new Text("Dismiss"),
 //              onPressed: () {
 //                Navigator.of(context).pop();
@@ -115,7 +115,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  onEntryChanged(Event event) {
+  onEntryChanged(DatabaseEvent event) {
     var oldEntry = _todoList.singleWhere((entry) {
       return entry.key == event.snapshot.key;
     });
@@ -126,7 +126,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  onEntryAdded(Event event) {
+  onEntryAdded(DatabaseEvent event) {
     setState(() {
       _todoList.add(Todo.fromSnapshot(event.snapshot));
     });
@@ -134,8 +134,8 @@ class _HomePageState extends State<HomePage> {
 
   signOut() async {
     try {
-      await widget.auth.signOut();
-      widget.logoutCallback();
+      await widget.auth!.signOut();
+      widget.logoutCallback!();
     } catch (e) {
       print(e);
     }
@@ -150,10 +150,8 @@ class _HomePageState extends State<HomePage> {
 
   updateTodo(Todo todo) {
     //Toggle completed
-    todo.completed = !todo.completed;
-    if (todo != null) {
-      _database.reference().child("todo").child(todo.key).set(todo.toJson());
-    }
+    todo.completed = !todo.completed!;
+    _database.reference().child("todo").child(todo.key!).set(todo.toJson());
   }
 
   deleteTodo(String todoId, int index) {
@@ -184,12 +182,12 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             actions: <Widget>[
-              new FlatButton(
+              new TextButton(
                   child: const Text('Cancel'),
                   onPressed: () {
                     Navigator.pop(context);
                   }),
-              new FlatButton(
+              new TextButton(
                   child: const Text('Save'),
                   onPressed: () {
                     addNewTodo(_textEditingController.text.toString());
@@ -206,10 +204,10 @@ class _HomePageState extends State<HomePage> {
           shrinkWrap: true,
           itemCount: _todoList.length,
           itemBuilder: (BuildContext context, int index) {
-            String todoId = _todoList[index].key;
-            String subject = _todoList[index].subject;
-            bool completed = _todoList[index].completed;
-            String userId = _todoList[index].userId;
+            String todoId = _todoList[index].key!;
+            String subject = _todoList[index].subject!;
+            bool completed = _todoList[index].completed!;
+            String? userId = _todoList[index].userId;
             return Dismissible(
               key: Key(todoId),
               background: Container(color: Colors.red),
@@ -251,7 +249,7 @@ class _HomePageState extends State<HomePage> {
         appBar: new AppBar(
           title: new Text('IST Demo'),
           actions: <Widget>[
-            new FlatButton(
+            new TextButton(
                 child: new Text('Logout',
                     style: new TextStyle(fontSize: 17.0, color: Colors.white)),
                 onPressed: signOut)

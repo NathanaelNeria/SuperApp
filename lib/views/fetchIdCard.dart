@@ -13,12 +13,12 @@ class FetchIdCard extends StatefulWidget {
 class _FetchIdCardState extends State<FetchIdCard> {
   final _key = new GlobalKey<FormState>();
 
-  TextEditingController txtNama, txtNik, txtTempatTglLahir, txtJenisKelamin, txtAlamat, txtRtrw, txtKelurahan, txtKecamatan, txtAgama, txtStatus, txtPekerjaan;
+  TextEditingController? txtNama, txtNik, txtTempatTglLahir, txtJenisKelamin, txtAlamat, txtRtrw, txtKelurahan, txtKecamatan, txtAgama, txtStatus, txtPekerjaan;
 
   setup(){
     txtNama = TextEditingController(text: widget.model.nama);
     txtNik = TextEditingController(text: widget.model.nik);
-    txtTempatTglLahir = TextEditingController(text: widget.model.tempatLahir + "/" + widget.model.tglLahir);
+    txtTempatTglLahir = TextEditingController(text: widget.model.tempatLahir! + "/" + widget.model.tglLahir!);
     txtJenisKelamin = TextEditingController(text: widget.model.jenisKelamin);
     txtAlamat = TextEditingController(text: widget.model.alamat);
     txtRtrw = TextEditingController(text: widget.model.rtrw);

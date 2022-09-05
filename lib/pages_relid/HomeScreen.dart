@@ -6,10 +6,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/connectionprofile/ConnectionProfile.dart';
 import 'package:simple_app/util/Constants.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreenWidget homescreenwidgetObj;
+  late HomeScreenWidget homescreenwidgetObj;
 
   @override
   HomeScreenWidget createState() {
@@ -20,20 +19,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenWidget extends State<HomeScreen> {
-  RDNABridge bridge;
+  RDNABridge? bridge;
  bool showLoader = true;
 
 //Method to create instance of RDNABridge class
   void initBridge() async {
     bridge = RDNABridge.getInstance(null);
     Timer(Duration(seconds: 5), () {
-     bridge.initializeAPI(ConnectionProfile.agentInfo, ConnectionProfile.host, ConnectionProfile.port);
+     bridge!.initializeAPI(ConnectionProfile.agentInfo, ConnectionProfile.host, ConnectionProfile.port);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
     final Duration initDelay = Duration(seconds: 2);
 
     return Scaffold(
@@ -54,7 +53,7 @@ class HomeScreenWidget extends State<HomeScreen> {
             padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Text(
               Constants.appWelcomeText,
-              style: Theme.of(context).textTheme.headline,
+              style: Theme.of(context).textTheme.headline1,
               textAlign: TextAlign.center,
             ),
           ),

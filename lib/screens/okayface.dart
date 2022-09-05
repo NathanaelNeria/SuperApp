@@ -26,7 +26,7 @@ class OkayFaceState extends State<OkayFace> {
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(
             appBar: AppBar(
               title: Text(appBarTitle),
@@ -84,7 +84,7 @@ class OkayFaceState extends State<OkayFace> {
 
   void navigateToFeaturePage(String title) async {
 
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'OCR KTP':
           return OkayfaceOcr();

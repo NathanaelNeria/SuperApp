@@ -5,9 +5,9 @@ import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class VerifyPassword extends StatefulWidget {
-  VerifyPasswordwidget verifyPasswordObj;
-  RDNAChallengeOpMode challengeMode;
-  VerifyPassword({Key key, this.challengeMode}) : super(key: key);
+  late VerifyPasswordwidget verifyPasswordObj;
+  RDNAChallengeOpMode? challengeMode;
+  VerifyPassword({Key? key, this.challengeMode}) : super(key: key);
   @override
   VerifyPasswordwidget createState() {
     verifyPasswordObj = new VerifyPasswordwidget();
@@ -23,17 +23,17 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
   bool isChecked = false;
   bool validate_password = false;
   bool validate_confirm_password = false;
-  RDNAChallengeOpMode challengeMode;
+  RDNAChallengeOpMode? challengeMode;
   bool showLoader = false;
-  RDNABridge bridge = RDNABridge.getInstance(null);
+  RDNABridge? bridge = RDNABridge.getInstance(null);
 
   getUserName() async {
-    userId = await bridge.getLocalData('userId');
+    userId = await bridge!.getLocalData('userId');
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
     getUserName();
 
     return Scaffold(
@@ -43,13 +43,13 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge.resetAuthenticationAPI(),
+            onPressed: () => bridge!.resetAuthenticationAPI(),
           ),
         ),
         body: Stack(
           children: <Widget>[
             WillPopScope(
-              onWillPop: () => bridge.onBackPressed(false),
+              onWillPop: () => bridge!.onBackPressed(false),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(50.0),
@@ -69,15 +69,15 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           'Welcome',
-                          style: Theme.of(context).textTheme.display1,
+                          style: Theme.of(context).textTheme.displayMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                          bridge.userName,
-                          style: Theme.of(context).textTheme.title,
+                          bridge!.userName!,
+                          style: Theme.of(context).textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -119,9 +119,13 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                             minWidth: 100.0,
                             height: 60.0,
                             padding: EdgeInsets.only(top: 5),
-                            child: new RaisedButton(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(15.0),
+                            child: new ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: new BorderRadius.circular(15.0),
+                                  ),
+                                  backgroundColor: Colors.blue,
                                 ),
                                 onPressed: () {
                                   setState(() {
@@ -139,11 +143,11 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                                       setState(() {
                                         showLoader = true;
                                       });
-                                      bridge.setPasswordAPI(
+                                      bridge!.setPasswordAPI(
                                           password_controller.text,
-                                          challengeMode);
+                                          challengeMode!);
                                     } else {
-                                      bridge.showAlertMessageDialog(context,
+                                      bridge!.showAlertMessageDialog(context,
                                           "Password didnt matched", null);
                                     }
                                   }
@@ -151,8 +155,7 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                                 child: const Text(
                                     Constants.submitButtonLabel,
                                     style: TextStyle(fontSize: 20)),
-                                color: Colors.blue,
-                                textColor: Colors.white),
+                                ),
                           )),
                     ],
                   ),

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_app/nodeflux/screens/nodeflux_face_match_liveness.dart';
 import 'package:simple_app/views/profile.dart';
-import 'package:simple_app/screens/okayface_facevsface_01.dart';
-import 'package:simple_app/screens/okayface_ocr_01.dart';
-import 'package:simple_app/screens/okayface_ff_cloud.dart';
 import 'package:simple_app/nodeflux/screens/nodeflux_ocr_ktp.dart';
 
 
@@ -28,7 +25,7 @@ class NodefluxState extends State<Nodeflux> {
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(
             appBar: AppBar(
               title: Text(appBarTitle),
@@ -85,7 +82,7 @@ class NodefluxState extends State<Nodeflux> {
 
   void navigateToFeaturePage(String title) async {
 
-    bool result=await Navigator.push(context, MaterialPageRoute(builder:(context){
+    bool? result=await Navigator.push(context, MaterialPageRoute(builder:(context){
       switch (title) {
         case 'OCR KTP':
           return NodefluxOcrKtp();

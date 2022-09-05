@@ -9,8 +9,8 @@ ErrorPodo errorPodoFromJson(String str) => ErrorPodo.fromJson(json.decode(str));
 String errorPodoToJson(ErrorPodo data) => json.encode(data.toJson());
 
 class ErrorPodo {
-    String error;
-    String response;
+    String? error;
+    String? response;
 
     ErrorPodo({
         this.error,
@@ -40,9 +40,9 @@ ErrorString errorStringFromJson(String str) => ErrorString.fromJson(json.decode(
 String errorStringToJson(ErrorString data) => json.encode(data.toJson());
 
 class ErrorString {
-    int longErrorCode;
-    int shortErrorCode;
-    String errorString;
+    int? longErrorCode;
+    int? shortErrorCode;
+    String? errorString;
 
     ErrorString({
         this.longErrorCode,

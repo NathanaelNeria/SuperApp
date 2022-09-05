@@ -1,15 +1,15 @@
-import 'package:simple_app/pages_relid/UpdatePassword.dart';
-import 'package:simple_app/util/Constants.dart';
+import 'package:flutter/material.dart';
 import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/ConnectedDevices.dart';
 import 'package:simple_app/pages_relid/NotificationHistory.dart';
 import 'package:simple_app/pages_relid/Notifications.dart';
-import 'package:flutter/material.dart';
+import 'package:simple_app/pages_relid/UpdatePassword.dart';
+import 'package:simple_app/util/Constants.dart';
 
 // class Dashboard extends StatelessWidget {
 class Dashboard extends StatefulWidget {
   var response;
-  DashboardWidget dashboardWidgetObj;
+  late DashboardWidget dashboardWidgetObj;
 
   @override
   DashboardWidget createState() {
@@ -25,19 +25,19 @@ class DashboardWidget extends State<Dashboard> {
   var flowForInitiatePassword = false;
   var flowForInitiatePattern = false;
   var flowForInitiateCredientials;
-  RDNABridge bridge;
+  RDNABridge? bridge;
 
   void _incrementTab(index) {}
 
   initBridge() {
     bridge = bridge = RDNABridge.getInstance(null);
     //  bridge.getAllChallengesAPI(bridge.userName);
-     bridge.on('creadientialsAvailable', credientialsAvailableForUpdate);
+    bridge!.on('creadientialsAvailable', credientialsAvailableForUpdate);
   }
 
   getTile() {
     if (flowForInitiateCredientials == 'password')
-    return  ListTile(
+      return ListTile(
         title: Text('Update Password',
             style: TextStyle(color: Colors.black, fontSize: fontsize)),
         onTap: () => {
@@ -49,7 +49,7 @@ class DashboardWidget extends State<Dashboard> {
         },
       );
     else if (flowForInitiateCredientials == 'Pattern')
-     return ListTile(
+      return ListTile(
           title: Text('Update Pattern',
               style: TextStyle(color: Colors.black, fontSize: fontsize)),
           onTap: () => {
@@ -63,7 +63,7 @@ class DashboardWidget extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
 
     return new Scaffold(
         appBar: new AppBar(
@@ -122,7 +122,7 @@ class DashboardWidget extends State<Dashboard> {
                               NotificationHistory()));
                 },
               ),
-             // getTile(),
+              // getTile(),
               ListTile(
                 title: Text('Logout',
                     style: TextStyle(color: Colors.black, fontSize: fontsize)),
@@ -133,18 +133,18 @@ class DashboardWidget extends State<Dashboard> {
                             title: Text("Confirm Logout",
                                 style: TextStyle(fontSize: 20)),
                             content: Text("Do you want to logout?",
-                                style: Theme.of(context).textTheme.body2),
+                                style: Theme.of(context).textTheme.bodyText2),
                             actions: <Widget>[
-                              FlatButton(
+                              TextButton(
                                 child: Text('No'),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
                               ),
-                              FlatButton(
+                              TextButton(
                                 child: Text('Yes'),
                                 onPressed: () {
-                                  bridge.logOutUserAPI(bridge.userName);
+                                  bridge!.logOutUserAPI(bridge!.userName!);
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -177,22 +177,27 @@ class DashboardWidget extends State<Dashboard> {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.account_box,
-                    color: Color.fromARGB(255, 0, 0, 0)),
-                title: new Text('')),
+              icon:
+                  Icon(Icons.account_box, color: Color.fromARGB(255, 0, 0, 0)),
+              label: '',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.receipt, color: Color.fromARGB(255, 0, 0, 0)),
-                title: new Text('')),
+              icon: Icon(Icons.receipt, color: Color.fromARGB(255, 0, 0, 0)),
+              label: '',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.attach_money,
-                    color: Color.fromARGB(255, 0, 0, 0)),
-                title: new Text('')),
+              icon:
+                  Icon(Icons.attach_money, color: Color.fromARGB(255, 0, 0, 0)),
+              label: '',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.search, color: Color.fromARGB(255, 0, 0, 0)),
-                title: new Text('')),
+              icon: Icon(Icons.search, color: Color.fromARGB(255, 0, 0, 0)),
+              label: '',
+            ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.phone, color: Color.fromARGB(255, 0, 0, 0)),
-                title: new Text(''))
+              icon: Icon(Icons.phone, color: Color.fromARGB(255, 0, 0, 0)),
+              label: '',
+            )
           ],
           onTap: (index) {
             _incrementTab(index);

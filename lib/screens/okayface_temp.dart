@@ -17,18 +17,18 @@ class OkayfaceTemp extends StatefulWidget {
 class OkayfaceTempState extends State<OkayfaceTemp> {
   OkayfaceTempState(this.appBarTitle);
   String appBarTitle;
-  File _imageFile;
+  File? _imageFile;
   bool _uploaded=false;
-  String _downloadUrl;
-  StorageReference _reference = FirebaseStorage.instance.ref().child('myimage.jpg');
+  String? _downloadUrl;
+  var _reference = FirebaseStorage.instance.ref().child('myimage.jpg');
 
   Future getImage(bool isCamera) async {
-    File image;
+    File? image;
     if (isCamera) {
-      image= await ImagePicker.pickImage(source: ImageSource.camera);
+      image= await (ImagePicker()).pickImage(source: ImageSource.camera).then((value) => File(value!.path));
     } else
     {
-      image= await ImagePicker.pickImage(source:ImageSource.gallery);
+      image= await (ImagePicker()).pickImage(source:ImageSource.gallery).then((value) => File(value!.path));
     }
     setState(() {
       _imageFile = image;
@@ -36,15 +36,15 @@ class OkayfaceTempState extends State<OkayfaceTemp> {
   }
 
   Future uploadImage() async {
-    StorageUploadTask uploadTask = _reference.putFile(_imageFile);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;// so when the upload task is complete we can have a snapshot [Maya note]
+    var uploadTask = _reference.putFile(_imageFile!);
+    var taskSnapshot = await uploadTask;// so when the upload task is complete we can have a snapshot [Maya note]
     setState(() {
       _uploaded = true;
     });
   }
 
   Future downloadImage() async {
-    String downloadAddress=await _reference.getDownloadURL();
+    String? downloadAddress=await _reference.getDownloadURL();
     setState(() {
       _downloadUrl=downloadAddress;
     });
@@ -56,7 +56,7 @@ class OkayfaceTempState extends State<OkayfaceTemp> {
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(
             appBar: AppBar(
               title: Text(appBarTitle),
@@ -72,32 +72,32 @@ class OkayfaceTempState extends State<OkayfaceTemp> {
               child: Center(
                 child: Column(
                   children:<Widget> [
-                    _imageFile == null? Container(): Image.file(_imageFile, height: 300.0, width: 300.0),
-                    RaisedButton(
+                    _imageFile == null? Container(): Image.file(_imageFile!, height: 300.0, width: 300.0),
+                    ElevatedButton(
                       child:Text('Camera'),
                       onPressed: () {
                         getImage(true);
                       },
                     ),
                     SizedBox(height:10.0),
-                    RaisedButton(
+                    ElevatedButton(
                       child:Text('Gallery'),
                       onPressed: () {
                         getImage(false);
                       },
                     ),
-                    _imageFile == null? Container() : RaisedButton(
+                    _imageFile == null? Container() : ElevatedButton(
                         child:Text("Upload to Storage"),
                         onPressed: () {
                           uploadImage();
                         }
                     ),
-                    _uploaded== false? Container (): RaisedButton(
+                    _uploaded== false? Container (): ElevatedButton(
                         child: Text('Download Image'),
                         onPressed: () {
                           downloadImage();
                         }),
-                    _downloadUrl==null? Container():Image.network(_downloadUrl),
+                    _downloadUrl==null? Container():Image.network(_downloadUrl!),
                   ],
                 ),
               ),

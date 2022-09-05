@@ -1,16 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_app/custom/currency.dart';
 import 'package:simple_app/helper/api.dart';
-
 
 class AddProduct extends StatefulWidget {
   final VoidCallback reload;
@@ -22,9 +19,9 @@ class AddProduct extends StatefulWidget {
 }
 
 class _AddProductState extends State<AddProduct> {
-  String productName, qty, harga, createdBy;
+  String? productName, qty, harga, createdBy;
   final _key = new GlobalKey<FormState>();
-  File _imageFile;
+  File? _imageFile;
 
   getPerf() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -34,8 +31,13 @@ class _AddProductState extends State<AddProduct> {
   }
 
   _chooseGallery(BuildContext context) async {
-    var image = await ImagePicker.pickImage(
-        source: ImageSource.gallery, maxHeight: 1920.0, maxWidth: 1080.0);
+    var image = await (ImagePicker())
+        .pickImage(
+          source: ImageSource.gallery,
+          maxHeight: 1920.0,
+          maxWidth: 1080.0,
+        )
+        .then((value) => File(value!.path));
     setState(() {
       _imageFile = image;
     });
@@ -43,8 +45,13 @@ class _AddProductState extends State<AddProduct> {
   }
 
   _chooseCamera(BuildContext context) async {
-    var image = await ImagePicker.pickImage(
-        source: ImageSource.camera, maxHeight: 1920.0, maxWidth: 1080.0);
+    var image = await (ImagePicker())
+        .pickImage(
+          source: ImageSource.camera,
+          maxHeight: 1920.0,
+          maxWidth: 1080.0,
+        )
+        .then((value) => File(value!.path));
     setState(() {
       _imageFile = image;
     });
@@ -52,7 +59,7 @@ class _AddProductState extends State<AddProduct> {
   }
 
   check() {
-    final form = _key.currentState;
+    final form = _key.currentState!;
     if (form.validate()) {
       form.save();
       submit();
@@ -70,14 +77,14 @@ class _AddProductState extends State<AddProduct> {
                 children: <Widget>[
                   GestureDetector(
                     child: Text("Gallary"),
-                    onTap: (){
+                    onTap: () {
                       _chooseGallery(context);
                     },
                   ),
                   Padding(padding: EdgeInsets.all(8.0)),
                   GestureDetector(
                     child: Text("Camera"),
-                    onTap: (){
+                    onTap: () {
                       _chooseCamera(context);
                     },
                   )
@@ -90,32 +97,32 @@ class _AddProductState extends State<AddProduct> {
 
   submit() async {
     try {
-      var stream = http.ByteStream(DelegatingStream.typed(_imageFile.openRead()));
-      var length = await _imageFile.length();
+      var stream =
+          http.ByteStream(DelegatingStream.typed(_imageFile!.openRead()));
+      var length = await _imageFile!.length();
       var uri = Uri.parse(BaseUrl.addProduct);
       var request = http.MultipartRequest("POST", uri);
 
-      request.fields['productName'] = productName;
-      request.fields['qty'] = qty;
-      request.fields['harga'] = harga.replaceAll(",", "");
-      request.fields['createdBy'] = createdBy;
-      request.files.add(http.MultipartFile("image",stream,length,filename: path.basename(_imageFile.path)));
+      request.fields['productName'] = productName!;
+      request.fields['qty'] = qty!;
+      request.fields['harga'] = harga!.replaceAll(",", "");
+      request.fields['createdBy'] = createdBy!;
+      request.files.add(http.MultipartFile("image", stream, length,
+          filename: path.basename(_imageFile!.path)));
 
       var response = await request.send();
-      if(response.statusCode > 2){
+      if (response.statusCode > 2) {
         print("image uploaded");
         setState(() {
           widget.reload();
           Navigator.pop(context);
         });
-      }else{
+      } else {
         print("image failed upload");
       }
     } catch (e) {
       debugPrint("Error $e");
     }
-
-
   }
 
   @override
@@ -151,7 +158,7 @@ class _AddProductState extends State<AddProduct> {
                   child: _imageFile == null
                       ? placeholder
                       : Image.file(
-                          _imageFile,
+                          _imageFile!,
                           fit: BoxFit.fill,
                         ),
                 ),
@@ -166,7 +173,6 @@ class _AddProductState extends State<AddProduct> {
               ),
               TextFormField(
                 inputFormatters: [
-                  WhitelistingTextInputFormatter.digitsOnly,
                   CurrencyFormat()
                 ],
                 onSaved: (e) => harga = e,

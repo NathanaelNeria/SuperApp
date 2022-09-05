@@ -1,8 +1,8 @@
 
 
 class OutputImageList {
-  String tag;
-  String imageUrl;
+  String? tag;
+  String? imageUrl;
 
   OutputImageList({
     this.tag,

@@ -5,11 +5,13 @@ import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class VerifyLoginPassword extends StatefulWidget {
-  VerifyLoginPasswordwidget verifyPasswordObj;
-  RDNAChallengeOpMode challengeMode;
+  late VerifyLoginPasswordwidget verifyPasswordObj;
+  RDNAChallengeOpMode? challengeMode;
   var attemptsCount;
-  VerifyLoginPassword({Key key, this.challengeMode, this.attemptsCount})
+
+  VerifyLoginPassword({Key? key, this.challengeMode, this.attemptsCount})
       : super(key: key);
+
   @override
   VerifyLoginPasswordwidget createState() {
     verifyPasswordObj = new VerifyLoginPasswordwidget();
@@ -25,13 +27,13 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
   bool isChecked = false;
   bool validate_password = false;
   bool showLoader = false;
-  RDNAChallengeOpMode challengeMode;
+  RDNAChallengeOpMode? challengeMode;
   var attemptsCount;
   var password;
 
   @override
   Widget build(BuildContext context) {
-    RDNABridge bridge = RDNABridge.getInstance(context);
+    RDNABridge bridge = RDNABridge.getInstance(context)!;
     bridge.setContext(context);
     return Scaffold(
         resizeToAvoidBottomInset: true,
@@ -66,15 +68,15 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           'Welcome',
-                          style: Theme.of(context).textTheme.display1,
+                          style: Theme.of(context).textTheme.displayMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                          bridge.userName,
-                          style: Theme.of(context).textTheme.title,
+                          bridge.userName!,
+                          style: Theme.of(context).textTheme.titleMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -82,7 +84,7 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                         padding: EdgeInsets.only(top: 10),
                         child: Text(
                           'Verify Password',
-                          style: Theme.of(context).textTheme.headline,
+                          style: Theme.of(context).textTheme.headline1,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -108,7 +110,7 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                         padding: EdgeInsets.all(8.0),
                         child: Text(
                           'Attempt(s) left ' + attemptsCount.toString(),
-                          style: Theme.of(context).textTheme.body2,
+                          style: Theme.of(context).textTheme.bodyText2,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -118,9 +120,13 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                             minWidth: 100.0,
                             height: 60.0,
                             padding: EdgeInsets.only(top: 5),
-                            child: new RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(15.0),
+                            child: new ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: new BorderRadius.circular(15.0),
+                                ),
+                                backgroundColor: Colors.blue,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -133,12 +139,12 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                                     showLoader = true;
                                   });
                                 bridge.setPasswordAPI(
-                                    passwordController.text,challengeMode);
+                                    passwordController.text, challengeMode!);
                               },
-                              child: const Text(Constants.submitButtonLabel,
-                                  style: TextStyle(fontSize: 20)),
-                              color: Colors.blue,
-                              textColor: Colors.white,
+                              child: const Text(
+                                Constants.submitButtonLabel,
+                                style: TextStyle(fontSize: 20),
+                              ),
                             ),
                           )),
                     ],

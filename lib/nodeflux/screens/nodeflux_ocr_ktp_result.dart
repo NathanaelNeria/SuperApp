@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/model/fetchIdCardModel.dart';
 import 'package:simple_app/nodeflux/models/nodeflux_result2_model.dart';
 
 class NodefluxOcrKtpResult extends StatefulWidget {
@@ -15,7 +14,7 @@ class NodefluxOcrKtpResult extends StatefulWidget {
 class _NodefluxOcrKtpResultState extends State<NodefluxOcrKtpResult> {
   final _key = new GlobalKey<FormState>();
 
-  TextEditingController
+  TextEditingController?
       txtNama,
       txtNik,
       txtTempatTglLahir,
@@ -43,7 +42,7 @@ class _NodefluxOcrKtpResultState extends State<NodefluxOcrKtpResult> {
     txtProvinsi = TextEditingController(text: widget.model.provinsi);
     txtKecamatan = TextEditingController(text: widget.model.kecamatan);
     txtPekerjaan = TextEditingController(text: widget.model.pekerjaan);
-    txtTempatTglLahir = TextEditingController(text: widget.model.tempat_lahir + "/" + widget.model.tanggal_lahir);
+    txtTempatTglLahir = TextEditingController(text: widget.model.tempat_lahir! + "/" + widget.model.tanggal_lahir!);
     txtJenisKelamin = TextEditingController(text: widget.model.jenis_kelamin);
     txtBerlakuHingga= TextEditingController(text: widget.model.berlaku_hingga);
     txtKabupatenKota = TextEditingController(text: widget.model.kabupaten_kota);

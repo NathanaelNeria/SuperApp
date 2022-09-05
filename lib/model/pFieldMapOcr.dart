@@ -1,10 +1,10 @@
 class PFieldMapOcr {
-  int wLcid;
-  int fieldType;
-  int wFieldType;
-  String fieldMrz;
-  String fieldVisual;
-  String matrix;
+  int? wLcid;
+  int? fieldType;
+  int? wFieldType;
+  String? fieldMrz;
+  String? fieldVisual;
+  String? matrix;
 
   PFieldMapOcr({
     this.wLcid,

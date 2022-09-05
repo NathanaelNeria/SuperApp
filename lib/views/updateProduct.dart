@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,10 +15,10 @@ class UpdateProduct extends StatefulWidget {
 }
 
 class _UpdateProductState extends State<UpdateProduct> {
-  String productName, qty, harga, createdBy, productId;
+  String? productName, qty, harga, createdBy, productId;
   final _key = new GlobalKey<FormState>();
 
-  TextEditingController txtNama, txtQty, txtHarga;
+  TextEditingController? txtNama, txtQty, txtHarga;
 
   setup(){
     txtNama = TextEditingController(text: widget.model.productName);
@@ -36,7 +35,7 @@ class _UpdateProductState extends State<UpdateProduct> {
 
 
   check(){
-    final form = _key.currentState;
+    final form = _key.currentState!;
     if(form.validate()){
       form.save();
       submit();
@@ -44,7 +43,7 @@ class _UpdateProductState extends State<UpdateProduct> {
   }
 
   submit() async{
-    final response = await http.post(BaseUrl.updateProduct, body: {
+    final response = await http.post(BaseUrl.updateProduct as Uri, body: {
       "productId" : widget.model.id,
       "productName" : productName,
       "qty" : qty,
@@ -53,8 +52,8 @@ class _UpdateProductState extends State<UpdateProduct> {
     });
 
     final data = jsonDecode(response.body);
-    int value = data['value'];
-    String message = data['message'];
+    int? value = data['value'];
+    String? message = data['message'];
 
     if(value == 1){
       print(message);

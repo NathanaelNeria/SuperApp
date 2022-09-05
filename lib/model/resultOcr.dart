@@ -1,7 +1,7 @@
 import 'package:simple_app/model/listVerifiedFieldsOcr.dart';
 
 class ResultOcr {
-  ListVerifiedFieldsOcr listVerifiedFields;
+  ListVerifiedFieldsOcr? listVerifiedFields;
 
   ResultOcr({
     this.listVerifiedFields,
@@ -12,6 +12,6 @@ class ResultOcr {
   );
 
   Map<String, dynamic> toJson() => {
-    "ListVerifiedFields": listVerifiedFields.toJson(),
+    "ListVerifiedFields": listVerifiedFields!.toJson(),
   };
 }

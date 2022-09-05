@@ -5,7 +5,7 @@ import 'package:simple_app/pages_relid/VerifyUsername.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class LoginUser extends StatefulWidget {
-  LoginUserwidget loginUserObj;
+  late LoginUserwidget loginUserObj;
   @override
   LoginUserwidget createState() {
     loginUserObj = new LoginUserwidget();
@@ -18,7 +18,7 @@ class LoginUserwidget extends State<LoginUser> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _hasInputError = false;
-  RDNABridge bridge;
+  RDNABridge? bridge;
 
 //Method to create instance of RDNABridge class
   initBridge() {
@@ -27,7 +27,7 @@ class LoginUserwidget extends State<LoginUser> {
 
   @override
   Widget build(BuildContext context) {
-    bridge.setContext(context);
+    bridge!.setContext(context);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -38,7 +38,7 @@ class LoginUserwidget extends State<LoginUser> {
       ),
       body: 
        WillPopScope(
-        onWillPop:()=>bridge.onBackPressed(true),
+        onWillPop:()=>bridge!.onBackPressed(true),
         child:
       SingleChildScrollView(
         child: Padding(
@@ -72,9 +72,13 @@ class LoginUserwidget extends State<LoginUser> {
                           ButtonTheme(
                             minWidth: 100.0,
                             height: 50.0,
-                            child: new RaisedButton(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(13.0),
+                            child: new ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: new BorderRadius.circular(15.0),
+                                ),
+                                backgroundColor: Colors.blue,
                               ),
                               onPressed: () {
                                 Navigator.pushReplacement(
@@ -85,8 +89,6 @@ class LoginUserwidget extends State<LoginUser> {
                               },
                               child: const Text(Constants.loginButtonLabel,
                                   style: TextStyle(fontSize: 20)),
-                              color: Colors.blue,
-                              textColor: Colors.white,
                             ), 
                           ),
                           Padding(
@@ -95,10 +97,13 @@ class LoginUserwidget extends State<LoginUser> {
                                 minWidth: 80.0,
                                 height: 50.0,
                                 padding: EdgeInsets.only(top: 5),
-                                child: new RaisedButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(15.0),
+                                child: new ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 5,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: new BorderRadius.circular(15.0),
+                                    ),
+                                    backgroundColor: Colors.blue,
                                   ),
                                   onPressed: () {
                                     Navigator.pushReplacement(
@@ -110,8 +115,6 @@ class LoginUserwidget extends State<LoginUser> {
                                   },
                                   child: const Text(Constants.registerButtonLabel,
                                       style: TextStyle(fontSize: 20)),
-                                  color: Colors.blue,
-                                  textColor: Colors.white,
                                 ),
                               ))
                         ],

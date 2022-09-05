@@ -20,12 +20,12 @@ class UnavailableState extends State<Unavailable> {
     final TextStyle textStyle = Theme
         .of(context)
         .textTheme
-        .headline4;
+        .headline4!;
     return WillPopScope(
         onWillPop: () {
           // Write some code to control things, when user press Back navigation button in device navigationBar
           moveToLastScreen();
-        },
+        } as Future<bool> Function()?,
         child: Scaffold(
           appBar: AppBar(
             title: Text(appBarTitle),
