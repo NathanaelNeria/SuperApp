@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:logger/logger.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/util/Util.dart';
 
 class NotificationHistory extends StatefulWidget {
@@ -32,7 +31,7 @@ class NotificationHistory extends StatefulWidget {
 }
 
 class NotificationHistorywidget extends State<NotificationHistory> {
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _hasInputError = false;
@@ -43,14 +42,14 @@ class NotificationHistorywidget extends State<NotificationHistory> {
 
 //Method to get notification history
   void callGetNotificationHistory() {
-    bridge = RDNABridge.getInstance(null);
-    bridge!.getNotificationHistoryAPI();
-    bridge!.on('notificationHistory', notificationHistoryJSON);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
+    // bridge!.getNotificationHistoryAPI(); TODO:(wandy) uncomment when solved
+    // bridge!.on('notificationHistory', notificationHistoryJSON); TODO:(wandy) uncomment when solved
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
 
     //Method to iterate the notifications and return a notification card.
     getCard(item) {

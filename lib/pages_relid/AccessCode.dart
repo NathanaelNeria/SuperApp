@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
@@ -28,17 +27,17 @@ class AccessCodeWidget extends State<AccessCode> {
   int? attemptsCount = 0;
   var verificationKey;
   bool validate_code = false;
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
 
 //Method to create instance of RDNABridge class
   initBridge() {
-    bridge = RDNABridge.getInstance(null);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
   }
 
   @override
   Widget build(BuildContext context) {
-    RDNABridge bridge = RDNABridge.getInstance(null)!;
-    bridge.setContext(context);
+    // RDNABridge bridge = RDNABridge.getInstance(null)!; TODO:(wandy) uncomment when solved
+    // bridge.setContext(context); TODO:(wandy) uncomment when solved
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -46,13 +45,18 @@ class AccessCodeWidget extends State<AccessCode> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge.resetAuthenticationAPI(),
+            onPressed: () {
+              // bridge.resetAuthenticationAPI(); TODO:(wandy) uncomment when solved
+            },
           ),
         ),
         body: Stack(
           children: <Widget>[
             WillPopScope(
-                onWillPop: () => bridge.onBackPressed(false),
+                onWillPop: () async{
+                  // return bridge.onBackPressed(false); TODO:(wandy) uncomment when solved
+                  return true;
+                },
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(50.0),
@@ -133,8 +137,8 @@ class AccessCodeWidget extends State<AccessCode> {
                                     setState(() {
                                       showLoader = true;
                                     });
-                                    bridge.setAccessCodeAPI(
-                                        accesscodeController.text);
+                                    // bridge.setAccessCodeAPI( TODO:(wandy) uncomment when solved
+                                    //     accesscodeController.text);
                                   }
                                 },
                                 child: const Text(

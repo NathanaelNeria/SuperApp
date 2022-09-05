@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 // import 'package:location/location.dart';
 import 'package:simple_app/nodeflux/screens/nodeflux.dart';
 import 'package:simple_app/pages_relid/HomeScreen.dart';
 import 'package:simple_app/screens/okayface.dart';
 import 'package:simple_app/screens/unavailable.dart';
-import 'package:rdna_client/rdna_client.dart';
+// import 'package:rdna_client/rdna_client.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_apns/apns.dart';
@@ -41,7 +40,7 @@ class HomeState extends State<Home> {
   var _formKey = GlobalKey<FormState>();
   final _minimumPadding = 5.0;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  RdnaClient? rdnaClient;
+  // RdnaClient? rdnaClient;
   String? fcmtoken;
   final connector = createPushConnector();
 
@@ -59,7 +58,7 @@ class HomeState extends State<Home> {
     connector.token.addListener(() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('Token_id', connector.token.value!);
-      RDNABridge.getInstance(null)!.setDeviceToken(connector.token.value!);
+      // RDNABridge.getInstance(null)!.setDeviceToken(connector.token.value!); TODO:(wandy) uncomment when solved
       print('Token ${connector.token.value}');
     });
     connector.requestNotificationPermissions();
@@ -284,10 +283,10 @@ class HomeState extends State<Home> {
 
 Future<dynamic> onPush(String name, Map<String, dynamic> data) {
   //storage.append('$name: $data');
-  RDNABridge rdnaBridge = RDNABridge.getInstance(null)!;
-  if(rdnaBridge.RdnaSession!.sessionType == 1){
-    rdnaBridge.getNotificationAPI();
-  }
+  // RDNABridge rdnaBridge = RDNABridge.getInstance(null)!; TODO:(wandy) uncomment when solved
+  // if(rdnaBridge.RdnaSession!.sessionType == 1){
+  //   rdnaBridge.getNotificationAPI();
+  // }
   return Future.value();
 }
 

@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logger/logger.dart';
-import 'package:rdna_client/rdna_struct.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
+// import 'package:rdna_client/rdna_struct.dart'; TODO:(wandy) uncomment when solved
 import 'package:simple_app/util/Util.dart';
 
 class Notifications extends StatefulWidget {
@@ -39,7 +38,7 @@ class Notifications extends StatefulWidget {
 class Notificationswidget extends State<Notifications> {
   Completer<GoogleMapController> _controller = Completer();
 
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
 
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -68,14 +67,14 @@ class Notificationswidget extends State<Notifications> {
   // }
 
   void callGetNotification() {
-    bridge = RDNABridge.getInstance(null);
-    bridge!.getNotificationAPI();
-    bridge!.on('notifications', notificationJSON);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
+    // bridge!.getNotificationAPI();
+    // bridge!.on('notifications', notificationJSON);
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
 
     getMessage(message) {
       var messageArray = message.split('\n');
@@ -155,8 +154,8 @@ class Notificationswidget extends State<Notifications> {
                           foregroundColor: Colors.white,
                         ),
                         onPressed: () {
-                          bridge!.updateNotificationAPI(
-                              notificationUUID, actionItem.action);
+                          // bridge!.updateNotificationAPI( TODO:(wandy) uncomment when solved
+                          //     notificationUUID, actionItem.action);
                         },
                         child: Text(
                           actionItem.label,
@@ -205,22 +204,22 @@ class Notificationswidget extends State<Notifications> {
     );
   }
 
-  notificationJSON(RDNAStatusGetNotifications res) {
-    var notification =
-        res.pArgs!.response!.responseData!.response.notifications;
-    if (notification.length != 0) {
-      var notificationBody = notification;
-      notification.forEach((entitlement) {
-        if (!mounted) return;
-        setState(() {
-          notification_list = entitlement.body;
-          notification_action_list = entitlement.actions;
-          notification_list = entitlement.body;
-          notificationUUID = entitlement.notificationUuid;
-        });
-      });
-    }
-  }
+  // notificationJSON(RDNAStatusGetNotifications res) { TODO:(wandy) uncomment when solved
+  //   var notification =
+  //       res.pArgs!.response!.responseData!.response.notifications;
+  //   if (notification.length != 0) {
+  //     var notificationBody = notification;
+  //     notification.forEach((entitlement) {
+  //       if (!mounted) return;
+  //       setState(() {
+  //         notification_list = entitlement.body;
+  //         notification_action_list = entitlement.actions;
+  //         notification_list = entitlement.body;
+  //         notificationUUID = entitlement.notificationUuid;
+  //       });
+  //     });
+  //   }
+  // }
 }
 
 class gMaps extends StatefulWidget {

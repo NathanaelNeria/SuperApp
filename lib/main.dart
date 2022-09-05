@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simple_app/screens/okayface.dart';
@@ -11,8 +11,9 @@ import 'package:simple_app/pages/root_page.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   runApp(MaterialApp(
     //home: Login(),
@@ -49,7 +50,7 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  RDNABridge? rdnaBridge;
+  // RDNABridge? rdnaBridge; TODO:(wandy) uncomment when solved
   signOut() {
     setState(() {
       widget.signOut();
@@ -127,7 +128,7 @@ class _MainMenuState extends State<MainMenu> {
                   getProductMenuItem('LiveBank'),
                   getProductMenuItem('OkayFace'),
                   getProductMenuItem('ASLI RI'),
-                  getProductMenuItem('Rel ID'),
+                  // getProductMenuItem('Rel ID'),
                   getProductMenuItem('Kata.ai'),
                   getProductMenuItem('Other1'),
                   //getProductMenuItem('Other2'),

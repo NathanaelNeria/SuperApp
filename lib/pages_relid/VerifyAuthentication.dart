@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
@@ -20,20 +19,20 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool isChecked = false;
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
   var res;
   String? userId;
   bool showLoader = false;
 
   performVerifyAuth() async {
-    bridge = RDNABridge.getInstance(null);
-    var res = await bridge!.performVerifyAuthCall(true);
-    bridge!.checkSyncError(res.error);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
+    // var res = await bridge!.performVerifyAuthCall(true);
+    // bridge!.checkSyncError(res.error);
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
 
     return Scaffold(
         appBar: AppBar(
@@ -41,14 +40,19 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge!.resetAuthenticationAPI(),
+            onPressed: () {
+              // bridge!.resetAuthenticationAPI(); TODO:(wandy) uncomment when solved
+            },
           ),
         ),
         resizeToAvoidBottomInset: true,
         body: Stack(
           children: <Widget>[
             WillPopScope(
-              onWillPop: () => bridge!.onBackPressed(false),
+              onWillPop: () {
+                // return bridge!.onBackPressed(false); TODO:(wandy) uncomment when solved
+                return Future.value(true);
+              },
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -116,7 +120,7 @@ class VerifyAuthenticationWidget extends State<VerifyAuthentication> {
                             ),
                             onTap: () {
                              
-                              bridge!.fallBackNewDeviceCall();
+                              // bridge!.fallBackNewDeviceCall(); TODO:(wandy) uncomment when solved
                             },
                           )),
 

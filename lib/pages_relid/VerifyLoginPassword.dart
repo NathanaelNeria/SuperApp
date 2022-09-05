@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:rdna_client/rdna_struct.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
+// import 'package:rdna_client/rdna_struct.dart'; TODO:(wandy) uncomment when solved
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class VerifyLoginPassword extends StatefulWidget {
   late VerifyLoginPasswordwidget verifyPasswordObj;
-  RDNAChallengeOpMode? challengeMode;
+  // RDNAChallengeOpMode? challengeMode; TODO:(wandy) uncomment when solved
   var attemptsCount;
 
-  VerifyLoginPassword({Key? key, this.challengeMode, this.attemptsCount})
+  // VerifyLoginPassword({Key? key, this.challengeMode, this.attemptsCount}) TODO:(wandy) uncomment when solved
+  //     : super(key: key);
+  VerifyLoginPassword({Key? key, this.attemptsCount})
       : super(key: key);
 
   @override
   VerifyLoginPasswordwidget createState() {
     verifyPasswordObj = new VerifyLoginPasswordwidget();
-    verifyPasswordObj.challengeMode = this.challengeMode;
+    // verifyPasswordObj.challengeMode = this.challengeMode; TODO:(wandy) uncomment when solved
     verifyPasswordObj.attemptsCount = this.attemptsCount;
     return verifyPasswordObj;
   }
@@ -27,14 +28,14 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
   bool isChecked = false;
   bool validate_password = false;
   bool showLoader = false;
-  RDNAChallengeOpMode? challengeMode;
+  // RDNAChallengeOpMode? challengeMode;
   var attemptsCount;
   var password;
 
   @override
   Widget build(BuildContext context) {
-    RDNABridge bridge = RDNABridge.getInstance(context)!;
-    bridge.setContext(context);
+    // RDNABridge bridge = RDNABridge.getInstance(context)!; TODO:(wandy) uncomment when solved
+    // bridge.setContext(context); TODO:(wandy) uncomment when solved
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -42,13 +43,18 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge.resetAuthenticationAPI(),
+            onPressed: () {
+              // bridge.resetAuthenticationAPI(); TODO:(wandy) uncomment when solved
+            },
           ),
         ),
         body: Stack(
           children: <Widget>[
             WillPopScope(
-              onWillPop: () => bridge.onBackPressed(false),
+              onWillPop: () {
+                // return bridge.onBackPressed(false); TODO:(wandy) uncomment when solved
+                return Future.value(true);
+              },
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(50.0),
@@ -72,14 +78,14 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          bridge.userName!,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      // Padding( TODO:(wandy) uncomment when solved
+                      //   padding: EdgeInsets.all(8.0),
+                      //   child: Text(
+                      //     bridge.userName!,
+                      //     style: Theme.of(context).textTheme.titleMedium,
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      // ),
                       Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: Text(
@@ -138,8 +144,8 @@ class VerifyLoginPasswordwidget extends State<VerifyLoginPassword> {
                                   setState(() {
                                     showLoader = true;
                                   });
-                                bridge.setPasswordAPI(
-                                    passwordController.text, challengeMode!);
+                                // bridge.setPasswordAPI( TODO:(wandy) uncomment when solved
+                                //     passwordController.text, challengeMode!);
                               },
                               child: const Text(
                                 Constants.submitButtonLabel,

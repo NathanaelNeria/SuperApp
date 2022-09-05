@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/ConnectedDevices.dart';
 import 'package:simple_app/pages_relid/NotificationHistory.dart';
 import 'package:simple_app/pages_relid/Notifications.dart';
@@ -25,14 +24,15 @@ class DashboardWidget extends State<Dashboard> {
   var flowForInitiatePassword = false;
   var flowForInitiatePattern = false;
   var flowForInitiateCredientials;
-  RDNABridge? bridge;
+
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
 
   void _incrementTab(index) {}
 
   initBridge() {
-    bridge = bridge = RDNABridge.getInstance(null);
+    // bridge = bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
     //  bridge.getAllChallengesAPI(bridge.userName);
-    bridge!.on('creadientialsAvailable', credientialsAvailableForUpdate);
+    // bridge!.on('creadientialsAvailable', credientialsAvailableForUpdate); TODO:(wandy) uncomment when solved
   }
 
   getTile() {
@@ -41,11 +41,13 @@ class DashboardWidget extends State<Dashboard> {
         title: Text('Update Password',
             style: TextStyle(color: Colors.black, fontSize: fontsize)),
         onTap: () => {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      UpdatePassword(null, flowForInitiateCredientials)))
+          // Navigator.push( TODO:(wandy) uncomment when solved
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (BuildContext context) =>
+          //         UpdatePassword(null, flowForInitiateCredientials),
+          //   ),
+          // )
         },
       );
     else if (flowForInitiateCredientials == 'Pattern')
@@ -53,17 +55,19 @@ class DashboardWidget extends State<Dashboard> {
           title: Text('Update Pattern',
               style: TextStyle(color: Colors.black, fontSize: fontsize)),
           onTap: () => {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            UpdatePassword(null, flowForInitiateCredientials)))
+                // Navigator.push( TODO:(wandy) uncomment when solved
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (BuildContext context) =>
+                //         UpdatePassword(null, flowForInitiateCredientials),
+                //   ),
+                // )
               });
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
 
     return new Scaffold(
         appBar: new AppBar(
@@ -144,7 +148,7 @@ class DashboardWidget extends State<Dashboard> {
                               TextButton(
                                 child: Text('Yes'),
                                 onPressed: () {
-                                  bridge!.logOutUserAPI(bridge!.userName!);
+                                  // bridge!.logOutUserAPI(bridge!.userName!); TODO:(wandy) uncomment when solved
                                   Navigator.of(context).pop();
                                 },
                               ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/pages_relid/LoginUser.dart';
 import 'package:simple_app/util/Constants.dart';
@@ -27,11 +26,11 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
   bool validate_firstname = false;
   bool showLoader = false;
   var recentlyLoginUser;
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
 
 //Method to create instance of RDNABridge class
   initBridge() {
-    bridge = RDNABridge.getInstance(null);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
     if (recentlyLoginUser != null && recentlyLoginUser != "") {
       usernameController.text = recentlyLoginUser;
     }
@@ -40,7 +39,7 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -132,8 +131,8 @@ class VerifyUsernamewidget extends State<VerifyUsername> {
                                                   showLoader = true;
                                                 });
 
-                                                bridge!.setUserAPI(
-                                                    usernameController.text);
+                                                // bridge!.setUserAPI( TODO:(wandy) uncomment when solved
+                                                //     usernameController.text);
                                               }
                                             },
                                             child: const Text(

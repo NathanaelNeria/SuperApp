@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:rdna_client/rdna_struct.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
+// import 'package:rdna_client/rdna_struct.dart';
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class VerifyPassword extends StatefulWidget {
   late VerifyPasswordwidget verifyPasswordObj;
-  RDNAChallengeOpMode? challengeMode;
-  VerifyPassword({Key? key, this.challengeMode}) : super(key: key);
+  // RDNAChallengeOpMode? challengeMode;
+  // VerifyPassword({Key? key, this.challengeMode}) : super(key: key); TODO:(wandy) uncomment when solved
+  VerifyPassword({Key? key}) : super(key: key);
   @override
   VerifyPasswordwidget createState() {
     verifyPasswordObj = new VerifyPasswordwidget();
-    verifyPasswordObj.challengeMode = this.challengeMode;
+    // verifyPasswordObj.challengeMode = this.challengeMode;
     return verifyPasswordObj;
   }
 }
@@ -23,17 +23,17 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
   bool isChecked = false;
   bool validate_password = false;
   bool validate_confirm_password = false;
-  RDNAChallengeOpMode? challengeMode;
+  // RDNAChallengeOpMode? challengeMode; TODO:(wandy) uncomment when solved
   bool showLoader = false;
-  RDNABridge? bridge = RDNABridge.getInstance(null);
+  // RDNABridge? bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
 
   getUserName() async {
-    userId = await bridge!.getLocalData('userId');
+    // userId = await bridge!.getLocalData('userId'); TODO:(wandy) uncomment when solved
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
     getUserName();
 
     return Scaffold(
@@ -43,13 +43,18 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
           elevation: 0,
           leading: new IconButton(
             icon: new Icon(Icons.close, color: Colors.blue),
-            onPressed: () => bridge!.resetAuthenticationAPI(),
+            onPressed: () {
+              // bridge!.resetAuthenticationAPI(); TODO:(wandy) uncomment when solved
+            },
           ),
         ),
         body: Stack(
           children: <Widget>[
             WillPopScope(
-              onWillPop: () => bridge!.onBackPressed(false),
+              onWillPop: () {
+                // return bridge!.onBackPressed(false); TODO:(wandy) uncomment when solved
+                return Future.value(true);
+              },
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(50.0),
@@ -73,14 +78,14 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          bridge!.userName!,
-                          style: Theme.of(context).textTheme.titleMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                      // Padding( TODO:(wandy) uncomment when solved
+                      //   padding: EdgeInsets.all(8.0),
+                      //   child: Text(
+                      //     bridge!.userName!,
+                      //     style: Theme.of(context).textTheme.titleMedium,
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      // ),
                       Padding(
                         padding: EdgeInsets.only(top: 20),
                         child: TextField(
@@ -143,12 +148,12 @@ class VerifyPasswordwidget extends State<VerifyPassword> {
                                       setState(() {
                                         showLoader = true;
                                       });
-                                      bridge!.setPasswordAPI(
-                                          password_controller.text,
-                                          challengeMode!);
+                                      // bridge!.setPasswordAPI( TODO:(wandy) uncomment when solved
+                                      //     password_controller.text,
+                                      //     challengeMode!);
                                     } else {
-                                      bridge!.showAlertMessageDialog(context,
-                                          "Password didnt matched", null);
+                                      // bridge!.showAlertMessageDialog(context, TODO:(wandy) uncomment when solved
+                                      //     "Password didnt matched", null);
                                     }
                                   }
                                 },

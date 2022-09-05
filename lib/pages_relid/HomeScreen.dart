@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
-import 'package:simple_app/connectionprofile/ConnectionProfile.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,20 +17,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenWidget extends State<HomeScreen> {
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
  bool showLoader = true;
 
 //Method to create instance of RDNABridge class
   void initBridge() async {
-    bridge = RDNABridge.getInstance(null);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
     Timer(Duration(seconds: 5), () {
-     bridge!.initializeAPI(ConnectionProfile.agentInfo, ConnectionProfile.host, ConnectionProfile.port);
+     // bridge!.initializeAPI(ConnectionProfile.agentInfo, ConnectionProfile.host, ConnectionProfile.port); TODO:(wandy) uncomment when solved
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
     final Duration initDelay = Duration(seconds: 2);
 
     return Scaffold(

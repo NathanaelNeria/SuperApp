@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/pages_relid/RegisterUser.dart';
 import 'package:simple_app/pages_relid/VerifyUsername.dart';
 import 'package:simple_app/util/Constants.dart';
@@ -18,16 +17,16 @@ class LoginUserwidget extends State<LoginUser> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _hasInputError = false;
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
 
 //Method to create instance of RDNABridge class
   initBridge() {
-    bridge = RDNABridge.getInstance(null);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -38,7 +37,10 @@ class LoginUserwidget extends State<LoginUser> {
       ),
       body: 
        WillPopScope(
-        onWillPop:()=>bridge!.onBackPressed(true),
+        onWillPop:() async{
+          // return bridge!.onBackPressed(true); TODO:(wandy) uncomment when solved
+          return true;
+        },
         child:
       SingleChildScrollView(
         child: Padding(

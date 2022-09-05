@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:rdna_client/rdna_client.dart';
-import 'package:rdna_client/rdna_struct.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
+// import 'package:rdna_client/rdna_client.dart'; TODO:(wandy) uncomment when solved
+// import 'package:rdna_client/rdna_struct.dart';
 import 'package:simple_app/connectionprofile/ConnectionProfile.dart';
 import 'package:simple_app/pages_relid/Loader.dart';
 import 'package:simple_app/pages_relid/LoginUser.dart';
 import 'package:simple_app/util/Constants.dart';
 
 class RegisterUser extends State<Register_User> {
-  RdnaClient rdna = new RdnaClient();
+  // RdnaClient rdna = new RdnaClient(); TODO:(wandy) uncomment when solved
   final firstnameController = TextEditingController();
   final lastnameController = TextEditingController();
   final emailController = TextEditingController();
@@ -24,7 +23,7 @@ class RegisterUser extends State<Register_User> {
   var mobileValid = RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)');
 
   var sessionId;
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
   var userId;
   var userMap = {
     "firstName": "",
@@ -46,8 +45,8 @@ class RegisterUser extends State<Register_User> {
   bool showLoader = false;
 
   getSessionId() async {
-    RDNASyncResponse session = await rdna.getSessionID();
-    sessionId = session.response;
+    // RDNASyncResponse session = await rdna.getSessionID(); TODO:(wandy) uncomment when solved
+    // sessionId = session.response;
   }
 
   registerUser(bridge) async {
@@ -71,14 +70,14 @@ class RegisterUser extends State<Register_User> {
     var contentType = userMap;
     var baseUrl =
         "https://${ConnectionProfile.host}:${ConnectionProfile.openHttpPort}/rest/enrollUser.htm";
-    bridge.setLocalData('userId', emailController.text);
-    bridge.openHttpConnectionAPI(
-        RDNAHttpMethods.RDNA_HTTP_POST, baseUrl, contentType, "");
-    bridge.on('onHttpSuccess', onHttpSuccessCallback);
+    // bridge.setLocalData('userId', emailController.text); TODO:(wandy) uncomment when solved
+    // bridge.openHttpConnectionAPI(
+    //     RDNAHttpMethods.RDNA_HTTP_POST, baseUrl, contentType, "");
+    // bridge.on('onHttpSuccess', onHttpSuccessCallback);
   }
 
   onHttpSuccessCallback(res) async {
-    userId = bridge!.userName;
+    // userId = bridge!.userName; TODO:(wandy) uncomment when solved
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -115,7 +114,7 @@ class RegisterUser extends State<Register_User> {
                       child: Text("Ok"),
                       onPressed: () {
                         Navigator.pop(context);
-                        bridge!.setUserAPI(emailController.text);
+                        // bridge!.setUserAPI(emailController.text); TODO:(wandy) uncomment when solved
                       },
                     ),
                   )
@@ -128,12 +127,12 @@ class RegisterUser extends State<Register_User> {
 
 //Method to create instance of RDNABridge class
   initBridge() {
-    bridge = RDNABridge.getInstance(null);
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
   }
 
   @override
   Widget build(BuildContext context) {
-    bridge!.setContext(context);
+    // bridge!.setContext(context); TODO:(wandy) uncomment when solved
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
@@ -149,7 +148,10 @@ class RegisterUser extends State<Register_User> {
         body: Stack(
           children: <Widget>[
             WillPopScope(
-                onWillPop: () => bridge!.onBackPressed(false),
+                onWillPop: () {
+                  // return bridge!.onBackPressed(false);
+                  return Future.value(false);
+                },
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(50.0),
@@ -310,40 +312,40 @@ class RegisterUser extends State<Register_User> {
                                     {
                                       if (!validate_slider)
                                         {
-                                          bridge!.showAlertMessageDialog(
-                                              context,
-                                              "Please move the slider to right",
-                                              null)
+                                          // bridge!.showAlertMessageDialog( TODO:(wandy) uncomment when solved
+                                          //     context,
+                                          //     "Please move the slider to right",
+                                          //     null)
                                         }
                                       else if (!isChecked!)
                                         {
-                                          bridge!.showAlertMessageDialog(
-                                              context,
-                                              "Please accept the terms and conditions",
-                                              null)
+                                          // bridge!.showAlertMessageDialog( TODO:(wandy) uncomment when solved
+                                          //     context,
+                                          //     "Please accept the terms and conditions",
+                                          //     null)
                                         }
                                       else if (!emailValid
                                           .hasMatch(emailController.text))
                                         {
-                                          bridge!.showAlertMessageDialog(
-                                              context,
-                                              "Please input valid email",
-                                              null)
+                                          // bridge!.showAlertMessageDialog( TODO:(wandy) uncomment when solved
+                                          //     context,
+                                          //     "Please input valid email",
+                                          //     null)
                                         }
                                       else if (!mobileValid
                                           .hasMatch(mobileController.text))
                                         {
-                                          bridge!.showAlertMessageDialog(
-                                              context,
-                                              "Please input valid mobile number",
-                                              null)
+                                          // bridge!.showAlertMessageDialog( TODO:(wandy) uncomment when solved
+                                          //     context,
+                                          //     "Please input valid mobile number",
+                                          //     null)
                                         }
                                       else
                                         {
                                           setState(() {
                                             showLoader = false;
                                           }),
-                                          registerUser(bridge)
+                                          // registerUser(bridge) TODO:(wandy) uncomment when solved
                                         }
                                     }
                                 },

@@ -14,7 +14,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/model/faceVerifModel.dart';
 import 'package:simple_app/model/user_profile.dart';
 import 'package:simple_app/services/authentication.dart';
@@ -703,7 +702,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
     connector.token.addListener(() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('Token_id', connector.token.value!);
-      RDNABridge.getInstance(null)!.setDeviceToken(connector.token.value!);
+      // RDNABridge.getInstance(null)!.setDeviceToken(connector.token.value!); TODO:(wandy) uncomment when solved
       print('Token ${connector.token.value}');
     });
     connector.requestNotificationPermissions();
@@ -1214,10 +1213,10 @@ class _LoginSignupPageState extends State<LoginSignupPage> {
 
 Future<dynamic> onPush(String name, Map<String, dynamic> data) {
   //storage.append('$name: $data');
-  RDNABridge rdnaBridge = RDNABridge.getInstance(null)!;
-  if (rdnaBridge.RdnaSession!.sessionType == 1) {
-    rdnaBridge.getNotificationAPI();
-  }
+  // RDNABridge rdnaBridge = RDNABridge.getInstance(null)!; TODO:(wandy) uncomment when solved
+  // if (rdnaBridge.RdnaSession!.sessionType == 1) {
+  //   rdnaBridge.getNotificationAPI();
+  // }
   return Future.value();
 }
 

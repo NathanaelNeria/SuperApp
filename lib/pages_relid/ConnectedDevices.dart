@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:simple_app/RDNAProvider/RDNABridge.dart';
 import 'package:simple_app/util/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +15,7 @@ class ConnectedDevices extends StatefulWidget {
 class ConnectedDevicesWidget extends State<ConnectedDevices> {
   final device_name_controller = TextEditingController();
   List<dynamic>? deviceslist = [];
-  RDNABridge? bridge;
+  // RDNABridge? bridge; TODO:(wandy) uncomment when solved
   late var userid;
   var prefs = SharedPreferences.getInstance();
   bool validate_devicename = false;
@@ -25,10 +23,10 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
 
 //Method to get connected devices
   void callConnectedDevice() async {
-    bridge = RDNABridge.getInstance(null);
-    userid = await bridge!.getLocalData('userId');
-    bridge!.getConnectedDevicesAPI(userid);
-    bridge!.on('connectedDevices', devicesJSON); //Event subscriber method
+    // bridge = RDNABridge.getInstance(null); TODO:(wandy) uncomment when solved
+    // userid = await bridge!.getLocalData('userId'); TODO:(wandy) uncomment when solved
+    // bridge!.getConnectedDevicesAPI(userid); TODO:(wandy) uncomment when solved
+    // bridge!.on('connectedDevices', devicesJSON); //Event subscriber method TODO:(wandy) uncomment when solved
   }
 
 //Method to update the device details
@@ -40,7 +38,7 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
     var arr = {
       'device': [json]
     };
-    bridge!.updateDeviceDetailsAPI(userid, jsonEncode(arr));
+    // bridge!.updateDeviceDetailsAPI(userid, jsonEncode(arr)); TODO:(wandy) uncomment when solved
   }
 
 //Method to show popup for changing device name
@@ -98,7 +96,7 @@ class ConnectedDevicesWidget extends State<ConnectedDevices> {
                           updateDetails(
                               item, "Update", device_name_controller.text);
                           Navigator.pop(context);
-                          bridge!.updateDeviceDetailsAPI(userid, item);
+                          // bridge!.updateDeviceDetailsAPI(userid, item); TODO:(wandy) uncomment when solved
                         }
                       },
                     ),
