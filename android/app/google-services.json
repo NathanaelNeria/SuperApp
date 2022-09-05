@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "512127591949",
+    "firebase_url": "https://demoist.firebaseio.com",
+    "project_id": "demoist",
+    "storage_bucket": "demoist.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512127591949:android:539e97c4de1515bc541744",
+        "android_client_info": {
+          "package_name": "id.ist.istdemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "512127591949-pj5ulml5pckjsutqpecorhii7obuc8p2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAm7zqpCJq_qbtq4EPUe8tdF825JGm8YQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "512127591949-pj5ulml5pckjsutqpecorhii7obuc8p2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "512127591949-4hscbh9kgsorgtsk0kcgqs85ibgcpm5q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.myinfosys.demoproductapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
